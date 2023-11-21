@@ -1,0 +1,10 @@
+# Team 38 Project - The Broken Puppet
+
+## Set-Up
+1. Clone the Repository  
+2. In Unity Hub add Project and select this folder  
+
+## Unity Version
+```
+2022.3.13f1
+```
