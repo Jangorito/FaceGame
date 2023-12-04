@@ -96,7 +96,7 @@ class BodyThread(threading.Thread):
                     results.face_landmarks,
                     mp_holistic.FACEMESH_TESSELATION,
                     landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style()())
+                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
                 mp_drawing.draw_landmarks(
                     image,
                     results.pose_landmarks,
