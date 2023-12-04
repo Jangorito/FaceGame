@@ -93,6 +93,12 @@ class BodyThread(threading.Thread):
                     connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
                 mp_drawing.draw_landmarks(
                     image,
+                    results.face_landmarks,
+                    mp_holistic.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style()())
+                mp_drawing.draw_landmarks(
+                    image,
                     results.pose_landmarks,
                     mp_holistic.POSE_CONNECTIONS,
                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
