@@ -59,7 +59,7 @@ class BodyThread(threading.Thread):
         capture.start()
 
         # Create a Mediapipe Holistic instance for processing body landmarks
-        with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+        with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.5) as holistic:
             # Wait until the camera is running before starting body landmark processing
             while not global_vars.KILL_THREADS and capture.isRunning == False:
                 print("Waiting for camera and capture thread.")
@@ -71,7 +71,6 @@ class BodyThread(threading.Thread):
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
                 image = capture.frame
-                print("test")
 
                 # Flip the captured frame horizontally for better visualization
                 image = cv2.flip(image, 1)
@@ -82,7 +81,6 @@ class BodyThread(threading.Thread):
 
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                print("test1")
 
                 # Draw landmarks on the image
                 mp_drawing.draw_landmarks(
@@ -113,7 +111,6 @@ class BodyThread(threading.Thread):
                     mp_holistic.HAND_CONNECTIONS,
                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
-                print("test2")
 
                 # Display the annotated image
                 cv2.imshow('MediaPipe Holistic', image)
@@ -121,54 +118,54 @@ class BodyThread(threading.Thread):
                 # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
+                # Debugging and communication with Unity project
+                print(time.time()- self.timeSinceCheckedConnection)
+                if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1:
+                    try:
+                        # Attempt to open a named pipe for communication with Unity
+                        self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
+                        print("entered")
+                    except FileNotFoundError:
+                        print("Waiting for Unity project to run...")
+                        self.pipe = None
+                    self.timeSinceCheckedConnection = time.time()
 
-        # Debugging and communication with Unity project
-        if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1:
-            try:
-                # Attempt to open a named pipe for communication with Unity
-                self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
-            except FileNotFoundError:
-                print("Waiting for Unity project to run...")
-                self.pipe = None
-            self.timeSinceCheckedConnection = time.time()
+                if self.pipe != None:
+                    # Set up data for piping
+                    self.data = ""
+                    i = 0
+                    if results.pose_world_landmarks:
+                        hand_world_landmarks = results.pose_world_landmarks
+                        face_landmarks = results.face_landmarks
+                        left_landmarks = results.left_hand_landmarks
+                        right_landmarks = results.left_hand_landmarks
+                        for i in range(0, 33):
+                            self.data += "{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
+                                                                    hand_world_landmarks.landmark[i].y,
+                                                                    hand_world_landmarks.landmark[i].z)
+                        # for i in range(0, 468):
+                        #     self.data += "{}|{}|{}|{}\n".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y,
+                        #                                          face_landmarks.landmark[i].z)
+                        # for i in range(0, 21):
+                        #     self.data += "{}|{}|{}|{}\n".format(i, left_landmarks.landmark[i].x, left_landmarks.landmark[i].y,
+                        #                                          left_landmarks.landmark[i].z)
+                        # for i in range(0, 21):
+                        #     self.data += "{}|{}|{}|{}\n".format(i, right_landmarks.landmark[i].x, right_landmarks.landmark[i].y,
+                        #                                          right_landmarks.landmark[i].z)
 
-        if self.pipe != None:
-            # Set up data for piping
-            self.dataHand = ""
-            i = 0
-            if results.pose_world_landmarks:
-                hand_world_landmarks = results.pose_world_landmarks
-                face_landmarks = results.face_landmarks
-                left_landmarks = results.left_hand_landmarks
-                right_landmarks = results.left_hand_landmarks
-                for i in range(0, 33):
-                    self.dataHand += "{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
-                                                             hand_world_landmarks.landmark[i].y,
-                                                             hand_world_landmarks.landmark[i].z)
-                for i in range(0, 468):
-                    self.data += "{}|{}|{}|{}\n".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y,
-                                                         face_landmarks.landmark[i].z)
-                for i in range(0, 21):
-                    self.data += "{}|{}|{}|{}\n".format(i, left_landmarks.landmark[i].x, left_landmarks.landmark[i].y,
-                                                         left_landmarks.landmark[i].z)
-                for i in range(0, 21):
-                    self.data += "{}|{}|{}|{}\n".format(i, right_landmarks.landmark[i].x, right_landmarks.landmark[i].y,
-                                                         right_landmarks.landmark[i].z)
-
-            # Encode the data and write it to the named pipe
-            s = self.data.encode('utf-8')
-            try:
-                self.pipe.write(struct.pack('I', len(s)) + s)
-                self.pipe.seek(0)
-            except Exception as ex:
-                print("Failed to write to pipe. Is the unity project open?")
-                self.pipe = None
+                    # Encode the data and write it to the named pipe
+                    s = self.data.encode('utf-8')
+                    try:
+                        self.pipe.write(struct.pack('I', len(s)) + s)
+                        self.pipe.seek(0)
+                    except Exception as ex:
+                        print("Failed to write to pipe. Is the unity project open?")
+                        self.pipe = None
 
             # Close the named pipe and destroy OpenCV windows
-            self.pipe.close()
-            cv2.destroyAllWindows()
-
+        self.pipe.close()
         # Release the video capture when done
         capture.cap.release()
+        cv2.destroyAllWindows()
 
 # End of the code
