@@ -4,6 +4,7 @@ import mediapipe as mp
 import threading
 import time
 import global_vars  #  global_vars module is defined in global_vars.py
+import struct
 
 # Define a thread for capturing video frames
 class CaptureThread(threading.Thread):
@@ -71,70 +72,63 @@ class BodyThread(threading.Thread):
 
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
-                ti = time.time()
-
-                ret = capture.ret
                 image = capture.frame
 
                 # Flip the captured frame horizontally for better visualization
                 image = cv2.flip(image, 1)
-                image.flags.writeable = global_vars.DEBUG
+                image.flags.writeable = False
 
                 # Process body landmarks using MediaPipe Holistic
                 results = holistic.process(image)
-                tf = time.time()
 
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-                if global_vars.DEBUG:
-                    if time.time() - self.timeSinceCheckedConnection >= 1:
-                        print("Theoretical amximum fps: %f"%(1/(tf-ti)))
-                        self.timeSinceCheckedConnection = time.time()
-                    if results.pose_landmarks:
                 # Draw landmarks on the image
-                        mp_drawing.draw_landmarks(
-                            image,
-                            results.face_landmarks,
-                            mp_holistic.FACEMESH_CONTOURS,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
-                        mp_drawing.draw_landmarks(
-                            image,
-                            results.face_landmarks,
-                            mp_holistic.FACEMESH_TESSELATION,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
-                        mp_drawing.draw_landmarks(
-                            image,
-                            results.pose_landmarks,
-                            mp_holistic.POSE_CONNECTIONS,
-                            mp_drawing.DrawingSpec(color=(255, 100, 0), thickness=2, circle_radius=4),
-                                                mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),)
+                mp_drawing.draw_landmarks(
+                    image,
+                    results.face_landmarks,
+                    mp_holistic.FACEMESH_CONTOURS,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
+                mp_drawing.draw_landmarks(
+                    image,
+                    results.face_landmarks,
+                    mp_holistic.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
+                mp_drawing.draw_landmarks(
+                    image,
+                    results.pose_landmarks,
+                    mp_holistic.POSE_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
-                        mp_drawing.draw_landmarks(
-                            image,
-                            results.left_hand_landmarks,
-                            mp_holistic.HAND_CONNECTIONS,
-                            mp_drawing.DrawingSpec(color=(255, 100, 0), thickness=2, circle_radius=4),
-                                                mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),)
+                # Draw hand landmarks and connections for the left hand
+                mp_drawing.draw_landmarks(
+                    image,
+                    results.left_hand_landmarks,
+                    mp_holistic.HAND_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
+                    connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
 
-                        mp_drawing.draw_landmarks(
-                            image,
-                            results.right_hand_landmarks,
-                            mp_holistic.HAND_CONNECTIONS,
-                            mp_drawing.DrawingSpec(color=(255, 100, 0), thickness=2, circle_radius=4),
-                                                mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),
-)
-
+                # Draw hand landmarks and connections for the right hand
+                mp_drawing.draw_landmarks(
+                    image,
+                    results.right_hand_landmarks,
+                    mp_holistic.HAND_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
+                    connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
 
 
                 # Display the annotated image
                 cv2.imshow('MediaPipe Holistic', image)
-                cv2.waitKey(3)
+
+                # Break the loop if the 'Esc' key is pressed
+                if cv2.waitKey(5) & 0xFF == 27:
+                    break
                 # Debugging and communication with Unity project
                 print(time.time()- self.timeSinceCheckedConnection)
-                if self.pipe == None and time.time():# - self.timeSinceCheckedConnection >= 1:
+                if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1:
                     try:
                         # Attempt to open a named pipe for communication with Unity
                         self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
@@ -150,22 +144,31 @@ class BodyThread(threading.Thread):
                     i = 0
                     if results.pose_world_landmarks:
                         hand_world_landmarks = results.pose_world_landmarks
-                        face_landmarks = results.face_landmarks
-                        left_landmarks = results.left_hand_landmarks
-                        right_landmarks = results.left_hand_landmarks
                         for i in range(0, 33):
-                            self.data += "{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
+                           print("{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
                                                                     hand_world_landmarks.landmark[i].y,
-                                                                    hand_world_landmarks.landmark[i].z)
+                                                                    hand_world_landmarks.landmark[i].z))
+                    if  results.face_landmarks:
+                        face_landmarks = results.face_landmarks
                         for i in range(0, 468):
-                            self.data += "{}|{}|{}|{}\n".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y,
-                                                                 face_landmarks.landmark[i].z)
+                            print("{}|{}|{}|{}".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
+
+                    if results.left_hand_landmarks:
+                        left_hand_landmarks = results.left_hand_landmarks
                         for i in range(0, 21):
-                            self.data += "{}|{}|{}|{}\n".format(i, left_landmarks.landmark[i].x, left_landmarks.landmark[i].y,
-                                                                 left_landmarks.landmark[i].z)
+                            print("Left Hand Landmark {}: x={}, y={}, z={}".format(
+                                i, left_hand_landmarks.landmark[i].x,
+                                left_hand_landmarks.landmark[i].y,
+                                left_hand_landmarks.landmark[i].z))
+
+                    if results.right_hand_landmarks:
+                        right_hand_landmarks = results.right_hand_landmarks
                         for i in range(0, 21):
-                            self.data += "{}|{}|{}|{}\n".format(i, right_landmarks.landmark[i].x, right_landmarks.landmark[i].y,
-                                                                 right_landmarks.landmark[i].z)
+                            print("Right Hand Landmark {}: x={}, y={}, z={}".format(
+                                i, right_hand_landmarks.landmark[i].x,
+                                right_hand_landmarks.landmark[i].y,
+                                right_hand_landmarks.landmark[i].z))
+
 
                     # Encode the data and write it to the named pipe
                     s = self.data.encode('utf-8')
