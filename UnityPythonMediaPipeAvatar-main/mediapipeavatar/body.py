@@ -1,3 +1,4 @@
+import struct
 import cv2
 import mediapipe as mp
 import threading
@@ -70,57 +71,70 @@ class BodyThread(threading.Thread):
 
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
+                ti = time.time()
+
+                ret = capture.ret
                 image = capture.frame
 
                 # Flip the captured frame horizontally for better visualization
                 image = cv2.flip(image, 1)
-                image.flags.writeable = False
+                image.flags.writeable = global_vars.DEBUG
 
                 # Process body landmarks using MediaPipe Holistic
                 results = holistic.process(image)
+                tf = time.time()
 
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
+                if global_vars.DEBUG:
+                    if time.time() - self.timeSinceCheckedConnection >= 1:
+                        print("Theoretical amximum fps: %f"%(1/(tf-ti)))
+                        self.timeSinceCheckedConnection = time.time()
+                    if results.pose_landmarks:
                 # Draw landmarks on the image
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.face_landmarks,
-                    mp_holistic.FACEMESH_CONTOURS,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.face_landmarks,
-                    mp_holistic.FACEMESH_TESSELATION,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.pose_landmarks,
-                    mp_holistic.POSE_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.left_hand_landmarks,
-                    mp_holistic.HAND_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.right_hand_landmarks,
-                    mp_holistic.HAND_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+                        mp_drawing.draw_landmarks(
+                            image,
+                            results.face_landmarks,
+                            mp_holistic.FACEMESH_CONTOURS,
+                            landmark_drawing_spec=None,
+                            connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
+                        mp_drawing.draw_landmarks(
+                            image,
+                            results.face_landmarks,
+                            mp_holistic.FACEMESH_TESSELATION,
+                            landmark_drawing_spec=None,
+                            connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
+                        mp_drawing.draw_landmarks(
+                            image,
+                            results.pose_landmarks,
+                            mp_holistic.POSE_CONNECTIONS,
+                            mp_drawing.DrawingSpec(color=(255, 100, 0), thickness=2, circle_radius=4),
+                                                mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),)
+
+                        mp_drawing.draw_landmarks(
+                            image,
+                            results.left_hand_landmarks,
+                            mp_holistic.HAND_CONNECTIONS,
+                            mp_drawing.DrawingSpec(color=(255, 100, 0), thickness=2, circle_radius=4),
+                                                mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),)
+
+                        mp_drawing.draw_landmarks(
+                            image,
+                            results.right_hand_landmarks,
+                            mp_holistic.HAND_CONNECTIONS,
+                            mp_drawing.DrawingSpec(color=(255, 100, 0), thickness=2, circle_radius=4),
+                                                mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2),
+)
+
 
 
                 # Display the annotated image
                 cv2.imshow('MediaPipe Holistic', image)
-
-                # Break the loop if the 'Esc' key is pressed
-                if cv2.waitKey(5) & 0xFF == 27:
-                    break
+                cv2.waitKey(3)
                 # Debugging and communication with Unity project
                 print(time.time()- self.timeSinceCheckedConnection)
-                if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1:
+                if self.pipe == None and time.time():# - self.timeSinceCheckedConnection >= 1:
                     try:
                         # Attempt to open a named pipe for communication with Unity
                         self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
@@ -143,15 +157,15 @@ class BodyThread(threading.Thread):
                             self.data += "{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z)
-                        # for i in range(0, 468):
-                        #     self.data += "{}|{}|{}|{}\n".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y,
-                        #                                          face_landmarks.landmark[i].z)
-                        # for i in range(0, 21):
-                        #     self.data += "{}|{}|{}|{}\n".format(i, left_landmarks.landmark[i].x, left_landmarks.landmark[i].y,
-                        #                                          left_landmarks.landmark[i].z)
-                        # for i in range(0, 21):
-                        #     self.data += "{}|{}|{}|{}\n".format(i, right_landmarks.landmark[i].x, right_landmarks.landmark[i].y,
-                        #                                          right_landmarks.landmark[i].z)
+                        for i in range(0, 468):
+                            self.data += "{}|{}|{}|{}\n".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y,
+                                                                 face_landmarks.landmark[i].z)
+                        for i in range(0, 21):
+                            self.data += "{}|{}|{}|{}\n".format(i, left_landmarks.landmark[i].x, left_landmarks.landmark[i].y,
+                                                                 left_landmarks.landmark[i].z)
+                        for i in range(0, 21):
+                            self.data += "{}|{}|{}|{}\n".format(i, right_landmarks.landmark[i].x, right_landmarks.landmark[i].y,
+                                                                 right_landmarks.landmark[i].z)
 
                     # Encode the data and write it to the named pipe
                     s = self.data.encode('utf-8')
