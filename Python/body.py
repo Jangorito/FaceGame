@@ -142,30 +142,35 @@ class BodyThread(threading.Thread):
                     # Set up data for piping
                     self.data = ""
                     i = 0
+                    # Offset to keep landmark data within set region
+                    offset = 0
                     if results.pose_world_landmarks:
                         hand_world_landmarks = results.pose_world_landmarks
                         for i in range(0, 33):
-                           self.data +=("{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
+                           self.data +=("{}|{}|{}|{}\n".format(offset+i, hand_world_landmarks.landmark[i].x,
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z))
+                    offset += 33
                     if  results.face_landmarks:
                         face_landmarks = results.face_landmarks
                         for i in range(0, 468):
-                             self.data +=("{}|{}|{}|{}".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
+                             self.data +=("{}|{}|{}|{}\n".format(offset+i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
+                    offset += 468
 
                     if results.left_hand_landmarks:
                         left_hand_landmarks = results.left_hand_landmarks
                         for i in range(0, 21):
-                            self.data +=("{}|{}|{}|{}".format(
-                                i, left_hand_landmarks.landmark[i].x,
+                            self.data +=("{}|{}|{}|{}\n".format(
+                                offset+i, left_hand_landmarks.landmark[i].x,
                                 left_hand_landmarks.landmark[i].y,
                                 left_hand_landmarks.landmark[i].z))
+                    offset += 21
 
                     if results.right_hand_landmarks:
                         right_hand_landmarks = results.right_hand_landmarks
                         for i in range(0, 21):
-                             self.data +=("{}|{}|{}|{}".format(
-                                i, right_hand_landmarks.landmark[i].x,
+                             self.data +=("{}|{}|{}|{}\n".format(
+                                offset+i, right_hand_landmarks.landmark[i].x,
                                 right_hand_landmarks.landmark[i].y,
                                 right_hand_landmarks.landmark[i].z))
 

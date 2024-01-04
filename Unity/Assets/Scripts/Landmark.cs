@@ -1,0 +1,96 @@
+/* See POSE, HAND, FACE files in IMG for reference */
+
+/* 543 Landmarks
+ * 33 - pose
+ * 468 - face
+ * 21 left hand
+ * 21 right hand
+ */
+
+public enum PoseLandmark
+{
+    NOSE = 0,
+    LEFT_EYE_INNER = 1,
+    LEFT_EYE = 2,
+    LEFT_EYE_OUTER = 3,
+    RIGHT_EYE_INNER = 4,
+    RIGHT_EYE = 5,
+    RIGHT_EYE_OUTER = 6,
+    LEFT_EAR = 7,
+    RIGHT_EAR = 8,
+    MOUTH_LEFT = 9,
+    MOUTH_RIGHT = 10,
+    LEFT_SHOULDER = 11,
+    RIGHT_SHOULDER = 12,
+    LEFT_ELBOW = 13,
+    RIGHT_ELBOW = 14,
+    LEFT_WRIST = 15,
+    RIGHT_WRIST = 16,
+    LEFT_PINKY = 17,
+    RIGHT_PINKY = 18,
+    LEFT_INDEX = 19,
+    RIGHT_INDEX = 20,
+    LEFT_THUMB = 21,
+    RIGHT_THUMB = 22,
+    LEFT_HIP = 23,
+    RIGHT_HIP = 24,
+    LEFT_KNEE = 25,
+    RIGHT_KNEE = 26,
+    LEFT_ANKLE = 27,
+    RIGHT_ANKLE = 28,
+    LEFT_HEEL = 29,
+    RIGHT_HEEL = 30,
+    LEFT_FOOT_INDEX = 31,
+    RIGHT_FOOT_INDEX = 32,
+    NONE = 40
+}
+
+public enum RightHandLandmark
+{
+    RIGHT_WRIST = 0,
+    RIGHT_THUMB_1 = 1,
+    RIGHT_THUMB_2 = 2,
+    RIGHT_THUMB_3 = 3,
+    RIGHT_THUMB_4 = 4,
+    RIGHT_INDEX_1 = 5,
+    RIGHT_INDEX_2 = 6,
+    RIGHT_INDEX_3 = 7,
+    RIGHT_INDEX_4 = 8,
+    RIGHT_MIDDLE_1 = 9,
+    RIGHT_MIDDLE_2 = 10,
+    RIGHT_MIDDLE_3 = 11,
+    RIGHT_MIDDLE_4 = 12,
+    RIGHT_RING_1 = 13,
+    RIGHT_RING_2 = 14,
+    RIGHT_RING_3 = 15,
+    RIGHT_RING_4 = 16,
+    RIGHT_LITTLE_1 = 17,
+    RIGHT_LITTLE_2 = 18,
+    RIGHT_LITTLE_3 = 19,
+    RIGHT_LITTLE_4 = 20,
+}
+
+public enum LeftHandLandmark
+{
+    LEFT_WRIST = 0,
+    LEFT_THUMB_1 = 1,
+    LEFT_THUMB_2 = 2,
+    LEFT_THUMB_3 = 3,
+    THUMB_4 = 4,
+    LEFT_INDEX_1 = 5,
+    LEFT_INDEX_2 = 6,
+    LEFT_INDEX_3 = 7,
+    LEFT_INDEX_4 = 8,
+    LEFT_MIDDLE_1 = 9,
+    LEFT_MIDDLE_2 = 10,
+    LEFT_MIDDLE_3 = 11,
+    LEFT_MIDDLE_4 = 12,
+    LEFT_RING_1 = 13,
+    LEFT_RING_2 = 14,
+    LEFT_RING_3 = 15,
+    LEFT_RING_4 = 16,
+    LEFT_LITTLE_1 = 17,
+    LEFT_LITTLE_2 = 18,
+    LEFT_LITTLE_3 = 19,
+    LEFT_LITTLE_4 = 20,
+}
