@@ -15,14 +15,12 @@ public class Avatar : MonoBehaviour
         new Dictionary<HumanBodyBones, CalibrationData>();
 
 
-    // Start is called before the first frame update
     void Start()
     {
         server = getServer();
         Calibrate();
     }
 
-    // Update is called once per frame
     void Update()
     {
         /* Moves the model */
