@@ -14,13 +14,13 @@ public class CalibrationData
     public Quaternion initialRotation;
     
     public CalibrationData(HumanBodyBones fparent, HumanBodyBones fchild, 
-        Landmark tparent, Landmark target, ref Animator animator) {
+        Landmark tparent, Landmark target, ref Animator animator, ref PipeServer server) {
         this.parent  = fparent;
         this.child = fchild;
         this.tchild = target;
         this.tparent = tparent;
         
-        this.initialDirection = getInitialDirection(ref animator);
+        this.initialDirection = getInitialDirection(ref server);
         this.initialRotation = getInitialRotation(ref animator);
     }
 
@@ -30,13 +30,26 @@ public class CalibrationData
     }
 
     /* calculates the initial vector */
-    private Vector3 getInitialDirection(ref Animator animator) {
-        return (animator.GetBoneTransform(parent).position - 
-            animator.GetBoneTransform(child).position).normalized;
+    private Vector3 getInitialDirection(ref PipeServer server) {
+        return (server.getLandmark(tchild) - 
+            server.getLandmark(tparent)).normalized;
     }
 
     private Quaternion getInitialRotation(ref Animator animator) {
         return animator.GetBoneTransform(parent).rotation;
+    }
+
+    public void update(ref Animator animator, ref PipeServer server) {
+
+        Vector3 from = (animator.GetBoneTransform(child).position - 
+            animator.GetBoneTransform(parent).position).normalized;
+        Vector3 movement = (server.getLandmark(tchild) -
+            animator.GetBoneTransform(parent).position).normalized;
+
+        Quaternion deltaRotation = Quaternion.FromToRotation(initialDirection,
+            getCurrentDirection(ref server));
+
+        animator.GetBoneTransform(parent).rotation = deltaRotation * initialRotation;
     }
 
 }

@@ -9,7 +9,6 @@ using System.Text;
 
 public class PipeServer : MonoBehaviour
 {
-
     private const int LANDMARK_COUNT = 543;
     private NamedPipeServerStream server;
 

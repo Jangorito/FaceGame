@@ -19,19 +19,21 @@ public class Avatar : MonoBehaviour
     void Start()
     {
         server = getServer();
-        Calibrate();
+        StartCoroutine(Calibrate());
     }
 
     void Update()
     {
+        /* Allow Player to re-calibrate */
+        if (Input.GetKeyDown("space")) {
+            Debug.Log("Re-Calibrating...");
+            StartCoroutine(Calibrate());
+        }
+
         /* Moves the model */
        foreach(var i in parentCalibrationData)
         {
-            Quaternion deltaRotation = Quaternion.FromToRotation(i.Value.initialDirection,
-            i.Value.getCurrentDirection(ref server));
-
-            /* Applies the rotation to the parent bone */
-            animator.GetBoneTransform(i.Value.parent).rotation = (deltaRotation * i.Value.initialRotation);
+            i.Value.update(ref animator, ref server);
         }
 
        /* Apply motion to neck and hips */
@@ -52,7 +54,16 @@ public class Avatar : MonoBehaviour
 
 
     /* Sets up Mappings between Unity Bones and The Landmarks */
-    public void Calibrate() {
+    public IEnumerator Calibrate() {
+
+        int t = 5;
+
+        while (t > 0) {
+            Debug.Log("Calibrating in: "+t);
+            t--;
+            yield return new WaitForSeconds(1f);
+        }
+
 
         /* resets the calibration data */
         parentCalibrationData.Clear();
@@ -82,12 +93,13 @@ public class Avatar : MonoBehaviour
         AddCalibration(HumanBodyBones.RightLowerLeg, HumanBodyBones.RightFoot,
             Landmark.RIGHT_KNEE, Landmark.RIGHT_ANKLE);
 
+        Debug.Log("Calibrated");
     }
 
     private void AddCalibration(HumanBodyBones parent, HumanBodyBones child, 
         Landmark trackParent, Landmark trackChild) {
         CalibrationData data = new CalibrationData(parent, child, 
-                trackParent, trackChild, ref animator);
+                trackParent, trackChild, ref animator, ref server);
         parentCalibrationData.Add(parent, data);
     }
 }
