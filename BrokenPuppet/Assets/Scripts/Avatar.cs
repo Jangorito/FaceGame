@@ -14,6 +14,7 @@ public class Avatar : MonoBehaviour
     private Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData = 
         new Dictionary<HumanBodyBones, CalibrationData>();
 
+    private CalibrationData spineUpDown, hipsTwist, chest, head;
 
     void Start()
     {
@@ -26,9 +27,17 @@ public class Avatar : MonoBehaviour
         /* Moves the model */
        foreach(var i in parentCalibrationData)
         {
-            i.Value.update(ref animator, ref server);
+            Quaternion deltaRotation = Quaternion.FromToRotation(i.Value.initialDirection,
+            i.Value.getCurrentDirection(ref server));
+
+            /* Applies the rotation to the parent bone */
+            animator.GetBoneTransform(i.Value.parent).rotation = (deltaRotation * i.Value.initialRotation);
         }
+
+       /* Apply motion to neck and hips */
     }
+
+
 
     /* attemps to find the active PipeServer to gain access to data */
     private PipeServer getServer() {
@@ -40,11 +49,14 @@ public class Avatar : MonoBehaviour
     }
 
 
+
+
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public void Calibrate() {
 
         /* resets the calibration data */
         parentCalibrationData.Clear();
+
 
         AddCalibration(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm,
             Landmark.RIGHT_SHOULDER, Landmark.RIGHT_ELBOW);
@@ -69,6 +81,7 @@ public class Avatar : MonoBehaviour
 
         AddCalibration(HumanBodyBones.RightLowerLeg, HumanBodyBones.RightFoot,
             Landmark.RIGHT_KNEE, Landmark.RIGHT_ANKLE);
+
     }
 
     private void AddCalibration(HumanBodyBones parent, HumanBodyBones child, 

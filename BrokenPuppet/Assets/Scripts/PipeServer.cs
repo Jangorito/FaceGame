@@ -77,7 +77,7 @@ public class PipeServer : MonoBehaviour
         }
 
         int index = int.Parse(parts[0]);
-        Vector3 position = new Vector3(float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]));
+        Vector3 position = new Vector3(float.Parse(parts[1]), float.Parse(parts[2]), -float.Parse(parts[3]));
         localPosition[index] = position;        
     }
 
