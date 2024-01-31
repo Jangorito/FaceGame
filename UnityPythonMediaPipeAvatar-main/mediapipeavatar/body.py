@@ -21,10 +21,7 @@ class CaptureThread(threading.Thread):
         #the camera you usually use is index 0 but you can play around with in mediapipeavatar\global_vars.py if you want to use an external cam
 
         # Apply custom camera settings if specified in global_vars
-        if global_vars.USE_CUSTOM_CAM_SETTINGS:
-            self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
+        self.ApplyCameraSettings()
 
         # Wait for a short duration to allow the camera to initialize
         time.sleep(1)
@@ -45,6 +42,12 @@ class CaptureThread(threading.Thread):
                     self.counter = 0
                     self.timer = time.time()
 
+    def ApplyCameraSettings(self):
+        if global_vars.USE_CUSTOM_CAM_SETTINGS:
+            self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
+
 # Define a thread for the processing of landmarks
 class BodyThread(threading.Thread):
     data = ""
@@ -63,9 +66,7 @@ class BodyThread(threading.Thread):
         # Create a Mediapipe Holistic instance for processing body landmarks
         with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.5) as holistic:
             # Wait until the camera is running before starting body landmark processing
-            while not global_vars.KILL_THREADS and capture.isRunning == False:
-                print("Waiting for camera and capture thread.")
-                time.sleep(0.5)
+            self.WaitForCamera(capture)
 
             print("Beginning capture")
             print(capture.cap.isOpened())
@@ -85,39 +86,11 @@ class BodyThread(threading.Thread):
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
                 # Draw landmarks on the image
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.face_landmarks,
-                    mp_holistic.FACEMESH_CONTOURS,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.face_landmarks,
-                    mp_holistic.FACEMESH_TESSELATION,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.pose_landmarks,
-                    mp_holistic.POSE_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-
-                # Draw hand landmarks and connections for the left hand
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.left_hand_landmarks,
-                    mp_holistic.HAND_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
-                    connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
-
-                # Draw hand landmarks and connections for the right hand
-                mp_drawing.draw_landmarks(
-                    image,
-                    results.right_hand_landmarks,
-                    mp_holistic.HAND_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
-                    connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
+                self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+                self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+                self.DrawFaceLandmarkConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+                self.DrawLeftHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+                self.DrawRightHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
 
 
                 # Display the annotated image
@@ -129,60 +102,118 @@ class BodyThread(threading.Thread):
                 # Debugging and communication with Unity project
                 print(time.time()- self.timeSinceCheckedConnection)
                 if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1:
-                    try:
-                        # Attempt to open a named pipe for communication with Unity
-                        self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
-                        print("entered")
-                    except FileNotFoundError:
-                        print("Waiting for Unity project to run...")
-                        self.pipe = None
-                    self.timeSinceCheckedConnection = time.time()
+                    self.OpenNamedPipe()
 
                 if self.pipe != None:
                     # Set up data for piping
                     self.data = ""
                     i = 0
-                    if results.pose_world_landmarks:
-                        hand_world_landmarks = results.pose_world_landmarks
-                        for i in range(0, 33):
-                           self.data +=("{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
-                                                                    hand_world_landmarks.landmark[i].y,
-                                                                    hand_world_landmarks.landmark[i].z))
-                    if  results.face_landmarks:
-                        face_landmarks = results.face_landmarks
-                        for i in range(0, 468):
-                             self.data +=("{}|{}|{}|{}".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
-
-                    if results.left_hand_landmarks:
-                        left_hand_landmarks = results.left_hand_landmarks
-                        for i in range(0, 21):
-                            self.data +=("{}|{}|{}|{}".format(
-                                i, left_hand_landmarks.landmark[i].x,
-                                left_hand_landmarks.landmark[i].y,
-                                left_hand_landmarks.landmark[i].z))
-
-                    if results.right_hand_landmarks:
-                        right_hand_landmarks = results.right_hand_landmarks
-                        for i in range(0, 21):
-                             self.data +=("{}|{}|{}|{}".format(
-                                i, right_hand_landmarks.landmark[i].x,
-                                right_hand_landmarks.landmark[i].y,
-                                right_hand_landmarks.landmark[i].z))
-
-
+                    self.CollatePoseLandmarks(results)
+                    self.CollateFaceLandmarks(results)
+                    self.CollateLeftHandLandmarks(results)
+                    self.CollateRightHandLandmarks(results)
                     # Encode the data and write it to the named pipe
                     s = self.data.encode('utf-8')
-                    try:
-                        self.pipe.write(struct.pack('I', len(s)) + s)
-                        self.pipe.seek(0)
-                    except Exception as ex:
-                        print("Failed to write to pipe. Is the unity project open?")
-                        self.pipe = None
+                    self.SendDataOverPipe(s)
 
             # Close the named pipe and destroy OpenCV windows
         self.pipe.close()
         # Release the video capture when done
         capture.cap.release()
         cv2.destroyAllWindows()
+
+    def WaitForCamera(self, capture):
+        while not global_vars.KILL_THREADS and capture.isRunning == False:
+            print("Waiting for camera and capture thread.")
+            time.sleep(0.5)
+
+    def SendDataOverPipe(self, s):
+        try:
+            self.pipe.write(struct.pack('I', len(s)) + s)
+            self.pipe.seek(0)
+        except Exception as ex:
+            print("Failed to write to pipe. Is the unity project open?")
+            self.pipe = None
+
+    def OpenNamedPipe(self):
+        try:
+                        # Attempt to open a named pipe for communication with Unity
+            self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
+            print("entered")
+        except FileNotFoundError:
+            print("Waiting for Unity project to run...")
+            self.pipe = None
+        self.timeSinceCheckedConnection = time.time()
+
+    def CollateRightHandLandmarks(self, results):
+        if results.right_hand_landmarks:
+            right_hand_landmarks = results.right_hand_landmarks
+            for i in range(0, 21):
+                 self.data +=("{}|{}|{}|{}".format(
+                                i, right_hand_landmarks.landmark[i].x,
+                                right_hand_landmarks.landmark[i].y,
+                                right_hand_landmarks.landmark[i].z))
+
+    def CollateLeftHandLandmarks(self, results):
+        if results.left_hand_landmarks:
+            left_hand_landmarks = results.left_hand_landmarks
+            for i in range(0, 21):
+                self.data +=("{}|{}|{}|{}".format(
+                                i, left_hand_landmarks.landmark[i].x,
+                                left_hand_landmarks.landmark[i].y,
+                                left_hand_landmarks.landmark[i].z))
+
+    def CollateFaceLandmarks(self, results):
+        if  results.face_landmarks:
+            face_landmarks = results.face_landmarks
+            for i in range(0, 468):
+                 self.data +=("{}|{}|{}|{}".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
+
+    def CollatePoseLandmarks(self, results):
+        if results.pose_world_landmarks:
+            hand_world_landmarks = results.pose_world_landmarks
+            for i in range(0, 33):
+               self.data +=("{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
+                                                                    hand_world_landmarks.landmark[i].y,
+                                                                    hand_world_landmarks.landmark[i].z))
+
+    def DrawRightHandLandmarksAndConnections(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
+        mp_drawing.draw_landmarks(
+                    image,
+                    results.right_hand_landmarks,
+                    mp_holistic.HAND_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
+                    connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
+
+    def DrawLeftHandLandmarksAndConnections(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
+        mp_drawing.draw_landmarks(
+                    image,
+                    results.left_hand_landmarks,
+                    mp_holistic.HAND_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
+                    connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
+
+    def DrawFaceLandmarkConnections(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
+        mp_drawing.draw_landmarks(
+                    image,
+                    results.pose_landmarks,
+                    mp_holistic.POSE_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+
+    def DrawFaceTesselation(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
+        mp_drawing.draw_landmarks(
+                    image,
+                    results.face_landmarks,
+                    mp_holistic.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
+
+    def DrawFaceLandmarks(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
+        mp_drawing.draw_landmarks(
+                    image,
+                    results.face_landmarks,
+                    mp_holistic.FACEMESH_CONTOURS,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
 
 # End of the code
