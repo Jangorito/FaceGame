@@ -5,6 +5,29 @@ import threading
 import time
 import global_vars  #  global_vars module is defined in global_vars.py
 import struct
+from mediapipe.python.solutions.pose import PoseLandmark
+from mediapipe.python.solutions.drawing_utils import DrawingSpec
+
+custom_style =""
+
+POSE_CONNECTIONS = frozenset([(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5),
+                              (5, 6), (6, 8), (9, 10), (11, 12), (11, 13),
+                              (13, 15), (12, 14), (14, 16), (11, 23), (12, 24), (23, 24), (23, 25),
+                              (24, 26), (25, 27), (26, 28), (27, 29), (28, 30),
+                              (29, 31), (30, 32), (27, 31), (28, 32)])
+
+FACE_CONNECTIONS = frozenset([(10, 338), (338, 297), (297, 332), (332, 284),
+                                (284, 251), (251, 389), (389, 356), (356, 454),
+                                (454, 323), (323, 361), (361, 288), (288, 397),
+                                (397, 365), (365, 379), (379, 378), (378, 400),
+                                (400, 377), (377, 152), (152, 148), (148, 176),
+                                (176, 149), (149, 150), (150, 136), (136, 172),
+                                (172, 58), (58, 132), (132, 93), (93, 234),
+                                (234, 127), (127, 162), (162, 21), (21, 54),
+                                (54, 103), (103, 67), (67, 109), (109, 10)])
+
+custom_connections = list(POSE_CONNECTIONS)
+custom_face_connections = list(FACE_CONNECTIONS)
 
 # Define a thread for capturing video frames
 class CaptureThread(threading.Thread):
@@ -58,6 +81,7 @@ class BodyThread(threading.Thread):
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
         mp_holistic = mp.solutions.holistic
+        self.CustomLandmarksAndConnections(mp_drawing_styles)
 
         # Start the CaptureThread to capture video frames
         capture = CaptureThread()
@@ -79,16 +103,17 @@ class BodyThread(threading.Thread):
                 image = cv2.flip(image, 1)
                 image.flags.writeable = False
 
-                # Process body landmarks using MediaPipe Holistic
                 results = holistic.process(image)
-
+                self.RemoveHandLandmarks(mp_holistic, results)
+                self.RemovePoseFaceLandmarks(mp_holistic, results)
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
                 # Draw landmarks on the image
                 self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
-                self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
-                self.DrawFaceLandmarkConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+                #self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+                self.DrawPoseLandmarks(mp_drawing, mp_drawing_styles, image, results)
+                self.DrawCustomPoseLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawLeftHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawRightHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
 
@@ -121,6 +146,45 @@ class BodyThread(threading.Thread):
         # Release the video capture when done
         capture.cap.release()
         cv2.destroyAllWindows()
+
+    def RemoveHandLandmarks(self, mp_holistic, results):
+        if results.pose_landmarks:
+            #results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_WRIST].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_PINKY].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_THUMB].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].visibility = 0.0
+            #results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_WRIST].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_PINKY].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_THUMB].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].visibility = 0.0
+
+    def RemovePoseFaceLandmarks(self, mp_holistic, results):
+        if results.pose_landmarks:
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE_INNER].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE_OUTER].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE_INNER].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE_OUTER].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EAR].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EAR].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.MOUTH_LEFT].visibility = 0.0
+            results.pose_landmarks.landmark[mp_holistic.PoseLandmark.MOUTH_RIGHT].visibility = 0.0
+
+            # results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_WRIST].ClearField("x")
+            # results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_WRIST].ClearField("y")
+            # results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_WRIST].ClearField("z")
+            
+    def CustomLandmarksAndConnections(self, mp_drawing_styles):
+        hand_landmarks = mp_drawing_styles.get_default_hand_landmarks_style()
+        custom_style = mp_drawing_styles.get_default_pose_landmarks_style()
+
+        # Get the hand landmark indices to be removed
+        hand_landmark_indices = [landmark.value for landmark in hand_landmarks]
+
+        # Remove hand landmarks from custom style
+        custom_style = {landmark: style for landmark, style in custom_style.items() if landmark not in hand_landmark_indices}
 
     def WaitForCamera(self, capture):
         while not global_vars.KILL_THREADS and capture.isRunning == False:
@@ -173,6 +237,8 @@ class BodyThread(threading.Thread):
         if results.pose_world_landmarks:
             hand_world_landmarks = results.pose_world_landmarks
             for i in range(0, 33):
+               if i in (list(range(0, 10)) + list(range(17, 22))): ## Removes pose face landmarks and hands apart from wrist landmark
+                   continue
                self.data +=("{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z))
@@ -193,12 +259,29 @@ class BodyThread(threading.Thread):
                     landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
                     connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
 
-    def DrawFaceLandmarkConnections(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
+    def DrawPoseLandmarks(self, mp_drawing, mp_drawing_styles, image, results):
         mp_drawing.draw_landmarks(
                     image,
                     results.pose_landmarks,
-                    mp_holistic.POSE_CONNECTIONS,
+                    #mp_holistic.POSE_CONNECTIONS,
+                    #landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+                    connections = custom_connections,
+                    #landmark_drawing_spec=custom_style)
                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+        
+    def DrawCustomPoseLandmarks(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results): #doesnt work atm
+        custom_connections2 = [
+        # Custom connection from left elbow to left wrist
+        (mp_holistic.PoseLandmark.LEFT_ELBOW, mp_holistic.HandLandmark.WRIST),
+        # Custom connection from right elbow to right wrist
+        (mp_holistic.PoseLandmark.RIGHT_ELBOW, mp_holistic.HandLandmark.WRIST)
+        ]
+        mp_drawing.draw_landmarks(
+                        image,
+                        results.pose_landmarks,
+                        connections = custom_connections2,
+                        #landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style(),
+                        connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
 
     def DrawFaceTesselation(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
         mp_drawing.draw_landmarks(
@@ -209,11 +292,13 @@ class BodyThread(threading.Thread):
                     connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
 
     def DrawFaceLandmarks(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
+        drawing_spec = mp_drawing.DrawingSpec(color = (0, 0, 255), thickness = 1, circle_radius = 1)
         mp_drawing.draw_landmarks(
                     image,
                     results.face_landmarks,
-                    mp_holistic.FACEMESH_CONTOURS,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
+                    #mp_holistic.FACEMESH_CONTOURS,
+                    connections = custom_face_connections,
+                    landmark_drawing_spec=drawing_spec)
+                    #connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
 
 # End of the code
