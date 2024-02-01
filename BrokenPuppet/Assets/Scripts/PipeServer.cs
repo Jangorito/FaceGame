@@ -14,6 +14,7 @@ public class PipeServer : MonoBehaviour
 
     private Vector3[] instances = new Vector3[LANDMARK_COUNT];
     private Vector3[] localPosition = new Vector3[LANDMARK_COUNT];
+    private Vector3 virtualNeck, virtualHip;
     private float maxSpeed = 50f;
 
 
@@ -88,8 +89,20 @@ public class PipeServer : MonoBehaviour
         }
     }
 
+    /* returns position of landmark given */
     public Vector3 getLandmark(Landmark mark) {
-        return instances[(int)mark];
+        if (mark >=0)
+            return instances[(int)mark];
+        switch (mark) {
+            case Landmark.VNECK:
+                return virtualNeck;
+            case Landmark.VHIP:
+                return virtualHip;
+            /* Invalid landmark given */
+            default:
+                return Vector3.zero;
+        }
+
     }
 
 }

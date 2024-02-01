@@ -9,6 +9,8 @@
 
 
 public enum Landmark { 
+    VNECK = -1,
+    VHIP = -2,
     NOSE = 0,
     LEFT_EYE_INNER = 4,
     LEFT_EYE = 5,

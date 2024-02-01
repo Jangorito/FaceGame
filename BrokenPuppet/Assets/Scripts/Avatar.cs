@@ -56,6 +56,13 @@ public class Avatar : MonoBehaviour
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate() {
 
+        /* returns avatar to base pose */
+        foreach(var i in parentCalibrationData)
+        {
+            i.Value.reset(ref animator);
+        }
+
+        /* waits t seconds */
         int t = 5;
 
         while (t > 0) {
@@ -67,7 +74,6 @@ public class Avatar : MonoBehaviour
 
         /* resets the calibration data */
         parentCalibrationData.Clear();
-
 
         AddCalibration(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm,
             Landmark.RIGHT_SHOULDER, Landmark.RIGHT_ELBOW);
@@ -92,6 +98,16 @@ public class Avatar : MonoBehaviour
 
         AddCalibration(HumanBodyBones.RightLowerLeg, HumanBodyBones.RightFoot,
             Landmark.RIGHT_KNEE, Landmark.RIGHT_ANKLE);
+
+        /* Manually define neck and hip connections */
+        spineUpDown = new CalibrationData(HumanBodyBones.Spine, HumanBodyBones.Neck,
+            Landmark.VHIP,  Landmark.VNECK, ref animator, ref server);
+        hipsTwist = new CalibrationData(HumanBodyBones.Hips, HumanBodyBones.Hips,
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
+        chest = new CalibrationData(HumanBodyBones.Chest, HumanBodyBones.Chest,
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
+        head = new CalibrationData(HumanBodyBones.Neck, HumanBodyBones.Head,
+            Landmark.VNECK, Landmark.NOSE, ref animator, ref server);
 
         Debug.Log("Calibrated");
     }

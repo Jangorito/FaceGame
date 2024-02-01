@@ -39,12 +39,11 @@ public class CalibrationData
         return animator.GetBoneTransform(parent).rotation;
     }
 
-    public void update(ref Animator animator, ref PipeServer server) {
+    public void reset(ref Animator animator) {
+        initialDirection = Vector3.zero;
+    }
 
-        Vector3 from = (animator.GetBoneTransform(child).position - 
-            animator.GetBoneTransform(parent).position).normalized;
-        Vector3 movement = (server.getLandmark(tchild) -
-            animator.GetBoneTransform(parent).position).normalized;
+    public void update(ref Animator animator, ref PipeServer server) {
 
         Quaternion deltaRotation = Quaternion.FromToRotation(initialDirection,
             getCurrentDirection(ref server));
