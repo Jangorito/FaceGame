@@ -23,6 +23,27 @@ FACEMESH_LIPS = frozenset([(0, 39), (39, 61), (0, 269), (269, 291),
                             (14, 178), (178, 78), (14, 402), (402, 308),
                             (17, 181), (181, 61), (17, 405), (405, 291)])
 # 40 -> 16
+#outer lip clockwise from the middle
+#0 = LIPS_OUTER_1
+#269 = LIPS_OUTER_2
+#291 = LIPS_OUTER_3
+#405 = LIPS_OUTER_4
+#17 = LIPS_OUTER_5
+#181 = LIPS_OUTER_6
+#61 = LIPS_OUTER_7
+#39 = LIPS_OUTER_8
+
+
+#inner lip clockwise from the middle
+#13 = LIPS_INNER_1
+#311 = LIPS_INNER_2
+#308 = LIPS_INNER_3
+#402 = LIPS_INNER_4
+#14 = LIPS_INNER_5
+#178 = LIPS_INNER_6
+#78 = LIPS_INNER_7
+#81 = LIPS_INNER_8
+
 
 # FACEMESH_LEFT_EYE = frozenset([(263, 390), (390, 374), (374, 381), (381, 362),
 #                                 (263, 388), (388, 386), (386, 384), (384, 362)])
@@ -57,6 +78,43 @@ FACEMESH_FACE_OVAL = frozenset([(10, 297), (297, 284), (284, 389), (389, 454),
                                 (400, 152), (152, 176), (176, 150), (150, 172),
                                 (172, 132), (132, 234),  (234, 162), (162, 54), 
                                 (54, 67), (67, 10)])
+#face oval goes round clockwise from the top
+
+# 10 FACE_OVAL_1
+
+# 297 FACE_OVAL_2
+
+# 284 FACE_OVAL_3
+
+# 389 FACE_OVAL_4
+
+# 454 FACE_OVAL_5
+
+# 361 FACE_OVAL_6
+
+# 397 FACE_OVAL_7
+
+# 379 FACE_OVAL_8
+
+# 400 FACE_OVAL_9
+
+# 152 FACE_OVAL_10
+
+# 176 FACE_OVAL_11
+
+# 150 FACE_OVAL_12
+
+# 172 FACE_OVAL_13
+
+# 132 FACE_OVAL_14
+
+# 234 FACE_OVAL_15
+
+# 162 FACE_OVAL_16
+
+# 54 FACE_OVAL_17
+
+# 67 FACE_OVAL_18
 
 FACE_CONNECTIONS = frozenset().union(*[
     FACEMESH_LIPS, FACEMESH_LEFT_EYE, FACEMESH_LEFT_EYEBROW, FACEMESH_RIGHT_EYE,
