@@ -50,17 +50,19 @@ public class Avatar : MonoBehaviour
         
     }
 
+    /* returns the avatar to the base pose */
+    void resetAvatar() {
+        foreach (var i in parentCalibrationData) {
+            i.Value.reset(ref animator);
+        }
+    }
 
 
 
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate() {
 
-        /* returns avatar to base pose */
-        foreach(var i in parentCalibrationData)
-        {
-            i.Value.reset(ref animator);
-        }
+        resetAvatar();
 
         /* waits t seconds */
         int t = 5;
@@ -110,6 +112,10 @@ public class Avatar : MonoBehaviour
             Landmark.VNECK, Landmark.NOSE, ref animator, ref server);
 
         Debug.Log("Calibrated");
+    }
+
+    public Transform getBoneTransform(HumanBodyBones bone) {
+        return animator.GetBoneTransform(bone);
     }
 
     private void AddCalibration(HumanBodyBones parent, HumanBodyBones child, 
