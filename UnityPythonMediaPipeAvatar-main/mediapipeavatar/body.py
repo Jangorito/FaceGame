@@ -24,19 +24,33 @@ FACEMESH_LIPS = frozenset([(0, 39), (39, 61), (0, 269), (269, 291),
                             (17, 181), (181, 61), (17, 405), (405, 291)])
 # 40 -> 16
 
-FACEMESH_LEFT_EYE = frozenset([(263, 390), (390, 374), (374, 381), (381, 362),
-                                (263, 388), (388, 386), (386, 384), (384, 362)])
-# 16 -> 8
+# FACEMESH_LEFT_EYE = frozenset([(263, 390), (390, 374), (374, 381), (381, 362),
+#                                 (263, 388), (388, 386), (386, 384), (384, 362)])
+# # 16 -> 8
 
 FACEMESH_LEFT_EYEBROW = frozenset([(276, 282), (282, 285), (336, 334), (334, 300)])
 # 8 -> 4
 
-FACEMESH_RIGHT_EYE = frozenset([(33, 163), (163, 145), (145, 154), (154, 133),
-                                (33, 161), (161, 159), (159, 157), (157, 133)])
-# 16 -> 8
+# 276 = LEFT_LOWER_EYEBROW_1
+# 282 = LEFT_LOWER_EYEBROW_2
+# 285 = LEFT_LOWER_EYEBROW_3
+# 336 = LEFT_UPPER_EYEBROW_1
+# 334 = LEFT_UPPER_EYEBROW_2
+# 300 = LEFT_UPPER_EYEBROW_3
+
+# FACEMESH_RIGHT_EYE = frozenset([(33, 163), (163, 145), (145, 154), (154, 133),
+#                                 (33, 161), (161, 159), (159, 157), (157, 133)])
+# # 16 -> 8
 
 FACEMESH_RIGHT_EYEBROW = frozenset([(46, 52), (52, 55), (70, 105), (105, 107)])
 # 8 -> 4
+
+# 46 = RIGHT_LOWER_EYEBROW_1
+# 52 = RIGHT_LOWER_EYEBROW_2
+# 55 = RIGHT_LOWER_EYEBROW_3
+# 70 = RIGHT_UPPER_EYEBROW_1
+# 105 = RIGHT_UPPER_EYEBROW_2
+# 107 = RIGHT_UPPER_EYEBROW_3
 
 FACEMESH_FACE_OVAL = frozenset([(10, 297), (297, 284), (284, 389), (389, 454),
                                 (454, 361), (361, 397), (397, 379), (379, 400),
