@@ -33,10 +33,13 @@ public class Avatar : MonoBehaviour
         /* Moves the model */
        foreach(var i in parentCalibrationData)
         {
-            i.Value.update(ref animator, ref server);
+            Quaternion deltaRotation = Quaternion.FromToRotation(i.Value.initialDirection,
+            i.Value.getCurrentDirection(ref server));
+
+            animator.GetBoneTransform(i.Key).rotation = deltaRotation * i.Value.initialRotation;
         }
 
-       /* Apply motion to neck and hips */
+        /* Apply motion to neck and hips */
     }
 
 
@@ -57,7 +60,12 @@ public class Avatar : MonoBehaviour
         }
     }
 
-
+    /* Changes the movement between the parent and child bone to match the movement between the newParent and newChild landmark data */
+    void changeCalibration(HumanBodyBones parent, Landmark newParent, Landmark newChild) {
+        HumanBodyBones child = parentCalibrationData[parent].child;
+        parentCalibrationData.Remove(parent);
+        AddCalibration(parent, child, newParent, newChild);
+    }
 
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate() {
@@ -76,6 +84,7 @@ public class Avatar : MonoBehaviour
 
         /* resets the calibration data */
         parentCalibrationData.Clear();
+
 
         AddCalibration(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm,
             Landmark.RIGHT_SHOULDER, Landmark.RIGHT_ELBOW);
@@ -124,4 +133,6 @@ public class Avatar : MonoBehaviour
                 trackParent, trackChild, ref animator, ref server);
         parentCalibrationData.Add(parent, data);
     }
+   
+    
 }

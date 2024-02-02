@@ -45,10 +45,7 @@ public class CalibrationData
 
     public void update(ref Animator animator, ref PipeServer server) {
 
-        Quaternion deltaRotation = Quaternion.FromToRotation(initialDirection,
-            getCurrentDirection(ref server));
-
-        animator.GetBoneTransform(parent).rotation = deltaRotation * initialRotation;
+        
     }
 
 }
