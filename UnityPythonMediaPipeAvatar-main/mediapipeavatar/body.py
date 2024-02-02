@@ -7,6 +7,8 @@ import global_vars  #  global_vars module is defined in global_vars.py
 import struct
 from mediapipe.python.solutions.pose import PoseLandmark
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
+from mediapipe.framework.formats import landmark_pb2
+
 
 custom_style =""
 
@@ -16,18 +18,48 @@ POSE_CONNECTIONS = frozenset([(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5),
                               (24, 26), (25, 27), (26, 28), (27, 29), (28, 30),
                               (29, 31), (30, 32), (27, 31), (28, 32)])
 
-FACE_CONNECTIONS = frozenset([(10, 338), (338, 297), (297, 332), (332, 284),
-                                (284, 251), (251, 389), (389, 356), (356, 454),
-                                (454, 323), (323, 361), (361, 288), (288, 397),
-                                (397, 365), (365, 379), (379, 378), (378, 400),
-                                (400, 377), (377, 152), (152, 148), (148, 176),
-                                (176, 149), (149, 150), (150, 136), (136, 172),
-                                (172, 58), (58, 132), (132, 93), (93, 234),
-                                (234, 127), (127, 162), (162, 21), (21, 54),
-                                (54, 103), (103, 67), (67, 109), (109, 10)])
+FACEMESH_LIPS = frozenset([(0, 39), (39, 61), (0, 269), (269, 291),
+                            (13, 81), (81, 78), (13, 311), (311, 308),
+                            (14, 178), (178, 78), (14, 402), (402, 308),
+                            (17, 181), (181, 61), (17, 405), (405, 291)])
+# 40 -> 16
+
+FACEMESH_LEFT_EYE = frozenset([(263, 390), (390, 374), (374, 381), (381, 362),
+                                (263, 388), (388, 386), (386, 384), (384, 362)])
+# 16 -> 8
+
+FACEMESH_LEFT_EYEBROW = frozenset([(276, 282), (282, 285), (336, 334), (334, 300)])
+# 8 -> 4
+
+FACEMESH_RIGHT_EYE = frozenset([(33, 163), (163, 145), (145, 154), (154, 133),
+                                (33, 161), (161, 159), (159, 157), (157, 133)])
+# 16 -> 8
+
+FACEMESH_RIGHT_EYEBROW = frozenset([(46, 52), (52, 55), (70, 105), (105, 107)])
+# 8 -> 4
+
+FACEMESH_FACE_OVAL = frozenset([(10, 297), (297, 284), (284, 389), (389, 454),
+                                (454, 361), (361, 397), (397, 379), (379, 400),
+                                (400, 152), (152, 176), (176, 150), (150, 172),
+                                (172, 132), (132, 234),  (234, 162), (162, 54), 
+                                (54, 67), (67, 10)])
+
+FACE_CONNECTIONS = frozenset().union(*[
+    FACEMESH_LIPS, FACEMESH_LEFT_EYE, FACEMESH_LEFT_EYEBROW, FACEMESH_RIGHT_EYE,
+    FACEMESH_RIGHT_EYEBROW, FACEMESH_FACE_OVAL
+])
+# 17 + 8 + 4 + 8 + 4 +16 = 57 landmarks for the face
 
 custom_connections = list(POSE_CONNECTIONS)
 custom_face_connections = list(FACE_CONNECTIONS)
+
+custom_face_landmarks = []
+
+for tuple in custom_face_connections:
+    int1, int2 = tuple
+    custom_face_landmarks.extend([int1, int2])
+
+custom_face_landmarks = list(set(custom_face_landmarks))
 
 # Define a thread for capturing video frames
 class CaptureThread(threading.Thread):
@@ -88,7 +120,7 @@ class BodyThread(threading.Thread):
         capture.start()
 
         # Create a Mediapipe Holistic instance for processing body landmarks
-        with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.5) as holistic:
+        with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.5, refine_face_landmarks = False) as holistic:
             # Wait until the camera is running before starting body landmark processing
             self.WaitForCamera(capture)
 
@@ -231,6 +263,8 @@ class BodyThread(threading.Thread):
         if  results.face_landmarks:
             face_landmarks = results.face_landmarks
             for i in range(0, 468):
+                 if i not in custom_face_landmarks:
+                    continue
                  self.data +=("{}|{}|{}|{}".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
 
     def CollatePoseLandmarks(self, results):
@@ -293,12 +327,21 @@ class BodyThread(threading.Thread):
 
     def DrawFaceLandmarks(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
         drawing_spec = mp_drawing.DrawingSpec(color = (0, 0, 255), thickness = 1, circle_radius = 1)
-        mp_drawing.draw_landmarks(
+
+        if  results.face_landmarks:
+            face_landmarks = results.face_landmarks
+
+            for i in range(0, 468):
+                if i in custom_face_landmarks:
+                    continue
+                face_landmarks.landmark[i].x = 0
+                face_landmarks.landmark[i].y = 0
+                face_landmarks.landmark[i].z = 0
+
+            mp_drawing.draw_landmarks(
                     image,
                     results.face_landmarks,
-                    #mp_holistic.FACEMESH_CONTOURS,
                     connections = custom_face_connections,
                     landmark_drawing_spec=drawing_spec)
-                    #connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
 
 # End of the code
