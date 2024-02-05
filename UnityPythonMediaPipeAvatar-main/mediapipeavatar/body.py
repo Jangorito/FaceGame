@@ -45,8 +45,8 @@ FACEMESH_LIPS = frozenset([(0, 39), (39, 61), (0, 269), (269, 291),
 #81 = LIPS_INNER_8
 
 
-# FACEMESH_LEFT_EYE = frozenset([(263, 390), (390, 374), (374, 381), (381, 362),
-#                                 (263, 388), (388, 386), (386, 384), (384, 362)])
+FACEMESH_LEFT_EYE = frozenset([(263, 390), (390, 374), (374, 381), (381, 362),
+                                (263, 388), (388, 386), (386, 384), (384, 362)])
 # # 16 -> 8
 
 FACEMESH_LEFT_EYEBROW = frozenset([(276, 282), (282, 285), (336, 334), (334, 300)])
@@ -59,8 +59,8 @@ FACEMESH_LEFT_EYEBROW = frozenset([(276, 282), (282, 285), (336, 334), (334, 300
 # 334 = LEFT_UPPER_EYEBROW_2
 # 300 = LEFT_UPPER_EYEBROW_3
 
-# FACEMESH_RIGHT_EYE = frozenset([(33, 163), (163, 145), (145, 154), (154, 133),
-#                                 (33, 161), (161, 159), (159, 157), (157, 133)])
+FACEMESH_RIGHT_EYE = frozenset([(33, 163), (163, 145), (145, 154), (154, 133),
+                                (33, 161), (161, 159), (159, 157), (157, 133)])
 # # 16 -> 8
 
 FACEMESH_RIGHT_EYEBROW = frozenset([(46, 52), (52, 55), (70, 105), (105, 107)])
@@ -197,7 +197,7 @@ class BodyThread(threading.Thread):
             self.WaitForCamera(capture)
 
             print("Beginning capture")
-            print(capture.cap.isOpened())
+            print(capture.cap.isOpened(), global_vars.KILL_THREADS)
 
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
@@ -317,35 +317,35 @@ class BodyThread(threading.Thread):
         if results.right_hand_landmarks:
             right_hand_landmarks = results.right_hand_landmarks
             for i in range(0, 21):
-                 self.data +=("{}|{}|{}|{}".format(
-                                i, right_hand_landmarks.landmark[i].x,
+                 self.data +=("{}|{}|{}|{}|{}".format(
+                                "RH", i, right_hand_landmarks.landmark[i].x,
                                 right_hand_landmarks.landmark[i].y,
                                 right_hand_landmarks.landmark[i].z))
-
+                                    #RH
     def CollateLeftHandLandmarks(self, results):
         if results.left_hand_landmarks:
             left_hand_landmarks = results.left_hand_landmarks
             for i in range(0, 21):
-                self.data +=("{}|{}|{}|{}".format(
-                                i, left_hand_landmarks.landmark[i].x,
+                self.data +=("{}|{}|{}|{}|{}".format(
+                                "LH", i, left_hand_landmarks.landmark[i].x,
                                 left_hand_landmarks.landmark[i].y,
                                 left_hand_landmarks.landmark[i].z))
-
+                                    # LH = Left Hand
     def CollateFaceLandmarks(self, results):
         if  results.face_landmarks:
             face_landmarks = results.face_landmarks
             for i in range(0, 468):
                  if i not in custom_face_landmarks:
                     continue
-                 self.data +=("{}|{}|{}|{}".format(i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
-
+                 self.data +=("{}|{}|{}|{}|{}".format("FL", i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
+                                    # FL = Face Landmarks
     def CollatePoseLandmarks(self, results):
         if results.pose_world_landmarks:
             hand_world_landmarks = results.pose_world_landmarks
             for i in range(0, 33):
                if i in (list(range(0, 10)) + list(range(17, 22))): ## Removes pose face landmarks and hands apart from wrist landmark
                    continue
-               self.data +=("{}|{}|{}|{}\n".format(i, hand_world_landmarks.landmark[i].x,
+               self.data +=("{}|{}|{}|{}|{}".format("PL", i, hand_world_landmarks.landmark[i].x, # PL = Pose Landmarks
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z))
 
