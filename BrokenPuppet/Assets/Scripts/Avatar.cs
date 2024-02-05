@@ -85,6 +85,8 @@ public class Avatar : MonoBehaviour
         /* resets the calibration data */
         parentCalibrationData.Clear();
 
+        addLeftHandCalibrations();
+        addRightHandCalibrations();
 
         AddCalibration(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm,
             Landmark.RIGHT_SHOULDER, Landmark.RIGHT_ELBOW);
@@ -133,6 +135,94 @@ public class Avatar : MonoBehaviour
                 trackParent, trackChild, ref animator, ref server);
         parentCalibrationData.Add(parent, data);
     }
-   
-    
+
+    private void addLeftHandCalibrations() {
+
+        /* Thumb */
+        AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftThumbProximal,
+            Landmark.LEFT_WRIST_ALT, Landmark.LEFT_THUMB_1);
+
+        AddCalibration(HumanBodyBones.LeftThumbProximal, HumanBodyBones.LeftThumbIntermediate,
+            Landmark.LEFT_THUMB_1, Landmark.LEFT_THUMB_2);
+
+        AddCalibration(HumanBodyBones.LeftThumbIntermediate, HumanBodyBones.LeftThumbDistal,
+            Landmark.LEFT_THUMB_2, Landmark.LEFT_THUMB_4);
+
+        /* Index */
+        //AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftIndexProximal,
+        //    Landmark.LEFT_WRIST_ALT, Landmark.LEFT_INDEX_1);
+
+        AddCalibration(HumanBodyBones.LeftIndexProximal, HumanBodyBones.LeftIndexIntermediate,
+            Landmark.LEFT_INDEX_1, Landmark.LEFT_INDEX_2);
+
+        AddCalibration(HumanBodyBones.LeftIndexIntermediate, HumanBodyBones.LeftIndexDistal,
+            Landmark.LEFT_INDEX_2, Landmark.LEFT_INDEX_4);
+
+        /* Middle */
+       // AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftMiddleProximal,
+           // Landmark.LEFT_WRIST_ALT, Landmark.LEFT_MIDDLE_1);
+
+        AddCalibration(HumanBodyBones.LeftMiddleProximal, HumanBodyBones.LeftMiddleIntermediate,
+            Landmark.LEFT_MIDDLE_1, Landmark.LEFT_MIDDLE_2);
+
+        AddCalibration(HumanBodyBones.LeftMiddleIntermediate, HumanBodyBones.LeftMiddleDistal,
+            Landmark.LEFT_MIDDLE_2, Landmark.LEFT_MIDDLE_4);
+
+        /* Little */
+       // AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftLittleProximal,
+            //Landmark.LEFT_WRIST_ALT, Landmark.LEFT_LITTLE_1);
+
+        AddCalibration(HumanBodyBones.LeftLittleProximal, HumanBodyBones.LeftLittleIntermediate,
+            Landmark.LEFT_LITTLE_1, Landmark.LEFT_LITTLE_2);
+
+        AddCalibration(HumanBodyBones.LeftLittleIntermediate, HumanBodyBones.LeftLittleDistal,
+            Landmark.LEFT_LITTLE_2, Landmark.LEFT_LITTLE_4);
+
+
+    }
+
+    private void addRightHandCalibrations() {
+
+        /* Thumb */
+        AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightThumbProximal,
+            Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_THUMB_1);
+
+        AddCalibration(HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate,
+            Landmark.RIGHT_THUMB_1, Landmark.RIGHT_THUMB_2);
+
+        AddCalibration(HumanBodyBones.RightThumbIntermediate, HumanBodyBones.RightThumbDistal,
+            Landmark.RIGHT_THUMB_2, Landmark.RIGHT_THUMB_4);
+
+        /* Index */
+      //  AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.RightIndexProximal,
+        //    Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_INDEX_1);
+
+        AddCalibration(HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate,
+            Landmark.RIGHT_INDEX_1, Landmark.RIGHT_INDEX_2);
+
+        AddCalibration(HumanBodyBones.RightIndexIntermediate, HumanBodyBones.RightIndexDistal,
+            Landmark.RIGHT_INDEX_2, Landmark.RIGHT_INDEX_4);
+
+        /* Middle */
+      //  AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightMiddleProximal,
+       //     Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_MIDDLE_1);
+
+        AddCalibration(HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate,
+            Landmark.RIGHT_MIDDLE_1, Landmark.RIGHT_MIDDLE_2);
+
+        AddCalibration(HumanBodyBones.RightMiddleIntermediate, HumanBodyBones.RightMiddleDistal,
+            Landmark.RIGHT_MIDDLE_2, Landmark.RIGHT_MIDDLE_4);
+
+        /* Little */
+      //  AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightLittleProximal,
+       //     Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_LITTLE_1);
+
+        AddCalibration(HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate,
+            Landmark.RIGHT_LITTLE_1, Landmark.RIGHT_LITTLE_2);
+
+        AddCalibration(HumanBodyBones.RightLittleIntermediate, HumanBodyBones.RightLittleDistal,
+            Landmark.RIGHT_LITTLE_2, Landmark.RIGHT_LITTLE_4);
+
+    }
+
 }

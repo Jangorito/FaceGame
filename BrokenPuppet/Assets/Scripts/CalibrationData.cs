@@ -42,10 +42,4 @@ public class CalibrationData
     public void reset(ref Animator animator) {
         initialDirection = Vector3.zero;
     }
-
-    public void update(ref Animator animator, ref PipeServer server) {
-
-        
-    }
-
 }

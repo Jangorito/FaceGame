@@ -46,7 +46,7 @@ public enum Landmark {
     RIGHT_FOOT_INDEX = 31,
 
 
-    //LEFT_WRIST = 501,
+    LEFT_WRIST_ALT = 501,
     LEFT_THUMB_1 = 502,
     LEFT_THUMB_2 = 503,
     LEFT_THUMB_3 = 504,
@@ -68,7 +68,7 @@ public enum Landmark {
     LEFT_LITTLE_3 = 520,
     LEFT_LITTLE_4 = 521,
 
-    //RIGHT_WRIST = 522,
+    RIGHT_WRIST_ALT = 522,
     RIGHT_THUMB_1 = 523,
     RIGHT_THUMB_2 = 524,
     RIGHT_THUMB_3 = 525,
