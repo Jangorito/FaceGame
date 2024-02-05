@@ -229,11 +229,12 @@ class BodyThread(threading.Thread):
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
                 # Debugging and communication with Unity project
-                print(time.time()- self.timeSinceCheckedConnection)
-                if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1:
+                if global_vars.DEBUG == True:
+                    print(time.time()- self.timeSinceCheckedConnection)
+                if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1 and global_vars.PIPE_LINE_DEBUG == False:
                     self.OpenNamedPipe()
 
-                if self.pipe != None:
+                if self.pipe != None or global_vars.PIPE_LINE_DEBUG:
                     # Set up data for piping
                     self.data = ""
                     i = 0
@@ -243,7 +244,10 @@ class BodyThread(threading.Thread):
                     self.CollateRightHandLandmarks(results)
                     # Encode the data and write it to the named pipe
                     s = self.data.encode('utf-8')
-                    self.SendDataOverPipe(s)
+                    if global_vars.PIPE_LINE_DEBUG == True:
+                        print(s)
+                    else:
+                        self.SendDataOverPipe(s)
 
             # Close the named pipe and destroy OpenCV windows
         self.pipe.close()
@@ -343,11 +347,14 @@ class BodyThread(threading.Thread):
         if results.pose_world_landmarks:
             hand_world_landmarks = results.pose_world_landmarks
             for i in range(0, 33):
-               if i in (list(range(0, 10)) + list(range(17, 22))): ## Removes pose face landmarks and hands apart from wrist landmark
+               if i in (list(range(0, 11)) + list(range(17, 23))): ## Removes pose face landmarks and hands apart from wrist landmark
                    continue
                self.data +=("{}|{}|{}|{}|{}".format("PL", i, hand_world_landmarks.landmark[i].x, # PL = Pose Landmarks
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z))
+        
+        
+
 
     def DrawRightHandLandmarksAndConnections(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
         mp_drawing.draw_landmarks(
