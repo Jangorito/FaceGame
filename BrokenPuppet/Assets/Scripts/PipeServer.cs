@@ -12,14 +12,19 @@ public class PipeServer : MonoBehaviour
     private const int LANDMARK_COUNT = 543;
     private NamedPipeServerStream server;
 
-    private Vector3[] instances = new Vector3[LANDMARK_COUNT];
-    private Vector3[] localPosition = new Vector3[LANDMARK_COUNT];
-    private Vector3 virtualNeck, virtualHip;
+    private Transform virtualNeck, virtualHip;
     private float maxSpeed = 50f;
-
+    private Body body;
+    public Transform bodyParent;
 
     // Start is called before the first frame update
     void Start() {
+
+        body = new Body(bodyParent, LANDMARK_COUNT);
+        virtualNeck = new GameObject("VirtualNeck").transform;
+        virtualHip = new GameObject("VirtualHip").transform;
+
+
         Thread startServerThread = new Thread(runServer);
         Debug.Log("Starting Pipe Server");
         startServerThread.Start();
@@ -76,33 +81,41 @@ public class PipeServer : MonoBehaviour
             return;
         }
 
-        int index = int.Parse(parts[0]);
-        Vector3 position = new Vector3(float.Parse(parts[1]), float.Parse(parts[2]), -float.Parse(parts[3]));
-        localPosition[index] = position;        
+        /* Add new position to position buffer */
+        body.bPositions[int.Parse(parts[0])].addValue(new Vector3(float.Parse(parts[1]), float.Parse(parts[2]), -float.Parse(parts[3])));
     }
 
     /* Uses the localPosition array to move the instances */
     private void updateInstances() {
         for (int i = 0; i < LANDMARK_COUNT; i++) {
-            instances[i] = Vector3.MoveTowards(instances[i], localPosition[i],
-                Time.deltaTime * maxSpeed);
+            /* do not add movement vector if landmark not recorded enough */
+            if (body.bPositions[i].enoughSamplesRecorded()) {
+                /* add avarage movement recorded to current position */
+                body.instances[i].transform.position = Vector3.MoveTowards(
+                    body.instances[i].transform.position, body.bPositions[i].getBuffer(), Time.deltaTime * maxSpeed);
+                
+                body.bPositions[i].resetSamples();
+            }
         }
+
+        virtualNeck.transform.position = (body.instances[(int)Landmark.RIGHT_SHOULDER].transform.position + 
+            body.instances[(int)Landmark.LEFT_SHOULDER].transform.position) / 2f;
+        virtualHip.transform.position = (body.instances[(int)Landmark.RIGHT_HIP].transform.position + 
+            body.instances[(int)Landmark.LEFT_HIP].transform.position) / 2f;
+
+
     }
 
     /* returns position of landmark given */
-    public Vector3 getLandmark(Landmark mark) {
-        if (mark >=0)
-            return instances[(int)mark];
-        switch (mark) {
-            case Landmark.VNECK:
-                return virtualNeck;
-            case Landmark.VHIP:
-                return virtualHip;
-            /* Invalid landmark given */
-            default:
-                return Vector3.zero;
-        }
-
+    public Transform getLandmark(Landmark mark) {
+            return body.instances[(int)mark].transform;
     }
 
+    public Transform getVirtualHip() {
+        return virtualHip;
+    }
+
+    public Transform getVirtualNeck() {
+        return virtualNeck;
+    }
 }
