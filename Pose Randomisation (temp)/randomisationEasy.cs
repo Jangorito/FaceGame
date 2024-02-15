@@ -84,8 +84,9 @@ class Program
         Array.Sort(FaceLandmarksList); // Fix the sorting of FaceLandmarksList
         List<int> FaceLandmarks = FaceLandmarksList.ToList();
         List<int> PoseLandmarks = PoseLandmarksList.ToList();
-        HandLandmarks.AddRange(Enumerable.Range(0, 21));
+        LeftHandLandmarks.AddRange(Enumerable.Range(0, 21));
+        RightHandLandmarks.AddRange(Enumerable.Range(0, 21));
 
-        LandmarkSections = new List<int>[] { HandLandmarks, PoseLandmarks, FaceLandmarks }; // Assign LandmarkSections
+        LandmarkSections = new List<int>[] { FaceLandmarks, PoseLandmarks, RightHandLandmarks, LeftHandLandmarks }; // Assign LandmarkSections
     }
 }
