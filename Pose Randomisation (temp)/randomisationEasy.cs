@@ -57,12 +57,12 @@ class Program
 
     static int MovementDegreeGenerator(int LandmarkIndex, int SecondLandmarkIndex)
     {
-        int GameDifficulty = (int)GameDifficulty;
+        int Difficulty = (int)GameDifficulty;
         Random Random = new Random();
         int MovementDegree = 0;
         int[] MovementLimits = {0, 25, 50, 75};
         //need to implement constraints n such here
-        MovementDegree = Random.Next(MovementLimits[GameDifficulty-1], MovementLimits[GameDifficulty]);
+        MovementDegree = Random.Next(MovementLimits[Difficulty-1], MovementLimits[Difficulty]);
         return MovementDegree;
     }
 
