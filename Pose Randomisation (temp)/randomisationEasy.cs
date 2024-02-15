@@ -15,9 +15,11 @@ class Program
 
     static List<int>[] LandmarkSections; // Declare LandmarkSections array in a broader scope
     static Difficulty GameDifficulty = Difficulty.Hard;
-    static void Main()
+    static Tuple<int, int, int, int, int> SelectLandmarks()
     {
         Tuple<int, int, int, int> SelectedLandmarks;
+        Tuple<int, int, int, int, int> DataToReturn;
+
         int Degree = 0;
         InitialiseLandmarks(); // Call InitialiseLandmarks to populate LandmarkSections
         SelectedLandmarks = RandomLandmarkGenerator();
@@ -26,6 +28,10 @@ class Program
         Console.WriteLine("Selected Landmark List 1: " + SelectedLandmarks.Item2 + " Selected Landmark List 2: " + SelectedLandmarks.Item4);
         Console.WriteLine("First Selected Landmark: " + SelectedLandmarks.Item1 + " Second Selected Landmark: " + SelectedLandmarks.Item3);
         Console.WriteLine("Selected Degree = " + Degree);
+
+        DataToReturn = (SelectedLandmarks.Item2, SelectedLandmarks.Item1, SelectedLandmarks.Item4, SelectedLandmarks.Item3, Degree);
+
+        return DataToReturn;
     }
 
     static Tuple<int, int, int, int> RandomLandmarkGenerator()
@@ -73,7 +79,7 @@ class Program
                         17, 405, 150, 276, 152, 282, 154, 284, 157, 285, 159, 33, 161, 291, 163, 162, 39, 297, 172, 300, 46,
                         176, 178, 52, 308, 54, 55, 311, 181, 61, 67, 454, 70, 78, 334, 336, 81, 105, 234, 107, 361, 362, 374, 379, 381 };
 
-        int[] PoseLandmarksList = { 11, 12, 13, 14, 15, 16, 17, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 };
+        int[] PoseLandmarksList = { 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 };
 
         Array.Sort(FaceLandmarksList); // Fix the sorting of FaceLandmarksList
         List<int> FaceLandmarks = FaceLandmarksList.ToList();
