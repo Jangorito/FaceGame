@@ -1,24 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 
-
-class Randomiser
+public enum Difficulty
 {
-    enum Difficulty
-    {
-        Easy = 1,
-        Medium = 2,
-        Hard = 3
-    }
+    Easy = 1,
+    Medium = 2,
+    Hard = 3
+}
+
+public class Randomiser
+{
 
     static List<int>[] LandmarkSections; // Declare LandmarkSections array in a broader scope
-    static Difficulty GameDifficulty = Difficulty.Hard;
-    static Tuple<int, int, int, int, int> SelectLandmarks()
+    public static Difficulty GameDifficulty = Difficulty.Hard;
+    static (int, int, int, int, int) SelectLandmarks()
     {
-        Tuple<int, int, int, int> SelectedLandmarks;
-        Tuple<int, int, int, int, int> DataToReturn;
+        (int, int, int, int) SelectedLandmarks;
+        (int, int, int, int, int) DataToReturn;
 
         InitialiseLandmarks(); // Call InitialiseLandmarks to populate LandmarkSections
         SelectedLandmarks = RandomLandmarkGenerator();
@@ -28,12 +29,12 @@ class Randomiser
         Console.WriteLine("First Selected Landmark: " + SelectedLandmarks.Item1 + " Second Selected Landmark: " + SelectedLandmarks.Item3);
         Console.WriteLine("Selected Degree = " + Degree);
 
-        DataToReturn = new Tuple<int, int, int, int, int>(SelectedLandmarks.Item2, SelectedLandmarks.Item1, SelectedLandmarks.Item4, SelectedLandmarks.Item3, Degree);
+        DataToReturn = (SelectedLandmarks.Item2, SelectedLandmarks.Item1, SelectedLandmarks.Item4, SelectedLandmarks.Item3, Degree);
 
         return DataToReturn;
     }
 
-    static Tuple<int, int, int, int> RandomLandmarkGenerator()
+    static (int, int, int, int) RandomLandmarkGenerator()
     {
         Random Random = new Random();
         int LandmarkList = Random.Next(0, LandmarkSections.Length);
@@ -55,7 +56,7 @@ class Randomiser
             SecondSelectedLandmark = Random.Next(0, SecondSelectedList.Count);
         }
 
-        Tuple<int, int, int, int> SelectedLandmarks = new Tuple<int, int, int, int>(SelectedLandmark, LandmarkList, SecondSelectedLandmark, SecondLandmarkList);
+        (int, int, int, int) SelectedLandmarks = (SelectedLandmark, LandmarkList, SecondSelectedLandmark, SecondLandmarkList);
         
         return SelectedLandmarks;
     }
