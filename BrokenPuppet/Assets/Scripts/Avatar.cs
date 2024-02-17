@@ -22,8 +22,6 @@ public class Avatar : MonoBehaviour
     private Quaternion targetRot;
     private CalibrationData spineUpDown, hipsTwist, chest, head;
 
-    public Dictionary<HumanBodyBones, CalibrationData> ParentCalibrationData { get => parentCalibrationData; set => parentCalibrationData = value; }
-
     void Start()
     {
         initialRotation = transform.rotation;
@@ -43,7 +41,7 @@ public class Avatar : MonoBehaviour
         }
 
         // Adjust the vertical position of the avatar to keep it approximately grounded.
-        if(ParentCalibrationData.Count > 0)
+        if(parentCalibrationData.Count > 0)
         {
             float displacement = 0;
             RaycastHit h1;
@@ -64,7 +62,7 @@ public class Avatar : MonoBehaviour
 
 
         /* Moves the model */
-       foreach(var i in ParentCalibrationData)
+       foreach(var i in parentCalibrationData)
         {
             Quaternion deltaRotation = Quaternion.FromToRotation(i.Value.initialDirection,
             i.Value.getCurrentDirection());
@@ -73,7 +71,7 @@ public class Avatar : MonoBehaviour
         }
 
        /* only compute additional rotations if avatar has been calibrated */
-       if (ParentCalibrationData.Count > 0) {
+       if (parentCalibrationData.Count > 0) {
 
             /* calculate new rotations */
             Quaternion headr = Quaternion.FromToRotation(head.initialDirection, head.getCurrentDirection());
@@ -123,7 +121,7 @@ public class Avatar : MonoBehaviour
 
     /* returns the avatar to the base pose */
     void resetAvatar() {
-        foreach (var i in ParentCalibrationData) {
+        foreach (var i in parentCalibrationData) {
             i.Value.reset();
         }
         hipsTwist.reset();
@@ -151,7 +149,7 @@ public class Avatar : MonoBehaviour
 
 
         /* resets the calibration data */
-        ParentCalibrationData.Clear();
+        parentCalibrationData.Clear();
 
         addLeftHandCalibrations();
         addRightHandCalibrations();
@@ -203,7 +201,7 @@ public class Avatar : MonoBehaviour
         Landmark trackParent, Landmark trackChild) {
         CalibrationData data = new CalibrationData(parent, child, 
                 trackParent, trackChild, ref animator, ref server);
-        ParentCalibrationData.Add(parent, data);
+        parentCalibrationData.Add(parent, data);
     }
 
     private void addLeftHandCalibrations() {

@@ -9,15 +9,19 @@ public class ShadowAvatar : MonoBehaviour {
     public GameObject shadow;
     public Animator shadowBody;
 
-    public Transform[] boneTransforms; // Assign the bones of your avatar
+    public Transform[] boneTransforms = new Transform[AllBones]; // Assign the bones of your avatar
     public Quaternion[] minRotations;
     public Quaternion[] maxRotations;
     public Difficulty GameDifficulty;
-    public int[] randomBonesSelected;
+
+    static int AllBones = 53;
+
+    static public int[] randomBonesSelected = new int[AllBones];
 
     // Start is called before the first frame update
     void Start()
     {
+        SelectRandomBones();
         InitializeRotationLimits();
         GameDifficulty = Randomiser.GameDifficulty;
         GenerateRandomPose();
@@ -27,7 +31,7 @@ public class ShadowAvatar : MonoBehaviour {
     void Update()
     {
         /* Copy the movement of the avatar */
-        
+        MoveModel();
         
     }
 
@@ -36,7 +40,6 @@ public class ShadowAvatar : MonoBehaviour {
         // Clear the array
         Array.Clear(randomBonesSelected, 0, randomBonesSelected.Length);
         // Create a new Random object
-        int AllBones = 54;
         System.Random rnd = new System.Random();
 
         // Determine the number of bones based on the game difficulty
@@ -46,7 +49,7 @@ public class ShadowAvatar : MonoBehaviour {
         else if ((int)GameDifficulty == 2)
             NumberOfBones = 27;
         else
-            NumberOfBones = 54;
+            NumberOfBones = 53;
 
         // Populate the array with random Transform objects
         for (int i = 0; i < NumberOfBones; i++)
@@ -70,22 +73,30 @@ public class ShadowAvatar : MonoBehaviour {
 
     void MoveModel()
     {
-        Avatar instance = new Avatar();
-        Dictionary<HumanBodyBones, CalibrationData> calibrationData = instance.ParentCalibrationData;
+        // Iterate over each bone transform in the boneTransforms array
+        for (int i = 0; i < boneTransforms.Length; i++)
+        {
+            // Get the rotation of the bone from boneTransforms array
+            Quaternion newRotation = boneTransforms[i].localRotation;
 
-        foreach (var i in calibrationData)
-        { Quaternion deltaRotation = Quaternion.FromToRotation(i.Value.initialDirection, i.Value.getCurrentDirection());
+            // Apply the new rotation to the bone transform in the boneTransforms array
+            boneTransforms[i].rotation = newRotation;
 
-        shadowBody.GetBoneTransform(i.Key).rotation = i.Value.initialRotation * deltaRotation;
+            // Convert the integer index to a HumanBodyBones enum value
+            HumanBodyBones boneType = (HumanBodyBones)i;
+
+            // Update the rotation of the corresponding bone in shadowBody
+            shadowBody.GetBoneTransform(boneType).rotation = newRotation;
         }
     }
 
-//54 bones
+
+
+    //54 bone
     void InitializeRotationLimits()
     {
-        minRotations = new Quaternion[boneTransforms.Length];
-        maxRotations = new Quaternion[boneTransforms.Length]
-            ;
+        minRotations = new Quaternion[AllBones];
+        maxRotations = new Quaternion[AllBones];
         float MaxMin;
         if ((int)GameDifficulty == 1)
             MaxMin = 45;
@@ -108,8 +119,10 @@ public class ShadowAvatar : MonoBehaviour {
     /* Will use procedural generation to generate the random pose */
     void GenerateRandomPose() {
 
-        for (int i = 0; i < boneTransforms.Length; i++)
+        for (int i = 0; i < randomBonesSelected.Length; i++)
         {
+            if (randomBonesSelected[i] != 1)
+                continue;
             // Randomize rotation for each bone
             Quaternion randomRotation = Quaternion.Lerp(minRotations[i], maxRotations[i], UnityEngine.Random.value);
 
