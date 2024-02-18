@@ -14,24 +14,24 @@ public class ShadowAvatar : MonoBehaviour {
     public Quaternion[] maxRotations;
     public Difficulty GameDifficulty;
 
-    static int AllBones = 53;
+    static int AllBones = 50;
 
     static public int[] randomBonesSelected = new int[AllBones];
 
     // Start is called before the first frame update
     void Start()
     {
+        GameDifficulty = Randomiser.GameDifficulty;
         SelectRandomBones();
         InitializeRotationLimits();
-        GameDifficulty = Randomiser.GameDifficulty;
         GenerateRandomPose();
+        MoveModel();
     }
 
     // Update is called once per frame
     void Update()
     {
         /* Copy the movement of the avatar */
-        MoveModel();
         
     }
 
@@ -45,11 +45,11 @@ public class ShadowAvatar : MonoBehaviour {
         // Determine the number of bones based on the game difficulty
         int NumberOfBones;
         if ((int)GameDifficulty == 1)
-            NumberOfBones = 13;
+            NumberOfBones = 8;
         else if ((int)GameDifficulty == 2)
-            NumberOfBones = 27;
+            NumberOfBones = 16;
         else
-            NumberOfBones = 53;
+            NumberOfBones = 24;
 
         // Populate the array with random Transform objects
         for (int i = 0; i < NumberOfBones; i++)
@@ -73,9 +73,15 @@ public class ShadowAvatar : MonoBehaviour {
 
     void MoveModel()
     {
-        // Iterate over each bone transform in the boneTransforms array
         for (int i = 0; i < boneTransforms.Length; i++)
         {
+            // Check if boneTransforms[i] is null
+            if (boneTransforms[i] == null)
+            {
+                Debug.LogError("boneTransforms[" + i + "] is null.");
+                continue;
+            }
+
             // Get the rotation of the bone from boneTransforms array
             Quaternion newRotation = boneTransforms[i].localRotation;
 
@@ -86,7 +92,11 @@ public class ShadowAvatar : MonoBehaviour {
             HumanBodyBones boneType = (HumanBodyBones)i;
 
             // Update the rotation of the corresponding bone in shadowBody
-            shadowBody.GetBoneTransform(boneType).rotation = newRotation;
+            Transform shadowBoneTransform = shadowBody.GetBoneTransform(boneType);
+            if (shadowBoneTransform != null)
+            {
+                shadowBoneTransform.rotation = newRotation;
+            }
         }
     }
 
@@ -122,8 +132,12 @@ public class ShadowAvatar : MonoBehaviour {
         for (int i = 0; i < randomBonesSelected.Length; i++)
         {
             if (randomBonesSelected[i] != 1)
+            {
+                // Set rotation to default for non-selected bones
+                boneTransforms[i].localRotation = Quaternion.identity;
                 continue;
-            // Randomize rotation for each bone
+            }
+            // Randomize rotation for each selected bone
             Quaternion randomRotation = Quaternion.Lerp(minRotations[i], maxRotations[i], UnityEngine.Random.value);
 
             // Apply the random rotation to the bone

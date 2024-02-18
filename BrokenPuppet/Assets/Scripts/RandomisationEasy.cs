@@ -15,7 +15,7 @@ public class Randomiser
 {
 
     static List<int>[] LandmarkSections; // Declare LandmarkSections array in a broader scope
-    public static Difficulty GameDifficulty = Difficulty.Hard;
+    public static Difficulty GameDifficulty = Difficulty.Easy;
     static (int, int, int, int, int) SelectLandmarks()
     {
         (int, int, int, int) SelectedLandmarks;
