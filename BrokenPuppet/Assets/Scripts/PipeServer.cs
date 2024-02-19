@@ -74,15 +74,40 @@ public class PipeServer : MonoBehaviour
 
     /* Converts the String line to its respective Data */
     private void parseInput(string line) {
+        int lenPoses = 33;
+        int lenFace = 478;
+        int lenHand = 21;
+        /* Order of Landmarks sent
+         * Pose -> Face -> LeftHand -> RightHand 
+         */
         string[] parts = line.Split('|');
         /* Index: 0, x: 1, y: 2, z: 3 */
-        if (parts.Length != 4) {
+        if (parts.Length != 5) {
             Debug.Log("Invalid Input Detected - " + line);
             return;
         }
+        int index = 0;
+        index = int.Parse(parts[0]);
+        switch (parts[0]) {
+            case "RH":
+                index += (lenHand + lenFace + lenPoses);
+                break;
+            case "LH":
+                index += (lenPoses + lenFace);
+                break;
+            case "FL":
+                index += (lenPoses);
+                break;
+            case "PL":
+                break;
+            default:
+                break;
+        }
+
+        
 
         /* Add new position to position buffer */
-        body.bPositions[int.Parse(parts[0])].addValue(new Vector3(float.Parse(parts[1]), float.Parse(parts[2]), -float.Parse(parts[3])));
+        body.bPositions[index].addValue(new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
     }
 
     /* Uses the localPosition array to move the instances */

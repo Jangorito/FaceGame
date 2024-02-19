@@ -1,10 +1,8 @@
 
 
-class Program{
+class Landmarks {
 
-    static List<enum>[] Enums = {FaceEnum, PoseEnum, LeftHand, RightHand};
-
-    enum FaceEnum
+    public enum FaceEnum
     {
         //Outer lips clockwise from the middle
         LIPS_OUTER_1 = 0,
@@ -20,7 +18,7 @@ class Program{
         LIPS_INNER_1 = 13,
         LIPS_INNER_2 = 311,
         LIPS_INNER_3 = 308,
-        LIPS_INNER_4 402,
+        LIPS_INNER_4 = 402,
         LIPS_INNER_5 = 14,
         LIPS_INNER_6 = 178,
         LIPS_INNER_7 = 78,
@@ -43,9 +41,9 @@ class Program{
         RIGHT_UPPER_EYEBROW_3 = 107,
 
         //Face Oval
-        RIGHT_UPPER_EYEBROW_1 = 10,
-        RIGHT_UPPER_EYEBROW_2 = 297,
-        RIGHT_UPPER_EYEBROW_3 = 284,
+        FACE_RIGHT_UPPER_EYEBROW_1 = 10,
+        FACE_RIGHT_UPPER_EYEBROW_2 = 297,
+        FACE_RIGHT_UPPER_EYEBROW_3 = 284,
         RIGHT_UPPER_EYEBROW_4 = 389,
         RIGHT_UPPER_EYEBROW_5 = 454,
         RIGHT_UPPER_EYEBROW_6 = 361,
@@ -63,7 +61,7 @@ class Program{
 
     }
 
-    enum PoseEnum
+    public enum PoseEnum
     {
         RIGHT_SHOULDER = 11,
         LEFT_SHOULDER = 12,
@@ -83,55 +81,55 @@ class Program{
         LEFT_TOE = 32
     }
 
-    enum RightHand
+    public enum RightHand
     {
-        RIGHT_WRIST 0
-        RIGHT_THUMB_CMC 1,
-        RIGHT_THUMB_MCP 2,
-        RIGHT_THUMB_IP 3,
-        RIGHT_THUMB_TIP 4,
-        RIGHT_INDEX_FINGER_MCP 5,
-        RIGHT_INDEX_FINGER_PIP 6,
-        RIGHT_INDEX_FINGER_DIP 7,
-        RIGHT_INDEX_FINGER_TIP 8,
-        RIGHT_MIDDLE_FINGER_MCP 9,
-        RIGHT_MIDDLE_FINGER_PIP 10,
-        RIGHT_MIDDLE_FINGER_DIP 11,
-        RIGHT_MIDDLE_FINGER_TIP 12,
-        RIGHT_RING_FINGER_MCP 13,
-        RIGHT_RING_FINGER_PIP 14,
-        RIGHT_RING_FINGER_DIP 15,
-        RIGHT_RING_FINGER_TIP 16,
-        RIGHT_PINKY_MCP 17,
-        RIGHT_PINKY_PIP 18,
-        RIGHT_PINKY_DIP 19,
-        RIGHT_PINKY_TIP 20
+        RIGHT_WRIST = 0,
+        RIGHT_THUMB_CMC = 1,
+        RIGHT_THUMB_MCP = 2,
+        RIGHT_THUMB_IP = 3,
+        RIGHT_THUMB_TIP = 4,
+        RIGHT_INDEX_FINGER_MCP = 5,
+        RIGHT_INDEX_FINGER_PIP = 6,
+        RIGHT_INDEX_FINGER_DIP = 7,
+        RIGHT_INDEX_FINGER_TIP = 8,
+        RIGHT_MIDDLE_FINGER_MCP = 9,
+        RIGHT_MIDDLE_FINGER_PIP = 10,
+        RIGHT_MIDDLE_FINGER_DIP = 11,
+        RIGHT_MIDDLE_FINGER_TIP = 12,
+        RIGHT_RING_FINGER_MCP = 13,
+        RIGHT_RING_FINGER_PIP = 14,
+        RIGHT_RING_FINGER_DIP = 15,
+        RIGHT_RING_FINGER_TIP = 16,
+        RIGHT_PINKY_MCP = 17,
+        RIGHT_PINKY_PIP = 18,
+        RIGHT_PINKY_DIP = 19,
+        RIGHT_PINKY_TIP = 20
         
         }
 
-        enum LeftHand
+        public enum LeftHand
     {
-        LEFT_WRIST 0
-        LEFT_THUMB_CMC 1,
-        LEFT_THUMB_MCP 2,
-        LEFT_THUMB_IP 3,
-        LEFT_THUMB_TIP 4,
-        LEFT_INDEX_FINGER_MCP 5,
-        LEFT_INDEX_FINGER_PIP 6,
-        LEFT_INDEX_FINGER_DIP 7,
-        LEFT_INDEX_FINGER_TIP 8,
-        LEFT_MIDDLE_FINGER_MCP 9,
-        LEFT_MIDDLE_FINGER_PIP 10,
-        LEFT_MIDDLE_FINGER_DIP 11,
-        LEFT_MIDDLE_FINGER_TIP 12,
-        LEFT_RING_FINGER_MCP 13,
-        LEFT_RING_FINGER_PIP 14,
-        LEFT_RING_FINGER_DIP 15,
-        LEFT_RING_FINGER_TIP 16,
-        LEFT_PINKY_MCP 17,
-        LEFT_PINKY_PIP 18,
-        LEFT_PINKY_DIP 19,
-        LEFT_PINKY_TIP 20
+        LEFT_WRIST = 0,
+        LEFT_THUMB_CMC = 1,
+        LEFT_THUMB_MCP = 2,
+        LEFT_THUMB_IP = 3,
+        LEFT_THUMB_TIP = 4,
+        LEFT_INDEX_FINGER_MCP = 5,
+        LEFT_INDEX_FINGER_PIP = 6,
+        LEFT_INDEX_FINGER_DIP = 7,
+        LEFT_INDEX_FINGER_TIP = 8,
+        LEFT_MIDDLE_FINGER_MCP = 9,
+        LEFT_MIDDLE_FINGER_PIP = 10,
+        LEFT_MIDDLE_FINGER_DIP = 11,
+        LEFT_MIDDLE_FINGER_TIP = 12,
+        LEFT_RING_FINGER_MCP = 13,
+        LEFT_RING_FINGER_PIP = 14,
+        LEFT_RING_FINGER_DIP = 15,
+        LEFT_RING_FINGER_TIP = 16,
+        LEFT_PINKY_MCP = 17,
+        LEFT_PINKY_PIP = 18,
+        LEFT_PINKY_DIP = 19,
+        LEFT_PINKY_TIP = 20
         
         }
 

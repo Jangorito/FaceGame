@@ -9,8 +9,6 @@
 
 
 public enum Landmark { 
-    VNECK = -1,
-    VHIP = -2,
     NOSE = 0,
     LEFT_EYE_INNER = 4,
     LEFT_EYE = 5,
@@ -126,7 +124,6 @@ public enum PoseLandmark
     RIGHT_HEEL = 30,
     LEFT_FOOT_INDEX = 31,
     RIGHT_FOOT_INDEX = 32,
-    NONE = 40
 }
 
 public enum RightHandLandmark
