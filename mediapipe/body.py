@@ -321,7 +321,7 @@ class BodyThread(threading.Thread):
         if results.right_hand_landmarks:
             right_hand_landmarks = results.right_hand_landmarks
             for i in range(0, 21):
-                 self.data +=("{}|{}|{}|{}|{}".format(
+                 self.data +=("{}|{}|{}|{}|{}\n".format(
                                 "RH", i, right_hand_landmarks.landmark[i].x,
                                 right_hand_landmarks.landmark[i].y,
                                 right_hand_landmarks.landmark[i].z))
@@ -330,7 +330,7 @@ class BodyThread(threading.Thread):
         if results.left_hand_landmarks:
             left_hand_landmarks = results.left_hand_landmarks
             for i in range(0, 21):
-                self.data +=("{}|{}|{}|{}|{}".format(
+                self.data +=("{}|{}|{}|{}|{}\n".format(
                                 "LH", i, left_hand_landmarks.landmark[i].x,
                                 left_hand_landmarks.landmark[i].y,
                                 left_hand_landmarks.landmark[i].z))
@@ -341,7 +341,7 @@ class BodyThread(threading.Thread):
             for i in range(0, 468):
                  if i not in custom_face_landmarks:
                     continue
-                 self.data +=("{}|{}|{}|{}|{}".format("FL", i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
+                 self.data +=("{}|{}|{}|{}|{}\n".format("FL", i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
                                     # FL = Face Landmarks
     def CollatePoseLandmarks(self, results):
         if results.pose_world_landmarks:
@@ -349,7 +349,7 @@ class BodyThread(threading.Thread):
             for i in range(0, 33):
                if i in (list(range(0, 11)) + list(range(17, 23))): ## Removes pose face landmarks and hands apart from wrist landmark
                    continue
-               self.data +=("{}|{}|{}|{}|{}".format("PL", i, hand_world_landmarks.landmark[i].x, # PL = Pose Landmarks
+               self.data +=("{}|{}|{}|{}|{}\n".format("PL", i, hand_world_landmarks.landmark[i].x, # PL = Pose Landmarks
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z))
         

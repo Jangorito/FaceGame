@@ -77,18 +77,20 @@ public class PipeServer : MonoBehaviour
         int lenPoses = 33;
         int lenFace = 478;
         int lenHand = 21;
+        int index;
         /* Order of Landmarks sent
          * Pose -> Face -> LeftHand -> RightHand 
          */
         string[] parts = line.Split('|');
-        /* Index: 0, x: 1, y: 2, z: 3 */
-        if (parts.Length != 5) {
-            Debug.Log("Invalid Input Detected - " + line);
+        if (parts.Length != 5)
+        {
+            Debug.Log("Invalid Input detected: " + parts);
             return;
         }
-        int index = 0;
-        index = int.Parse(parts[0]);
-        switch (parts[0]) {
+        /* calculate the offset index to add new position to buffer */
+        index = int.Parse(parts[1]);
+        switch (parts[0])
+        {
             case "RH":
                 index += (lenHand + lenFace + lenPoses);
                 break;
@@ -96,6 +98,7 @@ public class PipeServer : MonoBehaviour
                 index += (lenPoses + lenFace);
                 break;
             case "FL":
+                return;
                 index += (lenPoses);
                 break;
             case "PL":
@@ -103,11 +106,8 @@ public class PipeServer : MonoBehaviour
             default:
                 break;
         }
-
-        
-
-        /* Add new position to position buffer */
-        body.bPositions[index].addValue(new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
+    /* Add new position to position buffer */
+    body.bPositions[index].addValue(new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
     }
 
     /* Uses the localPosition array to move the instances */

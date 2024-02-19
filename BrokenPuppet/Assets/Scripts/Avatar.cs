@@ -99,12 +99,12 @@ public class Avatar : MonoBehaviour
         }
 
        /* make the avatar face the camera */
-            if (cam) {
-                Quaternion q = Quaternion.LookRotation((
-                    animator.GetBoneTransform(HumanBodyBones.Chest).transform.position - 
-                    cam.transform.position).normalized, Vector3.up);
-                cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, q, Time.deltaTime * 3f);
-            }
+        if (cam) {
+            Quaternion q = Quaternion.LookRotation((
+                animator.GetBoneTransform(HumanBodyBones.Chest).transform.position - 
+                cam.transform.position).normalized, Vector3.up);
+            cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, q, Time.deltaTime * 3f);
+        }
 
     }
 
