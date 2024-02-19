@@ -107,7 +107,8 @@ public class PipeServer : MonoBehaviour
                 break;
         }
     /* Add new position to position buffer */
-    body.bPositions[index].addValue(new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
+    Debug.Log(index);
+    body.addValue(index, new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
     }
 
     /* Uses the localPosition array to move the instances */
