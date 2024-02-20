@@ -115,6 +115,10 @@ public class ShadowAvatar : MonoBehaviour {
     //54 bone
     void InitializeRotationLimits()
     {
+
+        Limitations.initializeXArray();
+        Limitations.initializeYArray();
+
         minRotations = new Quaternion[AllBones];
         maxRotations = new Quaternion[AllBones];
         if ((int)GameDifficulty == 1)
@@ -128,8 +132,23 @@ public class ShadowAvatar : MonoBehaviour {
         {
             if (randomBonesSelected[i] == 0 && boneTransforms[i] == null) // Check if the bone is not selected or if it's null
                 continue;
-            minRotations[i] = Quaternion.Euler(-MaxMin, -MaxMin, -MaxMin);
-            maxRotations[i] = Quaternion.Euler(MaxMin, MaxMin, MaxMin);
+            (float, float) x = Limitations.getXIndex(i);
+            (float, float) y = Limitations.getYIndex(i);
+            float x1 = x.Item1;
+            float x2 = x.Item2; 
+            float y1 = y.Item1;
+            float y2 = y.Item2;
+            if (x1 == 0)
+                x1 = Quaternion.identity.x;
+            if(x2 == 0)
+                x2 = Quaternion.identity.x;
+            if (y1 == 0)
+                y1 = Quaternion.identity.y;
+            if (y2 == 0)
+                y2 = Quaternion.identity.y;
+            
+            minRotations[i] = Quaternion.Euler(x1, y1, -MaxMin);
+            maxRotations[i] = Quaternion.Euler(x2, y2, MaxMin);
         }
     }
 
