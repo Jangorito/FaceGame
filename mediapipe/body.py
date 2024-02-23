@@ -183,11 +183,7 @@ class CaptureThread(threading.Thread):
             self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
-            print("Camera settings applied:")
-            print("FPS:", self.cap.get(cv2.CAP_PROP_FPS))
-            print("Frame width:", self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            print("Frame height:", self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            
+
 
 
 
@@ -214,26 +210,18 @@ class BodyThread(threading.Thread):
             self.WaitForCamera(capture)
 
             print("Beginning capture")
-            print(capture.cap.isOpened(), global_vars.KILL_THREADS)
 
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
                 image = capture.frame
-                frame_datatype = type(capture.frame)
-                frame_dtype = capture.frame.dtype
-
-                print("Datatype of capture.frame:", frame_datatype)
-                print("Data type of pixel values:", frame_dtype)
                 # Flip the captured frame horizontally for better visualization
                 image = cv2.flip(image, 1)
                 image.flags.writeable = False
-                
                 results = holistic.process(image)
                 self.RemoveHandLandmarks(mp_holistic, results)
                 self.RemovePoseFaceLandmarks(mp_holistic, results)
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
                 # Draw landmarks on the image
                 self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 #self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
@@ -241,16 +229,11 @@ class BodyThread(threading.Thread):
                 self.DrawCustomPoseLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawLeftHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawRightHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
-
-                print("Before processing:")
-                print("Dimensions:", image.shape)  # Print the dimensions of the image
-                print("Color space:", image.dtype)  # Print the color space of the image
                 # Display the annotated image
-                self.send(image)
-
-                cv2.imshow('MediaPipe Holistic', image)
-                print("step1")
-                
+                if global_vars.SPOUT_ON == True:
+                    self.send(image)
+                if global_vars.SPOUT_ONLY == False:
+                    cv2.imshow('MediaPipe Holistic', image)
                 # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
@@ -451,31 +434,21 @@ class BodyThread(threading.Thread):
     
 
     def send(self,image):
-        print("Hello")
         with SpoutGL.SpoutSender() as sender:
             sender.setSenderName(SENDER_NAME)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
             # Determine the required buffer size
-            buffer_size = SEND_WIDTH * SEND_HEIGHT * 3  # Assuming 4 bytes per pixel for BGRA format
-            #buffer_size = 230400
+            buffer_size = SEND_WIDTH * SEND_HEIGHT * 3  # Assuming 3 bytes per pixel for RGB format
             # Allocate the buffer with the appropriate size
             buffer = bytearray(buffer_size)
             # Convert the image to bytes
             pixels = image.tobytes()
-            print("Size of the data:", len(pixels), "bytes")
-
-            # Copy the image bytes to the buffer
+            # Copy the image bytes to the buffer and crop size
             buffer[:len(pixels)] = pixels
-            print("Size of the buffer:", len(buffer), "bytes")
             # Send the image bytes
             result = sender.sendImage(buffer, SEND_WIDTH, SEND_HEIGHT, GL.GL_BGR, False, 0)
-
             # Indicate that a frame is ready to read
             sender.setFrameSync(SENDER_NAME)
-
-            print("Send result:", result)
-
             # Wait for the next frame
             time.sleep(1. / 30)
 
