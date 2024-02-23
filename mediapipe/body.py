@@ -5,13 +5,20 @@ import threading
 import time
 import global_vars  #  global_vars module is defined in global_vars.py
 import struct
+#import SpoutSDK
 from mediapipe.python.solutions.pose import PoseLandmark
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from mediapipe.framework.formats import landmark_pb2
-
-
+import numpy as np
+import SpoutGL
+from OpenGL import GL
+from itertools import repeat
+import array
 custom_style =""
-
+TARGET_FPS = 1
+SEND_WIDTH = 320
+SEND_HEIGHT = 240
+SENDER_NAME = "SpoutGL-test"
 POSE_CONNECTIONS = frozenset([(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5),
                               (5, 6), (6, 8), (9, 10), (11, 12), (11, 13),
                               (13, 15), (12, 14), (14, 16), (11, 23), (12, 24), (23, 24), (23, 25),
@@ -142,6 +149,7 @@ class CaptureThread(threading.Thread):
     counter = 0
     timer = 0.0
 
+            
     def run(self):
         # Open a video capture using OpenCV with specified camera index
         self.cap = cv2.VideoCapture(global_vars.CAM_INDEX) 
@@ -149,7 +157,7 @@ class CaptureThread(threading.Thread):
 
         # Apply custom camera settings if specified in global_vars
         self.ApplyCameraSettings()
-
+        #self.sendWebCam()
         # Wait for a short duration to allow the camera to initialize
         time.sleep(1)
 
@@ -160,7 +168,8 @@ class CaptureThread(threading.Thread):
         while not global_vars.KILL_THREADS:
             self.ret, self.frame = self.cap.read()
             self.isRunning = True
-
+            
+            
             # Print debug information if debugging is enabled (it is at the moment as were in development)
             if global_vars.DEBUG:
                 self.counter = self.counter + 1
@@ -168,12 +177,17 @@ class CaptureThread(threading.Thread):
                     print("Capture FPS: ", self.counter / (time.time() - self.timer))
                     self.counter = 0
                     self.timer = time.time()
-
+                    
     def ApplyCameraSettings(self):
         if global_vars.USE_CUSTOM_CAM_SETTINGS:
             self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
+
+ 
+
+
+
 
 # Define a thread for the processing of landmarks
 class BodyThread(threading.Thread):
@@ -202,11 +216,11 @@ class BodyThread(threading.Thread):
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
                 image = capture.frame
-
+                
                 # Flip the captured frame horizontally for better visualization
                 image = cv2.flip(image, 1)
                 image.flags.writeable = False
-
+                
                 results = holistic.process(image)
                 self.RemoveHandLandmarks(mp_holistic, results)
                 self.RemovePoseFaceLandmarks(mp_holistic, results)
@@ -221,9 +235,11 @@ class BodyThread(threading.Thread):
                 self.DrawLeftHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawRightHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
 
-
+                
                 # Display the annotated image
                 cv2.imshow('MediaPipe Holistic', image)
+                print("step1")
+                self.send(image)
 
                 # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
@@ -422,5 +438,22 @@ class BodyThread(threading.Thread):
                     results.face_landmarks,
                     connections = custom_face_connections,
                     landmark_drawing_spec=drawing_spec)
+    
+
+    def send(self,image):
+        print("Hello")
+        with SpoutGL.SpoutSender() as sender:
+            
+            sender.setSenderName(SENDER_NAME)
+
+            #while True:
+            # Generating bytes in Python is very slow; ideally you should pass in a buffer obtained elsewhere
+            # or re-use an already allocated array instead of allocating one on the fly
+            pixels = image.tobytes()
+            result = sender.sendImage(pixels, SEND_WIDTH, SEND_HEIGHT, GL.GL_RGBA, False, 0)
+            print("Send result", result)
+            # Indicate that a frame is ready to read
+            sender.setFrameSync(SENDER_NAME)
+            time.sleep(1./30)
 
 # End of the code
