@@ -16,7 +16,7 @@ public class CalibrationData
     public Quaternion initialRotation;
     
     public CalibrationData(HumanBodyBones parentBone, HumanBodyBones childBone, 
-        Landmark parentLandmark, Landmark childLandmark, ref Animator animator, ref PipeServer server) {
+        Landmark parentLandmark, Landmark childLandmark, ref Animator animator, ref OSCServer server) {
 
         this.parentBone = parentBone;
         this.childBone = childBone;
@@ -34,7 +34,7 @@ public class CalibrationData
         oInitialRotation = initialRotation;
     }
 
-    public CalibrationData(Transform fparent, Transform fchild, Transform tparent, Transform tchild, ref PipeServer server) {
+    public CalibrationData(Transform fparent, Transform fchild, Transform tparent, Transform tchild, ref OSCServer server) {
         parent = fparent;
         child = fchild;
         this.tparent = tparent;

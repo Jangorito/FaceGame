@@ -6,7 +6,7 @@ using UnityEngine;
 public class Avatar : MonoBehaviour
 {
 
-    private PipeServer server;
+    private OSCServer server;
     public Animator animator;
 
     public LayerMask ground;
@@ -111,8 +111,8 @@ public class Avatar : MonoBehaviour
 
 
     /* attemps to find the active PipeServer to gain access to data */
-    private PipeServer getServer() {
-        PipeServer server = FindObjectOfType<PipeServer>();
+    private OSCServer getServer() {
+        OSCServer server = FindObjectOfType<OSCServer>();
         if (server == null)
                 Debug.LogError("Could not find a PipeServer in the scene");
         return server;

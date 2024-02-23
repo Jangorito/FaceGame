@@ -6,16 +6,23 @@ using System.IO;
 using System.IO.Pipes;
 using System.Threading;
 using System.Text;
+using extOSC;
+using static UnityEditor.Timeline.TimelinePlaybackControls;
+using UnityEngine.UI;
 
-public class PipeServer : MonoBehaviour
+public class OSCServer : MonoBehaviour
 {
     private const int LANDMARK_COUNT = 543;
-    private NamedPipeServerStream server;
 
     private Transform virtualNeck, virtualHip;
     private float maxSpeed = 50f;
     private Body body;
     public Transform bodyParent;
+
+    private OSCReceiver receiver;
+    private string messages;
+    BinaryReader br;
+    public string blob;
 
     // Start is called before the first frame update
     void Start() {
@@ -27,6 +34,7 @@ public class PipeServer : MonoBehaviour
 
         Thread startServerThread = new Thread(runServer);
         Debug.Log("Starting Pipe Server");
+        Initialise();
         startServerThread.Start();
         Debug.Log("Started Pipe Server");
     }
@@ -36,28 +44,57 @@ public class PipeServer : MonoBehaviour
         updateInstances();
 
     }
+    private void Initialise()
+    {
+        // Initialize the receiver
+        receiver = gameObject.AddComponent<OSCReceiver>();
+        receiver.LocalPort = 5005;
+        receiver.Bind("/PythonData", ReceivedMessage);
+    }
+
+    public static Stream GenerateStreamFromString(string s)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
+    }
+
+    private void ReceivedMessage(OSCMessage message)
+    {
+        messages = message.ToString();
+        //Debug.LogFormat("Received: {0}", message);
+
+        br = new BinaryReader(GenerateStreamFromString(messages));
+        
+        // Further processing of the received message if needed
+    }
 
     private void runServer() {
         /* Open the named Pipe */
-        server = new NamedPipeServerStream("UnityMediaPipeBody");
+        //server = new NamedPipeServerStream("UnityMediaPipeBody");
 
-        Debug.Log("Waiting for connection...");
-        server.WaitForConnection();
-        Debug.Log("Connected");
+        //Debug.Log("Waiting for connection...");
+        // receiver.WaitForConnection();
+        //Debug.Log("Connected");
 
-        var br = new BinaryReader(server);
-        while (true) { 
+// var br = new BinaryReader(br);
+        while (true) {
+            Debug.Log("Running");
             try
             {
                 var len = (int)br.ReadUInt32();
                 var str = new string(br.ReadChars(len));
+                Debug.Log("Sending data");
 
                 string[] lines = str.Split('\n');
                 foreach (string line in lines)
                 {
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
-                    parseInput(line);
+                    Debug.Log(line.ToString());
                 }
 
             } catch (EndOfStreamException)
@@ -68,8 +105,9 @@ public class PipeServer : MonoBehaviour
         }
 
         Debug.Log("Client Disconnected.");
-        server.Close();
-        server.Dispose();
+        //server.Close();
+        //server.Dispose();
+        receiver.Close();
     }
 
     /* Converts the String line to its respective Data */
