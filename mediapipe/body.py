@@ -16,8 +16,8 @@ from itertools import repeat
 import array
 custom_style =""
 TARGET_FPS = 1
-SEND_WIDTH = 320
-SEND_HEIGHT = 240
+SEND_WIDTH = global_vars.WIDTH
+SEND_HEIGHT = global_vars.HEIGHT
 SENDER_NAME = "SpoutGL-test"
 POSE_CONNECTIONS = frozenset([(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5),
                               (5, 6), (6, 8), (9, 10), (11, 12), (11, 13),
@@ -183,8 +183,11 @@ class CaptureThread(threading.Thread):
             self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
-
- 
+            print("Camera settings applied:")
+            print("FPS:", self.cap.get(cv2.CAP_PROP_FPS))
+            print("Frame width:", self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            print("Frame height:", self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            
 
 
 
@@ -216,7 +219,11 @@ class BodyThread(threading.Thread):
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
                 image = capture.frame
-                
+                frame_datatype = type(capture.frame)
+                frame_dtype = capture.frame.dtype
+
+                print("Datatype of capture.frame:", frame_datatype)
+                print("Data type of pixel values:", frame_dtype)
                 # Flip the captured frame horizontally for better visualization
                 image = cv2.flip(image, 1)
                 image.flags.writeable = False
@@ -235,12 +242,15 @@ class BodyThread(threading.Thread):
                 self.DrawLeftHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawRightHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
 
-                
+                print("Before processing:")
+                print("Dimensions:", image.shape)  # Print the dimensions of the image
+                print("Color space:", image.dtype)  # Print the color space of the image
                 # Display the annotated image
-                cv2.imshow('MediaPipe Holistic', image)
-                print("step1")
                 self.send(image)
 
+                cv2.imshow('MediaPipe Holistic', image)
+                print("step1")
+                
                 # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
@@ -443,17 +453,30 @@ class BodyThread(threading.Thread):
     def send(self,image):
         print("Hello")
         with SpoutGL.SpoutSender() as sender:
-            
             sender.setSenderName(SENDER_NAME)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-            #while True:
-            # Generating bytes in Python is very slow; ideally you should pass in a buffer obtained elsewhere
-            # or re-use an already allocated array instead of allocating one on the fly
+            # Determine the required buffer size
+            buffer_size = SEND_WIDTH * SEND_HEIGHT * 3  # Assuming 4 bytes per pixel for BGRA format
+            #buffer_size = 230400
+            # Allocate the buffer with the appropriate size
+            buffer = bytearray(buffer_size)
+            # Convert the image to bytes
             pixels = image.tobytes()
-            result = sender.sendImage(pixels, SEND_WIDTH, SEND_HEIGHT, GL.GL_RGBA, False, 0)
-            print("Send result", result)
+            print("Size of the data:", len(pixels), "bytes")
+
+            # Copy the image bytes to the buffer
+            buffer[:len(pixels)] = pixels
+            print("Size of the buffer:", len(buffer), "bytes")
+            # Send the image bytes
+            result = sender.sendImage(buffer, SEND_WIDTH, SEND_HEIGHT, GL.GL_BGR, False, 0)
+
             # Indicate that a frame is ready to read
             sender.setFrameSync(SENDER_NAME)
-            time.sleep(1./30)
+
+            print("Send result:", result)
+
+            # Wait for the next frame
+            time.sleep(1. / 30)
 
 # End of the code
