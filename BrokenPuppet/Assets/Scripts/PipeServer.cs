@@ -1,14 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
-using System.IO.Pipes;
-using System.Threading;
 using System.Text;
 using extOSC;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
-using UnityEngine.UI;
 
 public class OSCServer : MonoBehaviour
 {
@@ -19,10 +13,9 @@ public class OSCServer : MonoBehaviour
     private Body body;
     public Transform bodyParent;
 
-    private OSCReceiver receiver;
     private string messages;
-    BinaryReader br;
     public string blob;
+
 
     // Start is called before the first frame update
     void Start() {
@@ -31,12 +24,9 @@ public class OSCServer : MonoBehaviour
         virtualNeck = new GameObject("VirtualNeck").transform;
         virtualHip = new GameObject("VirtualHip").transform;
 
-
-        Thread startServerThread = new Thread(runServer);
-        Debug.Log("Starting Pipe Server");
+        Debug.Log("Initialising OSC Bindings");
         Initialise();
-        startServerThread.Start();
-        Debug.Log("Started Pipe Server");
+        Debug.Log("OSC Bindings Initialised");
     }
 
     // Update is called once per frame
@@ -47,7 +37,7 @@ public class OSCServer : MonoBehaviour
     private void Initialise()
     {
         // Initialize the receiver
-        receiver = gameObject.AddComponent<OSCReceiver>();
+        var receiver = gameObject.AddComponent<OSCReceiver>();
         receiver.LocalPort = 5005;
         receiver.Bind("/PythonData", ReceivedMessage);
     }
@@ -64,50 +54,21 @@ public class OSCServer : MonoBehaviour
 
     private void ReceivedMessage(OSCMessage message)
     {
-        messages = message.ToString();
-        //Debug.LogFormat("Received: {0}", message);
-
-        br = new BinaryReader(GenerateStreamFromString(messages));
-        
-        // Further processing of the received message if needed
-    }
-
-    private void runServer() {
-        /* Open the named Pipe */
-        //server = new NamedPipeServerStream("UnityMediaPipeBody");
-
-        //Debug.Log("Waiting for connection...");
-        // receiver.WaitForConnection();
-        //Debug.Log("Connected");
-
-// var br = new BinaryReader(br);
-        while (true) {
-            Debug.Log("Running");
-            try
+        /* Data send is long byte[] */
+        if(message.ToBlob(out var value))
+        {
+            /* Convert byte[] to String */
+            String data = Encoding.UTF8.GetString(value);
+            /* Convert String to String[] for each new line */
+            String[] lines = data.Split('\n');
+            /* Process each line in data sent */
+            foreach (string line in lines)
             {
-                var len = (int)br.ReadUInt32();
-                var str = new string(br.ReadChars(len));
-                Debug.Log("Sending data");
-
-                string[] lines = str.Split('\n');
-                foreach (string line in lines)
-                {
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
-                    Debug.Log(line.ToString());
-                }
-
-            } catch (EndOfStreamException)
-            {
-                Debug.Log("Client has disconnected");
-                break; /* Client has Disconnected */
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                parseInput(line);
             }
         }
-
-        Debug.Log("Client Disconnected.");
-        //server.Close();
-        //server.Dispose();
-        receiver.Close();
     }
 
     /* Converts the String line to its respective Data */
@@ -137,7 +98,7 @@ public class OSCServer : MonoBehaviour
                 break;
             case "FL":
                 return;
-                index += (lenPoses);
+                //index += (lenPoses);
                 break;
             case "PL":
                 break;
@@ -145,7 +106,6 @@ public class OSCServer : MonoBehaviour
                 break;
         }
     /* Add new position to position buffer */
-    Debug.Log(index);
     body.addValue(index, new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
     }
 

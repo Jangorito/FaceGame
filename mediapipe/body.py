@@ -249,6 +249,7 @@ class BodyThread(threading.Thread):
                     self.CollateLeftHandLandmarks(results)
                     self.CollateRightHandLandmarks(results)
                     if self.data:
+                        #s = self.data.encode('utf-8')
                         s = self.data.encode('utf-8')
                         self.client.send_message("/PythonData", s)   # Send OSC message
                         print(s)
