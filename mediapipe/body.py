@@ -5,9 +5,12 @@ import threading
 import time
 import global_vars  #  global_vars module is defined in global_vars.py
 import struct
+import json
 from mediapipe.python.solutions.pose import PoseLandmark
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from mediapipe.framework.formats import landmark_pb2
+from pythonosc.udp_client import SimpleUDPClient
+
 
 
 custom_style =""
@@ -178,7 +181,7 @@ class CaptureThread(threading.Thread):
 # Define a thread for the processing of landmarks
 class BodyThread(threading.Thread):
     data = ""
-    pipe = None
+    client = None
     timeSinceCheckedConnection = 0
     def run(self):
         # Import necessary modules from the Mediapipe library
@@ -225,32 +228,37 @@ class BodyThread(threading.Thread):
                 # Display the annotated image
                 cv2.imshow('MediaPipe Holistic', image)
 
-                # Break the loop if the 'Esc' key is pressed
+                                # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
-                # Debugging and communication with Unity project
-                if global_vars.DEBUG == True:
-                    print(time.time()- self.timeSinceCheckedConnection)
-                if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1 and global_vars.PIPE_LINE_DEBUG == False:
-                    self.OpenNamedPipe()
 
-                if self.pipe != None or global_vars.PIPE_LINE_DEBUG:
-                    # Set up data for piping
+                # Debugging and communication with Unity project
+                if global_vars.DEBUG:
+                    print(time.time() - self.timeSinceCheckedConnection)
+
+                if self.client is None and time.time() - self.timeSinceCheckedConnection >= 1 and not global_vars.PIPE_LINE_DEBUG:
+                    ip = "127.0.0.1"
+                    port = 5005
+                    self.client = SimpleUDPClient(ip, port)  # Create client
+
+                if self.client is not None or global_vars.PIPE_LINE_DEBUG:
+                    # Set up data for OSC messaging
                     self.data = ""
-                    i = 0
                     self.CollatePoseLandmarks(results)
                     self.CollateFaceLandmarks(results)
                     self.CollateLeftHandLandmarks(results)
                     self.CollateRightHandLandmarks(results)
-                    # Encode the data and write it to the named pipe
-                    s = self.data.encode('utf-8')
-                    if global_vars.PIPE_LINE_DEBUG == True:
+                    if self.data:
+                        s = self.data.encode('utf-8')
+                        self.client.send_message("/PythonData", s)   # Send OSC message
                         print(s)
                     else:
-                        self.SendDataOverPipe(s)
+                        print("Data is empty. Skipping sending OSC message.")
+                    # s = self.data.encode('utf-8')
+                    # self.client.send_message("/PythonData", s)   # Send OSC message
 
             # Close the named pipe and destroy OpenCV windows
-        self.pipe.close()
+        #self.pipe.close()
         # Release the video capture when done
         capture.cap.release()
         cv2.destroyAllWindows()
@@ -299,23 +307,23 @@ class BodyThread(threading.Thread):
             print("Waiting for camera and capture thread.")
             time.sleep(0.5)
 
-    def SendDataOverPipe(self, s):
-        try:
-            self.pipe.write(struct.pack('I', len(s)) + s)
-            self.pipe.seek(0)
-        except Exception as ex:
-            print("Failed to write to pipe. Is the unity project open?")
-            self.pipe = None
+    # def SendDataOverPipe(self, s):
+    #     try:
+    #         self.pipe.write(struct.pack('I', len(s)) + s)
+    #         self.pipe.seek(0)
+    #     except Exception as ex:
+    #         print("Failed to write to pipe. Is the unity project open?")
+    #         self.pipe = None
 
-    def OpenNamedPipe(self):
-        try:
-                        # Attempt to open a named pipe for communication with Unity
-            self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
-            print("entered")
-        except FileNotFoundError:
-            print("Waiting for Unity project to run...")
-            self.pipe = None
-        self.timeSinceCheckedConnection = time.time()
+    # def OpenNamedPipe(self):
+    #     try:
+    #                     # Attempt to open a named pipe for communication with Unity
+    #         self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
+    #         print("entered")
+    #     except FileNotFoundError:
+    #         print("Waiting for Unity project to run...")
+    #         self.pipe = None
+    #     self.timeSinceCheckedConnection = time.time()
 
     def CollateRightHandLandmarks(self, results):
         if results.right_hand_landmarks:
