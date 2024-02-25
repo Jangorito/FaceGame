@@ -1,21 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
-using System.IO.Pipes;
-using System.Threading;
 using System.Text;
+using extOSC;
 
-public class PipeServer : MonoBehaviour
+public class OSCServer : MonoBehaviour
 {
     private const int LANDMARK_COUNT = 543;
-    private NamedPipeServerStream server;
 
     private Transform virtualNeck, virtualHip;
     private float maxSpeed = 50f;
     private Body body;
     public Transform bodyParent;
+
+    private string messages;
+    public string blob;
+
 
     // Start is called before the first frame update
     void Start() {
@@ -24,11 +24,9 @@ public class PipeServer : MonoBehaviour
         virtualNeck = new GameObject("VirtualNeck").transform;
         virtualHip = new GameObject("VirtualHip").transform;
 
-
-        Thread startServerThread = new Thread(runServer);
-        Debug.Log("Starting Pipe Server");
-        startServerThread.Start();
-        Debug.Log("Started Pipe Server");
+        Debug.Log("Initialising OSC Bindings");
+        Initialise();
+        Debug.Log("OSC Bindings Initialised");
     }
 
     // Update is called once per frame
@@ -36,53 +34,79 @@ public class PipeServer : MonoBehaviour
         updateInstances();
 
     }
+    private void Initialise()
+    {
+        // Initialize the receiver
+        var receiver = gameObject.AddComponent<OSCReceiver>();
+        receiver.LocalPort = 5005;
+        receiver.Bind("/PythonData", ReceivedMessage);
+    }
 
-    private void runServer() {
-        /* Open the named Pipe */
-        server = new NamedPipeServerStream("UnityMediaPipeBody");
+    public static Stream GenerateStreamFromString(string s)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
+    }
 
-        Debug.Log("Waiting for connection...");
-        server.WaitForConnection();
-        Debug.Log("Connected");
-
-        var br = new BinaryReader(server);
-        while (true) { 
-            try
+    private void ReceivedMessage(OSCMessage message)
+    {
+        /* Data send is long byte[] */
+        if(message.ToBlob(out var value))
+        {
+            /* Convert byte[] to String */
+            String data = Encoding.UTF8.GetString(value);
+            /* Convert String to String[] for each new line */
+            String[] lines = data.Split('\n');
+            /* Process each line in data sent */
+            foreach (string line in lines)
             {
-                var len = (int)br.ReadUInt32();
-                var str = new string(br.ReadChars(len));
-
-                string[] lines = str.Split('\n');
-                foreach (string line in lines)
-                {
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
-                    parseInput(line);
-                }
-
-            } catch (EndOfStreamException)
-            {
-                Debug.Log("Client has disconnected");
-                break; /* Client has Disconnected */
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                parseInput(line);
             }
         }
-
-        Debug.Log("Client Disconnected.");
-        server.Close();
-        server.Dispose();
     }
 
     /* Converts the String line to its respective Data */
     private void parseInput(string line) {
+        int lenPoses = 33;
+        int lenFace = 478;
+        int lenHand = 21;
+        int index;
+        /* Order of Landmarks sent
+         * Pose -> Face -> LeftHand -> RightHand 
+         */
         string[] parts = line.Split('|');
-        /* Index: 0, x: 1, y: 2, z: 3 */
-        if (parts.Length != 4) {
-            Debug.Log("Invalid Input Detected - " + line);
+        if (parts.Length != 5)
+        {
+            Debug.Log("Invalid Input detected: " + parts);
             return;
         }
-
-        /* Add new position to position buffer */
-        body.bPositions[int.Parse(parts[0])].addValue(new Vector3(float.Parse(parts[1]), float.Parse(parts[2]), -float.Parse(parts[3])));
+        /* calculate the offset index to add new position to buffer */
+        index = int.Parse(parts[1]);
+        switch (parts[0])
+        {
+            case "RH":
+                index += (lenHand + lenFace + lenPoses);
+                break;
+            case "LH":
+                index += (lenPoses + lenFace);
+                break;
+            case "FL":
+                return;
+                //index += (lenPoses);
+                break;
+            case "PL":
+                break;
+            default:
+                break;
+        }
+    /* Add new position to position buffer */
+    body.addValue(index, new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
     }
 
     /* Uses the localPosition array to move the instances */

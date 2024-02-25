@@ -1,10 +1,8 @@
 
 
-class Program{
+class Landmarks {
 
-    //static List<enum>[] Enums = {FaceEnum, PoseEnum, RightHand, LeftHand };
-
-    enum FaceEnum
+    public enum FaceEnum
     {
         //Outer lips clockwise from the middle
         LIPS_OUTER_1 = 0,
@@ -43,28 +41,27 @@ class Program{
         RIGHT_UPPER_EYEBROW_3 = 107,
 
         //Face Oval
-        FACE_OVAL_1 = 10,
-        FACE_OVAL_2 = 297,
-        FACE_OVAL_3 = 284,
-        FACE_OVAL_4 = 389,
-        FACE_OVAL_5 = 454,
-        FACE_OVAL_6 = 361,
-        FACE_OVAL_7 = 397,
-        FACE_OVAL_8 = 379,
-        FACE_OVAL_9 = 400,
-        FACE_OVAL_10 = 152,
-        FACE_OVAL_11 = 176,
-        FACE_OVAL_12 = 150,
-        FACE_OVAL_13 = 172,
-        FACE_OVAL_14 = 132,
-        FACE_OVAL_15 = 234,
-        FACE_OVAL_16 = 162,
-        FACE_OVAL_17 = 54,
-        FACE_OVAL_18 = 67
+        FACE_RIGHT_UPPER_EYEBROW_1 = 10,
+        FACE_RIGHT_UPPER_EYEBROW_2 = 297,
+        FACE_RIGHT_UPPER_EYEBROW_3 = 284,
+        RIGHT_UPPER_EYEBROW_4 = 389,
+        RIGHT_UPPER_EYEBROW_5 = 454,
+        RIGHT_UPPER_EYEBROW_6 = 361,
+        RIGHT_UPPER_EYEBROW_7 = 397,
+        RIGHT_UPPER_EYEBROW_8 = 379,
+        RIGHT_UPPER_EYEBROW_9 = 400,
+        RIGHT_UPPER_EYEBROW_10 = 152,
+        RIGHT_UPPER_EYEBROW_11 = 176,
+        RIGHT_UPPER_EYEBROW_12 = 150,
+        RIGHT_UPPER_EYEBROW_13 = 172,
+        RIGHT_UPPER_EYEBROW_14 = 132,
+        RIGHT_UPPER_EYEBROW_15 = 234,
+        RIGHT_UPPER_EYEBROW_16 = 162,
+        RIGHT_UPPER_EYEBROW_17 = 54
 
     }
 
-    enum PoseEnum
+    public enum PoseEnum
     {
         RIGHT_SHOULDER = 11,
         LEFT_SHOULDER = 12,
@@ -84,7 +81,7 @@ class Program{
         LEFT_TOE = 32
     }
 
-    enum RightHand
+    public enum RightHand
     {
         RIGHT_WRIST = 0,
         RIGHT_THUMB_CMC = 1,
@@ -110,7 +107,7 @@ class Program{
         
         }
 
-        enum LeftHand
+        public enum LeftHand
     {
         LEFT_WRIST = 0,
         LEFT_THUMB_CMC = 1,

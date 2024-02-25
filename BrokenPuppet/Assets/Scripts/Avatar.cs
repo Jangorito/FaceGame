@@ -6,7 +6,7 @@ using UnityEngine;
 public class Avatar : MonoBehaviour
 {
 
-    private PipeServer server;
+    private OSCServer server;
     public Animator animator;
 
     public LayerMask ground;
@@ -99,20 +99,20 @@ public class Avatar : MonoBehaviour
         }
 
        /* make the avatar face the camera */
-            if (cam) {
-                Quaternion q = Quaternion.LookRotation((
-                    animator.GetBoneTransform(HumanBodyBones.Chest).transform.position - 
-                    cam.transform.position).normalized, Vector3.up);
-                cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, q, Time.deltaTime * 3f);
-            }
+        if (cam) {
+            Quaternion q = Quaternion.LookRotation((
+                animator.GetBoneTransform(HumanBodyBones.Chest).transform.position - 
+                cam.transform.position).normalized, Vector3.up);
+            cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, q, Time.deltaTime * 3f);
+        }
 
     }
 
 
 
     /* attemps to find the active PipeServer to gain access to data */
-    private PipeServer getServer() {
-        PipeServer server = FindObjectOfType<PipeServer>();
+    private OSCServer getServer() {
+        OSCServer server = FindObjectOfType<OSCServer>();
         if (server == null)
                 Debug.LogError("Could not find a PipeServer in the scene");
         return server;
