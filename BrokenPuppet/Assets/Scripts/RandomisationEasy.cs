@@ -1,29 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 /*
 
 class Program
 {
-    enum Difficulty
-    {
-        Easy = 1,
-        Medium = 2,
-        Hard = 3
-    }
 
     static List<int>[] LandmarkSections; // Declare LandmarkSections array in a broader scope
-    static Difficulty GameDifficulty = Difficulty.Hard;
-    static Tuple<int, int, int, int, int> SelectLandmarks()
+    public static Difficulty GameDifficulty = Difficulty.Easy;
+    static (int, int, int, int, int) SelectLandmarks()
     {
-        Tuple<int, int, int, int> SelectedLandmarks;
-        Tuple<int, int, int, int, int> DataToReturn;
+        (int, int, int, int) SelectedLandmarks;
+        (int, int, int, int, int) DataToReturn;
 
-        int Degree = 0;
         InitialiseLandmarks(); // Call InitialiseLandmarks to populate LandmarkSections
         SelectedLandmarks = RandomLandmarkGenerator();
-        Degree = MovementDegreeGenerator(SelectedLandmarks.Item2, SelectedLandmarks.Item4);
+        int Degree = MovementDegreeGenerator(SelectedLandmarks.Item2, SelectedLandmarks.Item4);
 
         Console.WriteLine("Selected Landmark List 1: " + SelectedLandmarks.Item2 + " Selected Landmark List 2: " + SelectedLandmarks.Item4);
         Console.WriteLine("First Selected Landmark: " + SelectedLandmarks.Item1 + " Second Selected Landmark: " + SelectedLandmarks.Item3);
@@ -34,7 +28,7 @@ class Program
         return DataToReturn;
     }
 
-    static Tuple<int, int, int, int> RandomLandmarkGenerator()
+    static (int, int, int, int) RandomLandmarkGenerator()
     {
         Random Random = new Random();
         int LandmarkList = Random.Next(0, LandmarkSections.Length);
@@ -56,7 +50,7 @@ class Program
             SecondSelectedLandmark = Random.Next(0, SecondSelectedList.Count);
         }
 
-        Tuple<int, int, int, int> SelectedLandmarks = new Tuple<int, int, int, int>(SelectedLandmark, LandmarkList, SecondSelectedLandmark, SecondLandmarkList);
+        (int, int, int, int) SelectedLandmarks = (SelectedLandmark, LandmarkList, SecondSelectedLandmark, SecondLandmarkList);
         
         return SelectedLandmarks;
     }
@@ -74,7 +68,9 @@ class Program
 
     static void InitialiseLandmarks()
     {
-        List<int> HandLandmarks = new List<int>();
+        List<int> LeftHandLandmarks = new List<int>();
+        List<int> RightHandLandmarks = new List<int>();
+
         int[] FaceLandmarksList = { 0, 384, 386, 388, 132, 133, 263, 389, 390, 10, 269, 14, 397, 400, 145, 402, 13,
                         17, 405, 150, 276, 152, 282, 154, 284, 157, 285, 159, 33, 161, 291, 163, 162, 39, 297, 172, 300, 46,
                         176, 178, 52, 308, 54, 55, 311, 181, 61, 67, 454, 70, 78, 334, 336, 81, 105, 234, 107, 361, 362, 374, 379, 381 };
