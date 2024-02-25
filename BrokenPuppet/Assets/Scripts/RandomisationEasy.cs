@@ -3,9 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
-/*
 
-class Program
+public enum Difficulty
+{
+    Easy = 1,
+    Medium = 2,
+    Hard = 3
+}
+
+public class Randomiser
 {
 
     static List<int>[] LandmarkSections; // Declare LandmarkSections array in a broader scope
@@ -86,4 +92,3 @@ class Program
         LandmarkSections = new List<int>[] { FaceLandmarks, PoseLandmarks, RightHandLandmarks, LeftHandLandmarks }; // Assign LandmarkSections
     }
 }
-*/
