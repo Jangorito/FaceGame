@@ -5,13 +5,11 @@ import threading
 import time
 import global_vars  #  global_vars module is defined in global_vars.py
 import struct
-#import SpoutSDK
 import json
 from mediapipe.python.solutions.pose import PoseLandmark
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from mediapipe.framework.formats import landmark_pb2
 from pythonosc.udp_client import SimpleUDPClient
-
 import numpy as np
 import SpoutGL
 from OpenGL import GL
