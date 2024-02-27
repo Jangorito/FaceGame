@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public enum Difficulty
@@ -14,17 +15,17 @@ public enum Difficulty
 
 public class Randomiser
 {
-
+    public static GameObject gameObject;
     static List<int>[] LandmarkSections; // Declare LandmarkSections array in a broader scope
     public static Difficulty GameDifficulty = Difficulty.Easy;
-    static (int, int, int, int, int) SelectLandmarks()
+    static (int, int, int, int, Transform) SelectLandmarks()
     {
         (int, int, int, int) SelectedLandmarks;
-        (int, int, int, int, int) DataToReturn;
+        (int, int, int, int, Transform) DataToReturn;
 
         InitialiseLandmarks(); // Call InitialiseLandmarks to populate LandmarkSections
         SelectedLandmarks = RandomLandmarkGenerator();
-        int Degree = MovementDegreeGenerator(SelectedLandmarks.Item2, SelectedLandmarks.Item4);
+        Transform Degree = MovementDegreeGenerator(SelectedLandmarks.Item2, SelectedLandmarks.Item4);
 
         Console.WriteLine("Selected Landmark List 1: " + SelectedLandmarks.Item2 + " Selected Landmark List 2: " + SelectedLandmarks.Item4);
         Console.WriteLine("First Selected Landmark: " + SelectedLandmarks.Item1 + " Second Selected Landmark: " + SelectedLandmarks.Item3);
@@ -62,16 +63,24 @@ public class Randomiser
         return SelectedLandmarks;
     }
 
-    static int MovementDegreeGenerator(int LandmarkIndex, int SecondLandmarkIndex)
+    static Transform MovementDegreeGenerator(int LandmarkIndex, int SecondLandmarkIndex)
     {
         int Difficulty = (int)GameDifficulty;
         //UnityEngine.Random Random = new UnityEngine.Random();
-        int MovementDegree = 0;
         int[] MovementLimits = {0, 25, 50, 75};
         //need to implement constraints n such here
-        MovementDegree = UnityEngine.Random.Range(MovementLimits[Difficulty-1], MovementLimits[Difficulty]);
+        //MovementDegree = UnityEngine.Random.Range(MovementLimits[Difficulty-1], MovementLimits[Difficulty]);
         //Quaternion Degree = UnityEngine.Random.rotation;
-        return MovementDegree;
+        Transform transform = gameObject.transform;
+        Vector3 rot = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0f);
+
+        rot.x = Mathf.Clamp(rot.x, -MovementLimits[Difficulty-1], MovementLimits[Difficulty]);
+        rot.y = Mathf.Clamp(rot.y, -MovementLimits[Difficulty - 1], MovementLimits[Difficulty]);
+
+
+        transform.rotation = Quaternion.Euler(rot.x, rot.y, rot.z);
+
+        return transform;
     }
 
     static void InitialiseLandmarks()
