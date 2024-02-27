@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -17,7 +18,8 @@ public class ShadowAvatar : MonoBehaviour {
 
 
     static int AllBones = 50;
-
+    static int[] LeftLeg = {36,  38, 40, 42};
+    static int[] RightLeg = { 37, 39, 41, 43 };
     static int[] randomBonesSelected = new int[AllBones];
 
     // Start is called before the first frame update
@@ -54,13 +56,24 @@ public class ShadowAvatar : MonoBehaviour {
             NumberOfBones = 12;
         print(NumberOfBones + " " + boneTransforms.Length);
         // Populate the array with random bone indexes
-        for (int i = 0; i < NumberOfBones; i++)
+        int i = 0;
+        while(i < NumberOfBones)
         {
             // Randomly select an index to assign the transform
             int r = rnd.Next(boneTransforms.Length);
             print(r + "\n");
             // Populate array with bone indexes
+            // if the index has already been selected
+            if (randomBonesSelected[r] == 1)
+                continue;
+            // if the right leg has already been selected and transformed, dont do the left leg
+            if (LeftLeg.Contains(r) && (randomBonesSelected[37] == 1 || randomBonesSelected[39] == 1 || randomBonesSelected[41] == 1 || randomBonesSelected[43] == 1))
+                continue;
+            //if the left leg has already been selected and transformed, dont do the right leg
+            if (RightLeg.Contains(r) && (randomBonesSelected[36] == 1 || randomBonesSelected[38] == 1 || randomBonesSelected[40] == 1 || randomBonesSelected[42] == 1))
+                continue;
             randomBonesSelected[r] = 1;
+            i++;
         }
     }
 
