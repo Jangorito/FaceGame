@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "u95IzLXHpUjdCRbP9yf6MYQ7LLu/IhVRJUepRnMfSmVaMUL8rsLFOECQS4EV1jxu9+snQkpIvyN6e/MzprcKcw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\tomys\\OneDrive\\Desktop\\GRP\\team38_project\\Pose Randomisation (temp)\\randomisation.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\tomys\\.nuget\\packages\\microsoft.netcore.app.ref\\5.0.0\\microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\tomys\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\5.0.0\\microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\tomys\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\5.0.0\\microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\tomys\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.17\\microsoft.netcore.app.host.win-x64.5.0.17.nupkg.sha512"
+  ],
+  "logs": []
+}
