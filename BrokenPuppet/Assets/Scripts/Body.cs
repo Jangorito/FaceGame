@@ -19,4 +19,9 @@ public class Body
             bPositions[i] = new AccumulatedBuffer();
         }
     }
+
+    public void addValue(int index, Vector3 value) {
+        if (index < bPositions.Length)
+            bPositions[index].addValue(value);
+    }
 }

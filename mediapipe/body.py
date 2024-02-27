@@ -6,9 +6,12 @@ import time
 import global_vars  #  global_vars module is defined in global_vars.py
 import struct
 #import SpoutSDK
+import json
 from mediapipe.python.solutions.pose import PoseLandmark
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from mediapipe.framework.formats import landmark_pb2
+from pythonosc.udp_client import SimpleUDPClient
+
 import numpy as np
 import SpoutGL
 from OpenGL import GL
@@ -191,7 +194,7 @@ class CaptureThread(threading.Thread):
 # Define a thread for the processing of landmarks
 class BodyThread(threading.Thread):
     data = ""
-    pipe = None
+    client = None
     timeSinceCheckedConnection = 0
     def run(self):
         # Import necessary modules from the Mediapipe library
@@ -237,29 +240,35 @@ class BodyThread(threading.Thread):
                 # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
-                # Debugging and communication with Unity project
-                if global_vars.DEBUG == True:
-                    print(time.time()- self.timeSinceCheckedConnection)
-                if self.pipe == None and time.time() - self.timeSinceCheckedConnection >= 1 and global_vars.PIPE_LINE_DEBUG == False:
-                    self.OpenNamedPipe()
 
-                if self.pipe != None or global_vars.PIPE_LINE_DEBUG:
-                    # Set up data for piping
+                # Debugging and communication with Unity project
+                if global_vars.DEBUG:
+                    print(time.time() - self.timeSinceCheckedConnection)
+
+                if self.client is None and time.time() - self.timeSinceCheckedConnection >= 1 and not global_vars.PIPE_LINE_DEBUG:
+                    ip = "127.0.0.1"
+                    port = 5005
+                    self.client = SimpleUDPClient(ip, port)  # Create client
+
+                if self.client is not None or global_vars.PIPE_LINE_DEBUG:
+                    # Set up data for OSC messaging
                     self.data = ""
-                    i = 0
                     self.CollatePoseLandmarks(results)
                     self.CollateFaceLandmarks(results)
                     self.CollateLeftHandLandmarks(results)
                     self.CollateRightHandLandmarks(results)
-                    # Encode the data and write it to the named pipe
-                    s = self.data.encode('utf-8')
-                    if global_vars.PIPE_LINE_DEBUG == True:
+                    if self.data:
+                        #s = self.data.encode('utf-8')
+                        s = self.data.encode('utf-8')
+                        self.client.send_message("/PythonData", s)   # Send OSC message
                         print(s)
                     else:
-                        self.SendDataOverPipe(s)
+                        print("Data is empty. Skipping sending OSC message.")
+                    # s = self.data.encode('utf-8')
+                    # self.client.send_message("/PythonData", s)   # Send OSC message
 
             # Close the named pipe and destroy OpenCV windows
-        self.pipe.close()
+        #self.pipe.close()
         # Release the video capture when done
         capture.cap.release()
         cv2.destroyAllWindows()
@@ -308,29 +317,29 @@ class BodyThread(threading.Thread):
             print("Waiting for camera and capture thread.")
             time.sleep(0.5)
 
-    def SendDataOverPipe(self, s):
-        try:
-            self.pipe.write(struct.pack('I', len(s)) + s)
-            self.pipe.seek(0)
-        except Exception as ex:
-            print("Failed to write to pipe. Is the unity project open?")
-            self.pipe = None
+    # def SendDataOverPipe(self, s):
+    #     try:
+    #         self.pipe.write(struct.pack('I', len(s)) + s)
+    #         self.pipe.seek(0)
+    #     except Exception as ex:
+    #         print("Failed to write to pipe. Is the unity project open?")
+    #         self.pipe = None
 
-    def OpenNamedPipe(self):
-        try:
-                        # Attempt to open a named pipe for communication with Unity
-            self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
-            print("entered")
-        except FileNotFoundError:
-            print("Waiting for Unity project to run...")
-            self.pipe = None
-        self.timeSinceCheckedConnection = time.time()
+    # def OpenNamedPipe(self):
+    #     try:
+    #                     # Attempt to open a named pipe for communication with Unity
+    #         self.pipe = open(r'\\.\pipe\UnityMediaPipeBody', 'r+b', 0)
+    #         print("entered")
+    #     except FileNotFoundError:
+    #         print("Waiting for Unity project to run...")
+    #         self.pipe = None
+    #     self.timeSinceCheckedConnection = time.time()
 
     def CollateRightHandLandmarks(self, results):
         if results.right_hand_landmarks:
             right_hand_landmarks = results.right_hand_landmarks
             for i in range(0, 21):
-                 self.data +=("{}|{}|{}|{}|{}".format(
+                 self.data +=("{}|{}|{}|{}|{}\n".format(
                                 "RH", i, right_hand_landmarks.landmark[i].x,
                                 right_hand_landmarks.landmark[i].y,
                                 right_hand_landmarks.landmark[i].z))
@@ -339,7 +348,7 @@ class BodyThread(threading.Thread):
         if results.left_hand_landmarks:
             left_hand_landmarks = results.left_hand_landmarks
             for i in range(0, 21):
-                self.data +=("{}|{}|{}|{}|{}".format(
+                self.data +=("{}|{}|{}|{}|{}\n".format(
                                 "LH", i, left_hand_landmarks.landmark[i].x,
                                 left_hand_landmarks.landmark[i].y,
                                 left_hand_landmarks.landmark[i].z))
@@ -350,7 +359,7 @@ class BodyThread(threading.Thread):
             for i in range(0, 468):
                  if i not in custom_face_landmarks:
                     continue
-                 self.data +=("{}|{}|{}|{}|{}".format("FL", i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
+                 self.data +=("{}|{}|{}|{}|{}\n".format("FL", i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
                                     # FL = Face Landmarks
     def CollatePoseLandmarks(self, results):
         if results.pose_world_landmarks:
@@ -358,7 +367,7 @@ class BodyThread(threading.Thread):
             for i in range(0, 33):
                if i in (list(range(0, 11)) + list(range(17, 23))): ## Removes pose face landmarks and hands apart from wrist landmark
                    continue
-               self.data +=("{}|{}|{}|{}|{}".format("PL", i, hand_world_landmarks.landmark[i].x, # PL = Pose Landmarks
+               self.data +=("{}|{}|{}|{}|{}\n".format("PL", i, hand_world_landmarks.landmark[i].x, # PL = Pose Landmarks
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z))
         
