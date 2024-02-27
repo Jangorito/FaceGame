@@ -315,7 +315,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.613
+      value: -0.07700002
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -353,6 +353,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4571605982943762130, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a1f816e5048464742a36beec4746d1ef, type: 2}
     - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_Name
       value: ShadowAvatar
@@ -744,6 +748,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyParent: {fileID: 1896538856}
+  blob: 
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0

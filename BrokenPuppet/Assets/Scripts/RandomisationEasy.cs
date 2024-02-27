@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+using UnityEngine;
 
 
 public enum Difficulty
@@ -36,7 +37,7 @@ public class Randomiser
 
     static (int, int, int, int) RandomLandmarkGenerator()
     {
-        Random Random = new Random();
+        System.Random Random = new System.Random();
         int LandmarkList = Random.Next(0, LandmarkSections.Length);
         List<int> SelectedList = LandmarkSections[LandmarkList]; // Selects a random list from pose, face and hands
 
@@ -64,11 +65,12 @@ public class Randomiser
     static int MovementDegreeGenerator(int LandmarkIndex, int SecondLandmarkIndex)
     {
         int Difficulty = (int)GameDifficulty;
-        Random Random = new Random();
+        //UnityEngine.Random Random = new UnityEngine.Random();
         int MovementDegree = 0;
         int[] MovementLimits = {0, 25, 50, 75};
         //need to implement constraints n such here
-        MovementDegree = Random.Next(MovementLimits[Difficulty-1], MovementLimits[Difficulty]);
+        MovementDegree = UnityEngine.Random.Range(MovementLimits[Difficulty-1], MovementLimits[Difficulty]);
+        //Quaternion Degree = UnityEngine.Random.rotation;
         return MovementDegree;
     }
 
