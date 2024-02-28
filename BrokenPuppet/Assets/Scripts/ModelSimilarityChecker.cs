@@ -14,6 +14,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     Transform[] BrokenPuppetBones;
     Vector3[] PuppetVectors = new Vector3[65];
     Vector3[] GhostVectors = new Vector3[65];
+    bool GameEnd = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +33,9 @@ public class ModelSimilarityChecker : MonoBehaviour
         ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
         //print(ShadowCharacterBones.Length);
         GetVectors();
+        bool Successful = IsModelNear(PuppetVectors, GhostVectors);
+        if (Successful)
+            GameEnd = true;
     }
 
 
@@ -49,13 +53,13 @@ public class ModelSimilarityChecker : MonoBehaviour
             GhostVectors[i] = bone.position;
             i++;
         }
-        bool Successful = IsModelNear(PuppetVectors, GhostVectors);
-        print(Successful);
     }
     // Update is called once per frame
     void Update()
     {
         StartCoroutine(Coroutine());
+        if(!GameEnd)
+            StopCoroutine(Coroutine());
 
     }
 
