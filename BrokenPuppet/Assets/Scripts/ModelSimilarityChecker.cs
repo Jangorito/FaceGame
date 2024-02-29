@@ -18,23 +18,26 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         BrokenPuppet = getPuppetAvatar();
         GhostAvatar = getShadowAvatar();
+        StartCoroutine(Coroutine());
     }
     //Coroutine will run until game ends
     IEnumerator Coroutine()
     {
-        yield return new WaitForSeconds(2);
-        BrokenPuppet = getPuppetAvatar();
-        GhostAvatar = getShadowAvatar();
-        //Gets the puppets bones
-        BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-        //print(BrokenPuppetBones.Length);
-        //Gets the shadows bones
-        ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-        //print(ShadowCharacterBones.Length);
-        GetVectors();
-        bool Successful = IsModelNear(PuppetVectors, GhostVectors);
-        if (Successful)
-            GameEnd = true;
+        while (!GameEnd)
+        {
+            yield return new WaitForSeconds(2);
+            BrokenPuppet = getPuppetAvatar();
+            GhostAvatar = getShadowAvatar();
+            //Gets the puppets bones
+            BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+            //Gets the shadows bones
+            ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+            GetVectors();
+            bool Successful = IsModelNear(PuppetVectors, GhostVectors);
+            if (Successful)
+                break;
+        }
+        GameEnd = true;
     }
 
     //Functions to gathers vectors into an array
@@ -59,8 +62,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StartCoroutine(Coroutine());
-        if(!GameEnd)
+        if(GameEnd)
             StopCoroutine(Coroutine());
 
     }
