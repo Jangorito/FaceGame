@@ -163,7 +163,8 @@ class CaptureThread(threading.Thread):
         time.sleep(1)
 
         # Print the frames per second of the capture
-        print("Opened Capture @ %s fps" % str(self.cap.get(cv2.CAP_PROP_FPS)))
+        if global_vars.DEBUG:
+            print("Opened Capture @ %s fps" % str(self.cap.get(cv2.CAP_PROP_FPS)))
 
         # Continuously capture frames while the program is running
         while not global_vars.KILL_THREADS:
@@ -209,8 +210,8 @@ class BodyThread(threading.Thread):
         with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.5, refine_face_landmarks = False) as holistic:
             # Wait until the camera is running before starting body landmark processing
             self.WaitForCamera(capture)
-
-            print("Beginning capture")
+            if global_vars.DEBUG:
+                print("Beginning capture")
 
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
