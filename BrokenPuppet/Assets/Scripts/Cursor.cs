@@ -7,6 +7,7 @@ public class Cursor : MonoBehaviour
 {
 
     private Avatar avatar;
+    public int Range = 10;
     public void Start() {
         avatar = getAvatar();
 
@@ -21,7 +22,7 @@ public class Cursor : MonoBehaviour
         Vector2 cursorxy = new Vector2(cursor.x, cursor.y);
    
         /* NOTE: 10 is the random number I have chosen, will need fine tuning once Buttons are added */
-        return (Vector2.Distance(cursorxy, GetCursor()) <= 10);
+        return (Vector2.Distance(cursorxy, GetCursor()) <= Range);
     }
 
     /* attemps to find the active Avatar to gain access to data */
