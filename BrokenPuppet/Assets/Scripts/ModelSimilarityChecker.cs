@@ -24,6 +24,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     IEnumerator Coroutine()
     {
         yield return new WaitForSeconds(2);
+        bool Successful;
         while (!GameEnd)
         {
             BrokenPuppet = getPuppetAvatar();
@@ -33,7 +34,7 @@ public class ModelSimilarityChecker : MonoBehaviour
             //Gets the shadows bones
             ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
             GetVectors();
-            bool Successful = IsModelNear(PuppetVectors, GhostVectors);
+            Successful = IsModelNear(PuppetVectors, GhostVectors);
             if (Successful)
                 break;
         }
