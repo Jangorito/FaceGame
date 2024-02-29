@@ -2,11 +2,11 @@
 
 ## Set-Up
 1. Clone the Repository  
-2. In Unity Hub add Project and select the BrokenPuppet folder 
+2. In Unity Hub add Project and select this folder  
 
 ## Unity Version
 ```
-2022.3.14f1
+2022.3.13f1
 ```
 
 ## Contributors
