@@ -23,9 +23,9 @@ public class ModelSimilarityChecker : MonoBehaviour
     //Coroutine will run until game ends
     IEnumerator Coroutine()
     {
+        yield return new WaitForSeconds(2);
         while (!GameEnd)
         {
-            yield return new WaitForSeconds(2);
             BrokenPuppet = getPuppetAvatar();
             GhostAvatar = getShadowAvatar();
             //Gets the puppets bones
