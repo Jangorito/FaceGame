@@ -260,7 +260,7 @@ class BodyThread(threading.Thread):
                         s = self.data.encode('utf-8')
                         self.client.send_message("/PythonData", s)   # Send OSC message
                         #print(s)
-                    else:
+                    if global_vars.DEBUG:
                         print("Data is empty. Skipping sending OSC message.")
                     # s = self.data.encode('utf-8')
                     # self.client.send_message("/PythonData", s)   # Send OSC message
