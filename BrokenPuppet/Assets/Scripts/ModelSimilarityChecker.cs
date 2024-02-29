@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class ModelSimilarityChecker : MonoBehaviour
@@ -81,25 +82,18 @@ public class ModelSimilarityChecker : MonoBehaviour
         return avatar;
     }
 
-    public Boolean IsModelNear(Vector3[] Puppet, Vector3[] Ghost)
+    public bool IsModelNear(Vector3[] Puppet, Vector3[] Ghost)
     {
-        int count = 0;
         for(int i = 0; i < Puppet.Length; i++)
         {
             //Takes the distance between the puppet and ghost in terms of vectors
-            decimal distance = Math.Round((decimal)Vector3.Distance(Puppet[i], Ghost[i]), 2);
+            float distance = Vector3.Distance(Puppet[i], Ghost[i]);
             print("Puppet vector: " + Puppet[i] + "Ghost vector: " + Ghost[i] + "Distance: " + distance);
             //checks if every bone is <0.25 units away from the corresponding ghost one
-            if ((float) distance <= 0.25)
-            { 
-                //Incremeents the count so we know if all the bones match
-                count++;
-            }
+            if (distance >= 0.25)
+                return false;
+                
         }
-        //If all bones match, returns true
-        if (count == 65)
-            return true;
-        else
-            return false;
+        return true;
     }
 }
