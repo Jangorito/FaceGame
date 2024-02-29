@@ -65,7 +65,6 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         if(GameEnd)
             StopCoroutine(Coroutine());
-
     }
     //Gets the shadow "ghost" avatar the user has to match
     private ShadowAvatar getShadowAvatar()
@@ -93,7 +92,7 @@ public class ModelSimilarityChecker : MonoBehaviour
             float distance = Vector3.Distance(Puppet[i], Ghost[i]);
             print($"Puppet vector: {Puppet[i]} Ghost vector: {Ghost[i]} Distance: {distance}");
             //checks if every bone is <0.25 units away from the corresponding ghost one
-            if (distance >= 0.25)
+            if (distance > 0.25)
                 return false;
         }
         return true;
