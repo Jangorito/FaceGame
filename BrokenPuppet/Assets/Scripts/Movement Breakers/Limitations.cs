@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
+using UnityEngine;
 
 public class Limitations
 {
@@ -163,6 +166,11 @@ public class Limitations
         y_hashmap.Add(49, (0, 180));
 
     }
+
+    /* returns x and y limit values in an array for given bone */
+    public static (float, float) getXLimit(HumanBodyBones bone) { return x_hashmap[(int)bone]; }
+
+    public static (float, float) getYLimit(HumanBodyBones bone) { return y_hashmap[(int)bone]; }
 
     public static (float, float) getXIndex(int index)
     {   //x, y

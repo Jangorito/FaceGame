@@ -25,8 +25,8 @@ public class ShadowAvatar : MonoBehaviour {
         GameDifficulty = Randomiser.GameDifficulty;
         SelectRandomBones();
         InitializeRotationLimits();
-        GenerateRandomPose();
-        MoveModel();
+       // GenerateRandomPose();
+        //MoveModel();
     }
 
     // Update is called once per frame

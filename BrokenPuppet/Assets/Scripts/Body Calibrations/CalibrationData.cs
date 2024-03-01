@@ -10,6 +10,9 @@ public class CalibrationData
     private Vector3 oInitialDirection;
     private Quaternion oInitialRotation;
 
+    private (float, float) x_limit;
+    private (float, float) y_limit;
+
     public Transform parent, child, tparent, tchild;
 
     public Vector3 initialDirection;
@@ -23,25 +26,49 @@ public class CalibrationData
         this.parentLandmark = parentLandmark;
         this.childLandmark = childLandmark;
 
-        parent  = animator.GetBoneTransform(parentBone);
-        child = animator.GetBoneTransform(childBone);
+        getBoneTransforms(ref animator);
         tchild = server.getLandmark(parentLandmark);
         tparent = server.getLandmark(childLandmark);
-        
-        initialDirection = getCurrentDirection();
-        initialRotation = getInitialRotation();
-        oInitialDirection = initialDirection;
-        oInitialRotation = initialRotation;
+
+        setInitialRotAndDir();
     }
 
-    public CalibrationData(Transform fparent, Transform fchild, Transform tparent, Transform tchild, ref OSCServer server) {
-        parent = fparent;
-        child = fchild;
+    public CalibrationData(HumanBodyBones parentBone, HumanBodyBones childBone, Transform tparent, 
+        Transform tchild, ref Animator animator, ref OSCServer server) {
+        this.parentBone = parentBone;
+        this.childBone = childBone;
+
+        getBoneTransforms(ref animator);
         this.tparent = tparent;
         this.tchild = tchild;
 
+        setInitialRotAndDir();
+    }
+
+    private void setLimits()
+    {
+        x_limit = Limitations.getXLimit(this.parentBone);
+        y_limit = Limitations.getYLimit(this.parentBone);
+    }
+
+    public (float, float)[] getLimit()
+    {
+        return new (float, float)[] { x_limit, y_limit };
+    }
+
+
+    private void getBoneTransforms(ref Animator animator)
+    {
+        parent = animator.GetBoneTransform(parentBone);
+        child = animator.GetBoneTransform(childBone);
+    }
+
+    private void setInitialRotAndDir()
+    {
         initialRotation = getInitialRotation();
         initialDirection = getCurrentDirection();
+        oInitialDirection = initialDirection;
+        oInitialRotation = initialRotation;
     }
 
     public Quaternion targetRotation;
