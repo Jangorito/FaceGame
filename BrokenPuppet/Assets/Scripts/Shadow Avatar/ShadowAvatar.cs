@@ -178,4 +178,12 @@ public class ShadowAvatar : MonoBehaviour {
         }
     }
 
+    void NextLevel()
+    {
+        SelectRandomBones();
+        InitializeRotationLimits();
+        GenerateRandomPose();
+        MoveModel();
+    }
+
 }
