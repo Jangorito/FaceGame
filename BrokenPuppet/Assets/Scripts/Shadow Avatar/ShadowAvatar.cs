@@ -25,8 +25,8 @@ public class ShadowAvatar : MonoBehaviour {
         GameDifficulty = Randomiser.GameDifficulty;
         SelectRandomBones();
         InitializeRotationLimits();
-       // GenerateRandomPose();
-        //MoveModel();
+        GenerateRandomPose();
+        MoveModel();
     }
 
     // Update is called once per frame
@@ -142,12 +142,11 @@ public class ShadowAvatar : MonoBehaviour {
         {
             if (randomBonesSelected[i] == 0 && boneTransforms[i] == null) // Check if the bone is not selected or if it's null
                 continue;
-            (float, float) x = Limitations.getXIndex(i);
-            (float, float) y = Limitations.getYIndex(i);
-            float x1 = x.Item1;
-            float x2 = x.Item2; 
-            float y1 = y.Item1;
-            float y2 = y.Item2;
+            (float, float)[] limits = Avatar.parentCalibrationData[(HumanBodyBones)i].getLimit();
+            float x1 = limits[0].Item1;
+            float x2 = limits[0].Item2; 
+            float y1 = limits[1].Item1;
+            float y2 = limits[1].Item2;
             if (x1 == 0)
                 x1 = Quaternion.identity.x;
             if(x2 == 0)
