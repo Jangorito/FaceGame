@@ -20,9 +20,8 @@ public class CalibrationData
     
     public CalibrationData(HumanBodyBones parentBone, HumanBodyBones childBone, 
         Landmark parentLandmark, Landmark childLandmark, ref Animator animator, ref OSCServer server) {
+        setBones(parentBone, childBone);
 
-        this.parentBone = parentBone;
-        this.childBone = childBone;
         this.parentLandmark = parentLandmark;
         this.childLandmark = childLandmark;
 
@@ -33,10 +32,15 @@ public class CalibrationData
         setInitialRotAndDir();
     }
 
-    public CalibrationData(HumanBodyBones parentBone, HumanBodyBones childBone, Transform tparent, 
-        Transform tchild, ref Animator animator, ref OSCServer server) {
+    private void setBones(HumanBodyBones parentBone, HumanBodyBones childBone) {
         this.parentBone = parentBone;
         this.childBone = childBone;
+        setLimits();
+    }
+
+    public CalibrationData(HumanBodyBones parentBone, HumanBodyBones childBone, Transform tparent, 
+        Transform tchild, ref Animator animator, ref OSCServer server) {
+        setBones(parentBone, childBone);
 
         getBoneTransforms(ref animator);
         this.tparent = tparent;
@@ -49,6 +53,7 @@ public class CalibrationData
     {
         x_limit = Limitations.getXLimit(this.parentBone);
         y_limit = Limitations.getYLimit(this.parentBone);
+        Debug.Log(x_limit);
     }
 
     public (float, float)[] getLimit()
