@@ -25,4 +25,4 @@ SPOUT_ONLY = False
 
 
 #turn off spouting = false for no spout
-SPOUT_ON = False
+SPOUT_ON = True
