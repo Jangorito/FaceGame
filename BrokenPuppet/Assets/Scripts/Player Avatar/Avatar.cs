@@ -14,13 +14,15 @@ public class Avatar : MonoBehaviour
 
     public Camera cam;
 
-    public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData = 
+    private Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData = 
         new Dictionary<HumanBodyBones, CalibrationData>();
 
     private Quaternion initialRotation;
     private Vector3 initialPosition;
     private Quaternion targetRot;
     private CalibrationData spineUpDown, hipsTwist, chest, head;
+
+    private bool calibrated = false;
 
     void Start()
     {
@@ -40,28 +42,8 @@ public class Avatar : MonoBehaviour
             StartCoroutine(Calibrate());
         }
 
-        // Adjust the vertical position of the avatar to keep it approximately grounded.
-        if (parentCalibrationData.Count > 0)
-        {
-            float displacement = 0;
-            RaycastHit h1;
-            if (Physics.Raycast(animator.GetBoneTransform(HumanBodyBones.LeftFoot).position, Vector3.down, out h1, 100f, ground, QueryTriggerInteraction.Ignore))
-            {
-                displacement = (h1.point - animator.GetBoneTransform(HumanBodyBones.LeftFoot).position).y;
-            }
-            if (Physics.Raycast(animator.GetBoneTransform(HumanBodyBones.RightFoot).position, Vector3.down, out h1, 100f, ground, QueryTriggerInteraction.Ignore))
-            {
-                float displacement2 = (h1.point - animator.GetBoneTransform(HumanBodyBones.RightFoot).position).y;
-                if (Mathf.Abs(displacement2) < Mathf.Abs(displacement))
-                {
-                    displacement = displacement2;
-                }
-            }
-            transform.position = Vector3.Lerp(transform.position, initialPosition + Vector3.up * displacement + Vector3.up * footGroundOffset,
-                Time.deltaTime * 5f);
-        }
-
-
+        if (!calibrated)
+            return;
 
         /* Moves the model */
         foreach (var i in parentCalibrationData)
@@ -99,15 +81,6 @@ public class Avatar : MonoBehaviour
             Quaternion deltaRotTracked = Quaternion.FromToRotation(hipsTwist.initialDirection, d);
             targetRot = deltaRotTracked * initialRotation;
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
-        }
-
-        /* make the avatar face the camera */
-        if (cam)
-        {
-            Quaternion q = Quaternion.LookRotation((
-                animator.GetBoneTransform(HumanBodyBones.Chest).transform.position -
-                cam.transform.position).normalized, Vector3.up);
-            cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, q, Time.deltaTime * 3f);
         }
 }
 
@@ -156,7 +129,36 @@ private OSCServer getServer() {
 
         addLeftHandCalibrations();
         addRightHandCalibrations();
+        addPoseCalibrations();
 
+        /* Manually define neck and hip connections */
+        spineUpDown = new CalibrationData(
+            HumanBodyBones.Spine, HumanBodyBones.Neck,
+            server.getVirtualHip(), server.getVirtualNeck(), ref animator, ref server);
+        hipsTwist = new CalibrationData(HumanBodyBones.Hips, HumanBodyBones.Hips,
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
+        chest = new CalibrationData(HumanBodyBones.Chest, HumanBodyBones.Chest,
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
+        head = new CalibrationData(
+            HumanBodyBones.Neck, HumanBodyBones.Head,
+            server.getVirtualNeck(), server.getLandmark(Landmark.NOSE), ref animator, ref server);
+
+        Debug.Log("Calibrated");
+        calibrated = true;
+    }
+
+    public Transform getBoneTransform(HumanBodyBones bone) {
+        return animator.GetBoneTransform(bone);
+    }
+
+    private void AddCalibration(HumanBodyBones parent, HumanBodyBones child, 
+        Landmark trackParent, Landmark trackChild) {
+        CalibrationData data = new CalibrationData(parent, child, 
+                trackParent, trackChild, ref animator, ref server);
+        parentCalibrationData.Add(parent, data);
+    }
+
+    private void addPoseCalibrations() {
         AddCalibration(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm,
             Landmark.RIGHT_SHOULDER, Landmark.RIGHT_ELBOW);
 
@@ -180,32 +182,6 @@ private OSCServer getServer() {
 
         AddCalibration(HumanBodyBones.RightLowerLeg, HumanBodyBones.RightFoot,
             Landmark.RIGHT_KNEE, Landmark.RIGHT_ANKLE);
-
-        /* Manually define neck and hip connections */
-        spineUpDown = new CalibrationData(
-            HumanBodyBones.Spine, HumanBodyBones.Neck,
-            server.getVirtualHip(), server.getVirtualNeck(), ref animator, ref server);
-        hipsTwist = new CalibrationData(HumanBodyBones.Hips, HumanBodyBones.Hips,
-            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
-        chest = new CalibrationData(HumanBodyBones.Chest, HumanBodyBones.Chest,
-            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
-        head = new CalibrationData(
-            HumanBodyBones.Neck, HumanBodyBones.Head,
-            server.getVirtualNeck(), server.getLandmark(Landmark.NOSE), ref animator, ref server);
-
-        Debug.Log("Calibrated");
-        ShadowAvatar.NextLevel();
-    }
-
-    public Transform getBoneTransform(HumanBodyBones bone) {
-        return animator.GetBoneTransform(bone);
-    }
-
-    private void AddCalibration(HumanBodyBones parent, HumanBodyBones child, 
-        Landmark trackParent, Landmark trackChild) {
-        CalibrationData data = new CalibrationData(parent, child, 
-                trackParent, trackChild, ref animator, ref server);
-        parentCalibrationData.Add(parent, data);
     }
 
     private void addLeftHandCalibrations() {
