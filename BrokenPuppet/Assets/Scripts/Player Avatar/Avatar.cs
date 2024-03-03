@@ -194,6 +194,7 @@ private OSCServer getServer() {
             server.getVirtualNeck(), server.getLandmark(Landmark.NOSE), ref animator, ref server);
 
         Debug.Log("Calibrated");
+        ShadowAvatar.NextLevel();
     }
 
     public Transform getBoneTransform(HumanBodyBones bone) {

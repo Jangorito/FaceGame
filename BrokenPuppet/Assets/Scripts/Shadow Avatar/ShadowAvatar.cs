@@ -5,13 +5,13 @@ using UnityEngine;
 public class ShadowAvatar : MonoBehaviour { 
 
     public GameObject shadow;
-    public Animator shadowBody;
+    public static Animator shadowBody;
 
-    public Transform[] boneTransforms;
-    public Quaternion[] minRotations;
-    public Quaternion[] maxRotations;
-    public Difficulty GameDifficulty;
-    float MaxMin;
+    public static Transform[] boneTransforms;
+    public  static Quaternion[] minRotations;
+    public  static Quaternion[] maxRotations;
+    public static Difficulty GameDifficulty;
+    static float MaxMin;
 
 
     static int AllBones = 50;
@@ -23,10 +23,12 @@ public class ShadowAvatar : MonoBehaviour {
     void Start()
     {
         GameDifficulty = Randomiser.GameDifficulty;
-        SelectRandomBones();
-        InitializeRotationLimits();
-        GenerateRandomPose();
-        MoveModel();
+        Limitations.initializeXArray();
+        Limitations.initializeYArray();
+        //SelectRandomBones();
+        //InitializeRotationLimits();
+        //GenerateRandomPose();
+        //MoveModel();
     }
 
     // Update is called once per frame
@@ -36,7 +38,7 @@ public class ShadowAvatar : MonoBehaviour {
 
     }
 
-    void SelectRandomBones()
+    static void SelectRandomBones()
     {
         // Clear the array
         Array.Clear(randomBonesSelected, 0, randomBonesSelected.Length);
@@ -83,7 +85,7 @@ public class ShadowAvatar : MonoBehaviour {
     //     animator.GetBoneTransform(i.Key).rotation = deltaRotation* i.Value.initialRotation;
     // }
 
-    void MoveModel()
+    static void MoveModel()
     {
         for (int i = 0; i < randomBonesSelected.Length; i++)
         {
@@ -123,11 +125,8 @@ public class ShadowAvatar : MonoBehaviour {
 
 
     //54 bone
-    void InitializeRotationLimits()
+    static void InitializeRotationLimits()
     {
-
-        Limitations.initializeXArray();
-        Limitations.initializeYArray();
 
         minRotations = new Quaternion[AllBones];
         maxRotations = new Quaternion[AllBones];
@@ -167,7 +166,7 @@ public class ShadowAvatar : MonoBehaviour {
     }
 
 
-    void GenerateRandomPose()
+    static void GenerateRandomPose()
     {
         // Loop through all bones
         for (int i = 0; i < boneTransforms.Length; i++)
@@ -183,7 +182,7 @@ public class ShadowAvatar : MonoBehaviour {
         }
     }
 
-    void NextLevel()
+    public static void NextLevel()
     {
         SelectRandomBones();
         InitializeRotationLimits();
