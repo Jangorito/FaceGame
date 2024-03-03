@@ -22,6 +22,8 @@ public class ShadowAvatar : MonoBehaviour {
     // Start is called before the first frame update
     void Start()
     {
+        shadow = GameObject.Find("ShadowAvatar");
+        boneTransforms = shadow.GetComponentsInChildren<Transform>();
         GameDifficulty = Randomiser.GameDifficulty;
         Limitations.initializeXArray();
         Limitations.initializeYArray();
@@ -53,7 +55,7 @@ public class ShadowAvatar : MonoBehaviour {
             NumberOfBones = 8;
         else
             NumberOfBones = 12;
-        print(NumberOfBones + " " + boneTransforms.Length);
+        Debug.Log(NumberOfBones);
         // Populate the array with random bone indexes
         int i = 0;
         while(i < NumberOfBones)

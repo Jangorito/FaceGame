@@ -14,7 +14,7 @@ public class Avatar : MonoBehaviour
 
     public Camera cam;
 
-    private Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData = 
+    public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData = 
         new Dictionary<HumanBodyBones, CalibrationData>();
 
     private Quaternion initialRotation;
@@ -145,6 +145,7 @@ private OSCServer getServer() {
 
         Debug.Log("Calibrated");
         calibrated = true;
+        ShadowAvatar.NextLevel();
     }
 
     public Transform getBoneTransform(HumanBodyBones bone) {
