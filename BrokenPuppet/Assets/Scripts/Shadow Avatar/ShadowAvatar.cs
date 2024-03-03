@@ -58,7 +58,7 @@ public class ShadowAvatar : MonoBehaviour {
         {
             // Randomly select an index to assign the transform
             int r = rnd.Next(boneTransforms.Length);
-            print(r + "\n");
+            //print(r + "\n");
             // Populate array with bone indexes
             // if the index has already been selected
             if (randomBonesSelected[r] == 1)
@@ -90,7 +90,7 @@ public class ShadowAvatar : MonoBehaviour {
             // Check if the boneTransforms array is null or if the bone is not selected
             if (boneTransforms[i] == null || randomBonesSelected[i] == 0)
             {
-                print("Staying in T-Pose " + i);
+                //print("Staying in T-Pose " + i);
                 continue; // Skip this bone if it's null or not selected
             }
 
@@ -138,26 +138,20 @@ public class ShadowAvatar : MonoBehaviour {
         else
             MaxMin = 30;
         // Define min and max rotations for each selected bone
-        Debug.Log("Test\n");
+        //Debug.Log("Test\n");
         for (int i = 0; i < randomBonesSelected.Length; i++)
         {
             if (randomBonesSelected[i] == 0 || boneTransforms[i] == null) // Check if the bone is not selected or if it's null
                 continue;
-            Debug.Log("Test 2\n");
+            //Debug.Log("Test 2\n");
             float x1 =0, x2=0, y1=0, y2=0;
-            try
-            {
+            
                 (float, float)[] limits = Avatar.parentCalibrationData[(HumanBodyBones)i].getLimit();
                 x1 = limits[0].Item1;
                 x2 = limits[0].Item2;
                 y1 = limits[1].Item1;
                 y2 = limits[1].Item2;
-            }
-            catch (Exception ex)
-            {
-                Debug.Log("In Catch\n"); //it is always entering it atm
-                Debug.LogError("Exception occurred: \n" + ex);
-            }
+            
             if (x1 == 0)
                 x1 = Quaternion.identity.x;
             if(x2 == 0)
