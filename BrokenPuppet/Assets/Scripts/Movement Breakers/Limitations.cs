@@ -20,6 +20,7 @@ public class Limitations
         x_hashmap.Add(HumanBodyBones.RightEye, (0, 0));
         x_hashmap.Add(HumanBodyBones.Head, (0, 0));
         x_hashmap.Add(HumanBodyBones.Jaw, (0, 0));
+        x_hashmap.Add(HumanBodyBones.Chest, (0, 0));
 
         //neck and hip and spine
         x_hashmap.Add(HumanBodyBones.Neck, (-70, 70));
@@ -99,7 +100,7 @@ public class Limitations
         y_hashmap.Add(HumanBodyBones.RightEye, (0, 0));
         y_hashmap.Add(HumanBodyBones.Head, (0, 0));
         y_hashmap.Add(HumanBodyBones.Jaw, (0, 0));
-
+        y_hashmap.Add(HumanBodyBones.Chest, (0, 0));
         //neck and hip and spine
         y_hashmap.Add(HumanBodyBones.Neck, (-50, 50));
         y_hashmap.Add(HumanBodyBones.Hips, (-30, 40));
@@ -181,19 +182,4 @@ public class Limitations
             return (0,0);
         return y_hashmap[bone]; 
     }
-
-    public static (float, float) getXIndex(HumanBodyBones index)
-    {   //x, y
-
-        (float, float) MapIndex = x_hashmap[index];
-        return MapIndex;
-    }
-
-    public static (float, float) getYIndex(HumanBodyBones index)
-    {   //x, y
-        (float, float) MapIndex = y_hashmap[index];
-
-        return MapIndex;
-    }
-
 }
