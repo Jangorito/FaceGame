@@ -17,7 +17,7 @@ public class Avatar : MonoBehaviour
     private Vector3 initialPosition;
     private Quaternion targetRot;
     private CalibrationData spineUpDown, hipsTwist, chest, head;
-
+    public ShadowAvatar shadow;
     private bool calibrated = false;
 
     void Start()
@@ -153,7 +153,7 @@ public class Avatar : MonoBehaviour
 
         Debug.Log("Calibrated");
         calibrated = true;
-        ShadowAvatar.UpdateShadow();
+        shadow.UpdateShadow();
     }
 
     public Transform getBoneTransform(HumanBodyBones bone)

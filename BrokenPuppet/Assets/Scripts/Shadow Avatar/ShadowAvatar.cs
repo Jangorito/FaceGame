@@ -5,8 +5,7 @@ using UnityEngine;
 public class ShadowAvatar : MonoBehaviour
 {
 
-    public GameObject shadow;
-    public static Animator shadowBody;
+    public  Animator shadowBody;
 
     public static Transform[] boneTransforms;
     public static Quaternion[] minRotations;
@@ -15,7 +14,7 @@ public class ShadowAvatar : MonoBehaviour
     float MaxMin;
 
 
-    static int AllBones = 46;
+    static int AllBones = 51;
     static int[] LeftLeg = { 36, 38, 40, 42 };
     static int[] RightLeg = { 37, 39, 41, 43 };
     static int[] randomBonesSelected = new int[AllBones];
@@ -24,7 +23,7 @@ public class ShadowAvatar : MonoBehaviour
     void Start()
     {
         GameDifficulty = Randomiser.GameDifficulty;
-        boneTransforms = new Transform[AllBones];
+
     }
 
     // Update is called once per frame
@@ -49,13 +48,12 @@ public class ShadowAvatar : MonoBehaviour
             NumberOfBones = 8;
         else
             NumberOfBones = 12;
-        print(NumberOfBones + " " + boneTransforms.Length);
         // Populate the array with random bone indexes
         int i = 0;
         while (i < NumberOfBones)
         {
             // Randomly select an index to assign the transform
-            int r = rnd.Next(boneTransforms.Length);
+            int r = rnd.Next(AllBones);
             print(r + "\n");
             // Populate array with bone indexes
             // if the index has already been selected
@@ -81,19 +79,19 @@ public class ShadowAvatar : MonoBehaviour
     //     animator.GetBoneTransform(i.Key).rotation = deltaRotation* i.Value.initialRotation;
     // }
 
-    static void MoveModel()
+    void MoveModel()
     {
         for (int i = 0; i < randomBonesSelected.Length; i++)
         {
             // Check if the boneTransforms array is null or if the bone is not selected
-            if (boneTransforms[i] == null || randomBonesSelected[i] == 0)
+            if (randomBonesSelected[i] == 0)
             {
-                print("Staying in T-Pose " + i);
+                //print("Staying in T-Pose " + i + "Bone Transforms " + boneTransforms[i] + "Random Bones " + randomBonesSelected[i]);
                 continue; // Skip this bone if it's null or not selected
             }
 
             // Get the rotation of the bone from boneTransforms array
-            Quaternion newRotation = boneTransforms[i].localRotation;
+            Quaternion newRotation = shadowBody.GetBoneTransform((HumanBodyBones)i).rotation;
 
             // Apply the new rotation to the bone transform in the boneTransforms array
             //boneTransforms[i].rotation = newRotation;
@@ -127,12 +125,13 @@ public class ShadowAvatar : MonoBehaviour
         minRotations = new Quaternion[AllBones];
         maxRotations = new Quaternion[AllBones];
         // Define min and max rotations for each selected bone
-        for (int i = 0; i < randomBonesSelected.Length; i++)
+        int i = 0;
+        foreach (var item in Avatar.parentCalibrationData)
         {
-            if (randomBonesSelected[i] == 0 && boneTransforms[i] == null) // Check if the bone is not selected or if it's null
-                continue;
-            Debug.Log("i: " + i);
-            (float, float)[] limits = Avatar.parentCalibrationData[(HumanBodyBones)i].getLimit();
+            //if (randomBonesSelected[item] == 0 && boneTransforms[i] == null) // Check if the bone is not selected or if it's null
+            //    continue;
+            //Debug.Log(Avatar.parentCalibrationData.Count);
+            (float, float)[] limits = Avatar.parentCalibrationData[item.Key].getLimit();
             float x1 = limits[0].Item1;
             float x2 = limits[0].Item2;
             float y1 = limits[1].Item1;
@@ -149,27 +148,28 @@ public class ShadowAvatar : MonoBehaviour
 
             minRotations[i] = Quaternion.Euler(x1, y1, 0);
             maxRotations[i] = Quaternion.Euler(x2, y2, 0);
+            i++;
         }
     }
 
 
-    static void GenerateRandomPose()
+    void GenerateRandomPose()
     {
         // Loop through all bones
-        for (int i = 0; i < boneTransforms.Length; i++)
+        for (int i = 0; i < AllBones; i++)
         {
             // Check if the bone is selected and not null
-            if (randomBonesSelected[i] == 1 && boneTransforms[i] != null)
+            if (randomBonesSelected[i] == 1)
             {
                 // Randomize rotation for the selected bone
                 Quaternion randomRotation = Quaternion.Lerp(minRotations[i], maxRotations[i], UnityEngine.Random.value);
                 // Apply the random rotation to the bone
-                boneTransforms[i].localRotation = randomRotation;
+                shadowBody.GetBoneTransform((HumanBodyBones)i).rotation = randomRotation;
             }
         }
     }
 
-    public static void UpdateShadow()
+    public void UpdateShadow()
     {
 
         SelectRandomBones();
