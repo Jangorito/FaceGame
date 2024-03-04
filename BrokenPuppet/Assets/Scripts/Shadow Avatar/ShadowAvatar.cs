@@ -108,8 +108,11 @@ public class ShadowAvatar : MonoBehaviour
                     //Quaternion.RotateTowards(boneTransforms[i].rotation, newRotation, MaxMin);
 
                     Quaternion currentRotation = shadowBoneTransform.localRotation;
-                    currentRotation.SetLookRotation(newRotation.eulerAngles);// *= newRotation;
-                    shadowBoneTransform.rotation = currentRotation;
+                    if (newRotation.eulerAngles != Vector3.zero)
+                    {
+                        currentRotation.SetLookRotation(newRotation.eulerAngles);// *= newRotation;
+                        shadowBoneTransform.rotation = currentRotation;
+                    }
                 }
             }
         }
@@ -119,38 +122,47 @@ public class ShadowAvatar : MonoBehaviour
 
 
     //54 bone
-    static void InitializeRotationLimits()
+    void InitializeRotationLimits()
     {
-
         minRotations = new Quaternion[AllBones];
         maxRotations = new Quaternion[AllBones];
-        // Define min and max rotations for each selected bone
+
         int i = 0;
         foreach (var item in Avatar.parentCalibrationData)
         {
-            //if (randomBonesSelected[item] == 0 && boneTransforms[i] == null) // Check if the bone is not selected or if it's null
-            //    continue;
-            //Debug.Log(Avatar.parentCalibrationData.Count);
-            (float, float)[] limits = Avatar.parentCalibrationData[item.Key].getLimit();
-            float x1 = limits[0].Item1;
-            float x2 = limits[0].Item2;
-            float y1 = limits[1].Item1;
-            float y2 = limits[1].Item2;
+            // Check if calibration data exists for the bone
+            if (Avatar.parentCalibrationData[item.Key] != null)
+            {
+                (float, float)[] limits = Avatar.parentCalibrationData[item.Key].getLimit();
+                float x1 = limits[0].Item1;
+                float x2 = limits[0].Item2;
+                float y1 = limits[1].Item1;
+                float y2 = limits[1].Item2;
 
-            if (x1 == 0)
-                x1 = Quaternion.identity.x;
-            if (x2 == 0)
-                x2 = Quaternion.identity.x;
-            if (y1 == 0)
-                y1 = Quaternion.identity.y;
-            if (y2 == 0)
-                y2 = Quaternion.identity.y;
+                // Set default Euler angles to 0 if calibration data is not available
+                if (x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0)
+                {
+                    minRotations[i] = Quaternion.identity;
+                    maxRotations[i] = Quaternion.identity;
+                }
+                else
+                {
+                    // Convert Euler angles to quaternions
+                    minRotations[i] = Quaternion.Euler(x1, y1, 0);
+                    maxRotations[i] = Quaternion.Euler(x2, y2, 0);
+                }
+            }
+            else
+            {
+                // Set default quaternions if calibration data is null
+                minRotations[i] = Quaternion.identity;
+                maxRotations[i] = Quaternion.identity;
+            }
 
-            minRotations[i] = Quaternion.Euler(x1, y1, 0);
-            maxRotations[i] = Quaternion.Euler(x2, y2, 0);
             i++;
         }
     }
+
 
 
     void GenerateRandomPose()
@@ -158,11 +170,14 @@ public class ShadowAvatar : MonoBehaviour
         // Loop through all bones
         for (int i = 0; i < AllBones; i++)
         {
-            // Check if the bone is selected and not null
+            if (minRotations[i] == Quaternion.identity || maxRotations[i] == Quaternion.identity)
+                continue;
+
+            // Check if the bone is selected
             if (randomBonesSelected[i] == 1)
             {
                 // Randomize rotation for the selected bone
-                Quaternion randomRotation = Quaternion.Lerp(minRotations[i], maxRotations[i], UnityEngine.Random.value);
+                Quaternion randomRotation = Quaternion.Lerp(minRotations[i].normalized, maxRotations[i].normalized, UnityEngine.Random.value);
                 // Apply the random rotation to the bone
                 shadowBody.GetBoneTransform((HumanBodyBones)i).rotation = randomRotation;
             }
