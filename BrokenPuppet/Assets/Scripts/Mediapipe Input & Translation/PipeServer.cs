@@ -40,18 +40,18 @@ public class OSCServer : MonoBehaviour
         var receiver = gameObject.AddComponent<OSCReceiver>();
         receiver.LocalPort = 5005;
         receiver.Bind("/PythonData", ReceivedMessage);
-        receiver.Bind("/video", ReceivedVideoData);
+        //receiver.Bind("/video", ReceivedVideoData);
     }
 
-    public static Stream GenerateStreamFromString(string s)
-    {
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        writer.Write(s);
-        writer.Flush();
-        stream.Position = 0;
-        return stream;
-    }
+    // public static Stream GenerateStreamFromString(string s)
+    // {
+    //     var stream = new MemoryStream();
+    //     var writer = new StreamWriter(stream);
+    //     writer.Write(s);
+    //     writer.Flush();
+    //     stream.Position = 0;
+    //     return stream;
+    // }
 private void ReceivedVideoData(OSCMessage message)
 {
     // Check if the message contains data

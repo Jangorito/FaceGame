@@ -2,36 +2,48 @@ using UnityEngine;
 using UnityEngine.UI;
 using extOSC;
 using System;
+
 public class DisplayImage : MonoBehaviour
 {
     // UI Image to display the received image
     public Image displayImage;
-    void Start()
-    {
-        // Initialize the OSC receiver
-        var receiver = gameObject.AddComponent<OSCReceiver>();
-        receiver.LocalPort = 5005;
+
+    // OSC Receiver
+    private OSCReceiver receiver;
+     void Start()
+     {
+        receiver = gameObject.AddComponent<OSCReceiver>();
+        receiver.LocalPort = 5008;
         receiver.Bind("/video", ReceivedVideoData);
-    }
+
+     }
+
     // Method to handle received video data
-    // Method to handle received video data
-    private void ReceivedVideoData(OSCMessage message)
+   private void ReceivedVideoData(OSCMessage message)
     {
+        Debug.LogError("being called");
+
         if (displayImage == null)
         {
-            Debug.LogWarning("Display image is not assigned.");
+            Debug.LogError("Display image is not assigned.");
             return;
         }
 
         if (message == null)
         {
-            Debug.LogWarning("Received null OSC message.");
+            Debug.LogError("Received null OSC message.");
             return;
         }
 
         if (!message.ToBlob(out var value))
         {
-            Debug.LogWarning("Received empty or invalid video data.");
+            Debug.LogError("Received empty or invalid video data.");
+
+            // Create a white texture
+            Texture2D whiteTexture = CreateWhiteTexture();
+            Sprite whiteSprite = Sprite.Create(whiteTexture, new Rect(0, 0, whiteTexture.width, whiteTexture.height), Vector2.one * 0.5f);
+            displayImage.sprite = whiteSprite;
+
             return;
         }
 
@@ -41,7 +53,7 @@ public class DisplayImage : MonoBehaviour
             Texture2D texture = new Texture2D(2, 2);
             if (!texture.LoadImage(value))
             {
-                Debug.LogWarning("Failed to load image data.");
+                Debug.LogError("Failed to load image data.");
                 return;
             }
 
@@ -50,8 +62,7 @@ public class DisplayImage : MonoBehaviour
             Color[] flippedPixels = new Color[pixels.Length];
             int width = texture.width;
             int height = texture.height;
-            
-            
+
             texture.SetPixels(pixels);
             texture.Apply();
 
@@ -61,7 +72,7 @@ public class DisplayImage : MonoBehaviour
             // Apply the sprite to the UI Image
             displayImage.sprite = sprite;
 
-            Debug.Log("Received and displayed image via OSC.");
+            Debug.LogError("Received and displayed image via OSC.");
         }
         catch (System.Exception e)
         {
@@ -69,4 +80,17 @@ public class DisplayImage : MonoBehaviour
         }
     }
 
+    private Texture2D CreateWhiteTexture()
+    {
+        Texture2D texture = new Texture2D(2, 2);
+        Color[] pixels = new Color[4];
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            pixels[i] = Color.white;
+        }
+        texture.SetPixels(pixels);
+        texture.Apply();
+        return texture;
+    }
 }
+

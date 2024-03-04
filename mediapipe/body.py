@@ -222,7 +222,6 @@ class BodyThread(threading.Thread):
                 self.RemoveHandLandmarks(mp_holistic, results)
                 self.RemovePoseFaceLandmarks(mp_holistic, results)
                 image.flags.writeable = True
-                #image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 # Draw landmarks on the image
                 self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 #self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
@@ -234,7 +233,6 @@ class BodyThread(threading.Thread):
                 if global_vars.SPOUT_ON == True:
                     self.send(image)
                 if global_vars.SPOUT_ONLY == False:
-                    #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     cv2.imshow('MediaPipe Holistic', image)
                 # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
@@ -445,7 +443,7 @@ class BodyThread(threading.Thread):
 
     def send(self, image):
         # Set up OSC client
-        client = SimpleUDPClient("127.0.0.1", 5005)  # OSC server address and port
+        client = SimpleUDPClient("127.0.0.1", 5008)  # OSC server address and port
 
         # Convert the image to bytes
         retval, buffer = cv2.imencode('.jpg', image)
