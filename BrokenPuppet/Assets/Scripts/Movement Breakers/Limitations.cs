@@ -7,8 +7,8 @@ using UnityEngine;
 public class Limitations
 {
 
-    static Dictionary<HumanBodyBones, (float, float)> x_hashmap = new();
-    static Dictionary<HumanBodyBones, (float, float)> y_hashmap = new();
+    public static Dictionary<HumanBodyBones, (float, float)> x_hashmap = new();
+    public static Dictionary<HumanBodyBones, (float, float)> y_hashmap = new();
 
 
     public static void initializeXArray()
@@ -16,11 +16,15 @@ public class Limitations
         x_hashmap.Clear();
         //X Limitations -- Min, Max
         //Misc
-        //x_hashmap.Add(1, (0, 0));
-        //x_hashmap.Add(2, (0, 0));
-        //neck and hip
+        x_hashmap.Add(HumanBodyBones.LeftEye, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightEye, (0, 0));
+        x_hashmap.Add(HumanBodyBones.Head, (0, 0));
+        x_hashmap.Add(HumanBodyBones.Jaw, (0, 0));
+
+        //neck and hip and spine
         x_hashmap.Add(HumanBodyBones.Neck, (-70, 70));
         x_hashmap.Add(HumanBodyBones.Hips, (-70, 70));
+        x_hashmap.Add(HumanBodyBones.Spine, (-10, 50));
         //wrists
         x_hashmap.Add(HumanBodyBones.LeftHand, (-15, 15));
         x_hashmap.Add(HumanBodyBones.RightHand, (-15, 15));
@@ -91,11 +95,15 @@ public class Limitations
         y_hashmap.Clear();
         //X Limitations -- Min, Max
         //Misc
-        //x_hashmap.Add(1, (0, 0));
-        //x_hashmap.Add(2, (0, 0));
-        //neck and hip
+        y_hashmap.Add(HumanBodyBones.LeftEye, (0, 0));
+        y_hashmap.Add(HumanBodyBones.RightEye, (0, 0));
+        y_hashmap.Add(HumanBodyBones.Head, (0, 0));
+        y_hashmap.Add(HumanBodyBones.Jaw, (0, 0));
+
+        //neck and hip and spine
         y_hashmap.Add(HumanBodyBones.Neck, (-50, 50));
         y_hashmap.Add(HumanBodyBones.Hips, (-30, 40));
+        y_hashmap.Add(HumanBodyBones.Spine, (-10, 50));
         //wrists
         y_hashmap.Add(HumanBodyBones.LeftHand, (-15, 15));
         y_hashmap.Add(HumanBodyBones.RightHand, (-15, 15));

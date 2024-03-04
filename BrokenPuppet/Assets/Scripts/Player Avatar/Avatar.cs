@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,12 @@ public class Avatar : MonoBehaviour
 
     void Start()
     {
+        Limitations.initializeXArray();
+        Limitations.initializeYArray();
+        foreach (KeyValuePair<HumanBodyBones, (float, float)> bone in Limitations.x_hashmap)
+        {
+            Debug.Log("Key: " + bone.Key);
+        }
         initialRotation = transform.rotation;
         initialPosition = transform.position;
 
@@ -117,7 +124,6 @@ public class Avatar : MonoBehaviour
 
         /* waits t seconds */
         int t = 5;
-
         while (t > 0)
         {
             Debug.Log("Calibrating in: " + t);

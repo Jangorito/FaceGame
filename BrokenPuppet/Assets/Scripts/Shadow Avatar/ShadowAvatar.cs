@@ -24,8 +24,6 @@ public class ShadowAvatar : MonoBehaviour
     void Start()
     {
         GameDifficulty = Randomiser.GameDifficulty;
-        Limitations.initializeXArray();
-        Limitations.initializeYArray();
         boneTransforms = new Transform[AllBones];
     }
 
@@ -133,7 +131,7 @@ public class ShadowAvatar : MonoBehaviour
         {
             if (randomBonesSelected[i] == 0 && boneTransforms[i] == null) // Check if the bone is not selected or if it's null
                 continue;
-
+            Debug.Log("i: " + i);
             (float, float)[] limits = Avatar.parentCalibrationData[(HumanBodyBones)i].getLimit();
             float x1 = limits[0].Item1;
             float x2 = limits[0].Item2;
@@ -173,6 +171,7 @@ public class ShadowAvatar : MonoBehaviour
 
     public static void UpdateShadow()
     {
+
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();
