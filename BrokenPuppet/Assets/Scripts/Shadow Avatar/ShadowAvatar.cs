@@ -26,7 +26,7 @@ public class ShadowAvatar : MonoBehaviour
         GameDifficulty = Randomiser.GameDifficulty;
         Limitations.initializeXArray();
         Limitations.initializeYArray();
-
+        boneTransforms = new Transform[AllBones];
     }
 
     // Update is called once per frame
