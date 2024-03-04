@@ -7,8 +7,8 @@ using UnityEngine;
 public class Limitations
 {
 
-    static Dictionary<int, (float, float)> x_hashmap = new();
-    static Dictionary<int, (float, float)> y_hashmap = new();
+    static Dictionary<HumanBodyBones, (float, float)> x_hashmap = new();
+    static Dictionary<HumanBodyBones, (float, float)> y_hashmap = new();
 
 
     public static void initializeXArray()
@@ -16,180 +16,172 @@ public class Limitations
         x_hashmap.Clear();
         //X Limitations -- Min, Max
         //Misc
-        x_hashmap.Add(1, (0, 0));
-        x_hashmap.Add(2, (0, 0));
+        //x_hashmap.Add(1, (0, 0));
+        //x_hashmap.Add(2, (0, 0));
         //neck and hip
-        x_hashmap.Add(0, (-70, 70));
-        x_hashmap.Add(3, (-70, 70));
+        x_hashmap.Add(HumanBodyBones.Neck, (-70, 70));
+        x_hashmap.Add(HumanBodyBones.Hips, (-70, 70));
         //wrists
-        x_hashmap.Add(4, (-15, 15));
-        x_hashmap.Add(20, (-15, 15));
+        x_hashmap.Add(HumanBodyBones.LeftHand, (-15, 15));
+        x_hashmap.Add(HumanBodyBones.RightHand, (-15, 15));
 
         //Left Hand
-        x_hashmap.Add(5, (0, 0));
-        x_hashmap.Add(6, (0, 0));
-        x_hashmap.Add(7, (0, 0));
-        x_hashmap.Add(8, (0, 0));
-        x_hashmap.Add(9, (0, 0));
-        x_hashmap.Add(10, (0, 0));
-        x_hashmap.Add(11, (0, 0));
-        x_hashmap.Add(12, (0, 0));
-        x_hashmap.Add(13, (0, 0));
-        x_hashmap.Add(14, (0, 0));
-        x_hashmap.Add(15, (0, 0));
-        x_hashmap.Add(16, (0, 0));
-        x_hashmap.Add(17, (0, 0));
-        x_hashmap.Add(18, (0, 0));
-        x_hashmap.Add(19, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftThumbProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftThumbIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftThumbDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftIndexProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftIndexIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftIndexDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftMiddleProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftMiddleIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftMiddleDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftRingProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftRingIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftRingDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftLittleProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftLittleIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftLittleDistal, (0, 0));
 
         //Right hand
-        x_hashmap.Add(21, (0, 0));
-        x_hashmap.Add(22, (0, 0));
-        x_hashmap.Add(23, (0, 0));
-        x_hashmap.Add(24, (0, 0));
-        x_hashmap.Add(25, (0, 0));
-        x_hashmap.Add(26, (0, 0));
-        x_hashmap.Add(27, (0, 0));
-        x_hashmap.Add(28, (0, 0));
-        x_hashmap.Add(29, (0, 0));
-        x_hashmap.Add(30, (0, 0));
-        x_hashmap.Add(31, (0, 0));
-        x_hashmap.Add(32, (0, 0));
-        x_hashmap.Add(33, (0, 0));
-        x_hashmap.Add(34, (0, 0));
-        x_hashmap.Add(35, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightThumbProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightThumbIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightThumbDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightIndexProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightIndexIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightIndexDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightMiddleProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightMiddleIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightMiddleDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightRingProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightRingIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightRingDistal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightLittleProximal, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightLittleIntermediate, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightLittleDistal, (0, 0));
 
-        // Feet -- Toes
-        x_hashmap.Add(36, (0, 0));
-        x_hashmap.Add(37, (0, 0));
-
-        //Ankles
-        x_hashmap.Add(38, (-20, 20));
-        x_hashmap.Add(39, (-20, 20));
+        // Feet -- Ankles
+        x_hashmap.Add(HumanBodyBones.LeftFoot, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightFoot, (0, 0));
 
         //Knees
-        x_hashmap.Add(40, (0, 0));
-        x_hashmap.Add(41, (0, 0));
+        x_hashmap.Add(HumanBodyBones.LeftLowerLeg, (0, 0));
+        x_hashmap.Add(HumanBodyBones.RightLowerLeg, (0, 0));
 
         //Hip Joints
-        x_hashmap.Add(42, (0, 40));
-        x_hashmap.Add(43, (0, 40));
+        x_hashmap.Add(HumanBodyBones.LeftUpperLeg, (0, 40));
+        x_hashmap.Add(HumanBodyBones.RightUpperLeg, (0, 40));
 
         // elbows
-        x_hashmap.Add(44, (-20, 20));
-        x_hashmap.Add(45, (-20, 20));
+        x_hashmap.Add(HumanBodyBones.LeftLowerArm, (-20, 20));
+        x_hashmap.Add(HumanBodyBones.RightLowerArm, (-20, 20));
 
         //Upper arm???
-        x_hashmap.Add(46, (-90, 90));
-        x_hashmap.Add(47, (-90, 90));
+        x_hashmap.Add(HumanBodyBones.LeftUpperArm, (-90, 90));
+        x_hashmap.Add(HumanBodyBones.RightUpperArm, (-90, 90));
 
         //Shoulders
-        x_hashmap.Add(48, (-90, 90));
-        x_hashmap.Add(49, (-90, 90));
+        x_hashmap.Add(HumanBodyBones.LeftShoulder, (-90, 90));
+        x_hashmap.Add(HumanBodyBones.RightShoulder, (-90, 90));
 
     }
 
     public static void initializeYArray()
     {
+
         y_hashmap.Clear();
         //X Limitations -- Min, Max
         //Misc
-        y_hashmap.Add(1, (0, 0));
-        y_hashmap.Add(2, (0, 0));
+        //x_hashmap.Add(1, (0, 0));
+        //x_hashmap.Add(2, (0, 0));
         //neck and hip
-
-        y_hashmap.Add(0, (-50, 50));
-        y_hashmap.Add(3, (-30, 40));
+        y_hashmap.Add(HumanBodyBones.Neck, (-50, 50));
+        y_hashmap.Add(HumanBodyBones.Hips, (-30, 40));
         //wrists
-        y_hashmap.Add(4, (-15, 15));
-        y_hashmap.Add(20, (-15, 15));
+        y_hashmap.Add(HumanBodyBones.LeftHand, (-15, 15));
+        y_hashmap.Add(HumanBodyBones.RightHand, (-15, 15));
 
         //Left Hand
-        y_hashmap.Add(5, (0, 20));
-        y_hashmap.Add(6, (0, 20));
-        y_hashmap.Add(7, (0, 20));
-        y_hashmap.Add(8, (0, 20));
-        y_hashmap.Add(9, (0, 20));
-        y_hashmap.Add(10, (0, 20));
-        y_hashmap.Add(11, (0, 20));
-        y_hashmap.Add(12, (0, 20));
-        y_hashmap.Add(13, (0, 20));
-        y_hashmap.Add(14, (0, 20));
-        y_hashmap.Add(15, (0, 20));
-        y_hashmap.Add(16, (0, 20));
-        y_hashmap.Add(17, (0, 20));
-        y_hashmap.Add(18, (0, 20));
-        y_hashmap.Add(19, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftThumbProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftThumbIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftThumbDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftIndexProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftIndexIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftIndexDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftMiddleProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftMiddleIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftMiddleDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftRingProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftRingIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftRingDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftLittleProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftLittleIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.LeftLittleDistal, (0, 20));
 
         //Right hand
-        y_hashmap.Add(21, (0, 20));
-        y_hashmap.Add(22, (0, 20));
-        y_hashmap.Add(23, (0, 20));
-        y_hashmap.Add(24, (0, 20));
-        y_hashmap.Add(25, (0, 20));
-        y_hashmap.Add(26, (0, 20));
-        y_hashmap.Add(27, (0, 20));
-        y_hashmap.Add(28, (0, 20));
-        y_hashmap.Add(29, (0, 20));
-        y_hashmap.Add(30, (0, 20));
-        y_hashmap.Add(31, (0, 20));
-        y_hashmap.Add(32, (0, 20));
-        y_hashmap.Add(33, (0, 20));
-        y_hashmap.Add(34, (0, 20));
-        y_hashmap.Add(35, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightThumbProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightThumbIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightThumbDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightIndexProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightIndexIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightIndexDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightMiddleProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightMiddleIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightMiddleDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightRingProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightRingIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightRingDistal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightLittleProximal, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightLittleIntermediate, (0, 20));
+        y_hashmap.Add(HumanBodyBones.RightLittleDistal, (0, 20));
 
-        // Feet -- Toes
-        y_hashmap.Add(36, (0, 20));
-        y_hashmap.Add(37, (0, 20));
-
-        //Ankles
-        y_hashmap.Add(38, (-80, 60));
-        y_hashmap.Add(39, (-80, 60));
+        // Feet -- Ankles
+        y_hashmap.Add(HumanBodyBones.LeftFoot, (-80, 60));
+        y_hashmap.Add(HumanBodyBones.RightFoot, (-80, 60));
 
         //Knees
-        y_hashmap.Add(40, (0, 90));
-        y_hashmap.Add(41, (0, 90));
+        y_hashmap.Add(HumanBodyBones.LeftLowerLeg, (0, 90));
+        y_hashmap.Add(HumanBodyBones.RightLowerLeg, (0, 90));
 
         //Hip Joints
-        y_hashmap.Add(42, (0, 90));
-        y_hashmap.Add(43, (0, 90));
+        y_hashmap.Add(HumanBodyBones.LeftUpperLeg, (0, 90));
+        y_hashmap.Add(HumanBodyBones.RightUpperLeg, (0, 90));
 
         // elbows
-        y_hashmap.Add(44, (0, 110));
-        y_hashmap.Add(45, (0, 110));
+        y_hashmap.Add(HumanBodyBones.LeftLowerArm, (0, 110));
+        y_hashmap.Add(HumanBodyBones.RightLowerArm, (0, 110));
 
         //Upper arm???
-        y_hashmap.Add(46, (0, 180));
-        y_hashmap.Add(47, (0, 180));
+        y_hashmap.Add(HumanBodyBones.LeftUpperArm, (0, 180));
+        y_hashmap.Add(HumanBodyBones.RightUpperArm, (0, 180));
 
         //Shoulders
-        y_hashmap.Add(48, (0, 180));
-        y_hashmap.Add(49, (0, 180));
+        y_hashmap.Add(HumanBodyBones.LeftShoulder, (0, 180));
+        y_hashmap.Add(HumanBodyBones.RightShoulder, (0, 180));
 
     }
 
     /* returns x and y limit values in an array for given bone */
     public static (float, float) getXLimit(HumanBodyBones bone) { 
-        if (!x_hashmap.ContainsKey((int)bone))
+        if (!x_hashmap.ContainsKey(bone))
             return (0,0);
 
-        return x_hashmap[(int)bone]; 
+        return x_hashmap[bone]; 
     }
 
     public static (float, float) getYLimit(HumanBodyBones bone) { 
-        if (!y_hashmap.ContainsKey((int)bone))
+        if (!y_hashmap.ContainsKey(bone))
             return (0,0);
-        return y_hashmap[(int)bone]; 
+        return y_hashmap[bone]; 
     }
 
-    public static (float, float) getXIndex(int index)
+    public static (float, float) getXIndex(HumanBodyBones index)
     {   //x, y
 
         (float, float) MapIndex = x_hashmap[index];
         return MapIndex;
     }
 
-    public static (float, float) getYIndex(int index)
+    public static (float, float) getYIndex(HumanBodyBones index)
     {   //x, y
         (float, float) MapIndex = y_hashmap[index];
 

@@ -9,12 +9,7 @@ public class Avatar : MonoBehaviour
     private OSCServer server;
     public Animator animator;
 
-    public LayerMask ground;
-    public float footGroundOffset = .1f;
-
-    public Camera cam;
-
-    public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData = 
+    public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =
         new Dictionary<HumanBodyBones, CalibrationData>();
 
     private Quaternion initialRotation;
@@ -36,7 +31,8 @@ public class Avatar : MonoBehaviour
     void Update()
     {
         /* Allow Player to re-calibrate */
-        if (Input.GetKeyDown("space")) {
+        if (Input.GetKeyDown("space"))
+        {
             Debug.Log("Re-Calibrating...");
             resetAvatar();
             StartCoroutine(Calibrate());
@@ -82,22 +78,25 @@ public class Avatar : MonoBehaviour
             targetRot = deltaRotTracked * initialRotation;
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
         }
-}
+    }
 
 
 
-/* attemps to find the active PipeServer to gain access to data */
-private OSCServer getServer() {
+    /* attemps to find the active PipeServer to gain access to data */
+    private OSCServer getServer()
+    {
         OSCServer server = FindObjectOfType<OSCServer>();
         if (server == null)
-                Debug.LogError("Could not find a PipeServer in the scene");
+            Debug.LogError("Could not find a PipeServer in the scene");
         return server;
-        
+
     }
 
     /* returns the avatar to the base pose */
-    void resetAvatar() {
-        foreach (var i in parentCalibrationData) {
+    void resetAvatar()
+    {
+        foreach (var i in parentCalibrationData)
+        {
             i.Value.reset();
         }
         hipsTwist.reset();
@@ -107,18 +106,21 @@ private OSCServer getServer() {
     }
 
     /* Changes the movement between the parent and child bone to match the movement between the newParent and newChild landmark data */
-    void changeCalibration(HumanBodyBones parent, Landmark newParent, Landmark newChild) {
+    void changeCalibration(HumanBodyBones parent, Landmark newParent, Landmark newChild)
+    {
         Debug.Log("Changed how movement is stored. This function is a WIP");
     }
 
     /* Sets up Mappings between Unity Bones and The Landmarks */
-    public IEnumerator Calibrate() {
+    public IEnumerator Calibrate()
+    {
 
         /* waits t seconds */
         int t = 5;
 
-        while (t > 0) {
-            Debug.Log("Calibrating in: "+t);
+        while (t > 0)
+        {
+            Debug.Log("Calibrating in: " + t);
             t--;
             yield return new WaitForSeconds(1f);
         }
@@ -145,21 +147,24 @@ private OSCServer getServer() {
 
         Debug.Log("Calibrated");
         calibrated = true;
-        ShadowAvatar.NextLevel();
+        ShadowAvatar.UpdateShadow();
     }
 
-    public Transform getBoneTransform(HumanBodyBones bone) {
+    public Transform getBoneTransform(HumanBodyBones bone)
+    {
         return animator.GetBoneTransform(bone);
     }
 
-    private void AddCalibration(HumanBodyBones parent, HumanBodyBones child, 
-        Landmark trackParent, Landmark trackChild) {
-        CalibrationData data = new CalibrationData(parent, child, 
+    private void AddCalibration(HumanBodyBones parent, HumanBodyBones child,
+        Landmark trackParent, Landmark trackChild)
+    {
+        CalibrationData data = new CalibrationData(parent, child,
                 trackParent, trackChild, ref animator, ref server);
         parentCalibrationData.Add(parent, data);
     }
 
-    private void addPoseCalibrations() {
+    private void addPoseCalibrations()
+    {
         AddCalibration(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm,
             Landmark.RIGHT_SHOULDER, Landmark.RIGHT_ELBOW);
 
@@ -185,7 +190,8 @@ private OSCServer getServer() {
             Landmark.RIGHT_KNEE, Landmark.RIGHT_ANKLE);
     }
 
-    private void addLeftHandCalibrations() {
+    private void addLeftHandCalibrations()
+    {
 
         /* Thumb */
         AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftThumbProximal,
@@ -208,8 +214,8 @@ private OSCServer getServer() {
             Landmark.LEFT_INDEX_2, Landmark.LEFT_INDEX_4);
 
         /* Middle */
-       // AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftMiddleProximal,
-           // Landmark.LEFT_WRIST_ALT, Landmark.LEFT_MIDDLE_1);
+        // AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftMiddleProximal,
+        // Landmark.LEFT_WRIST_ALT, Landmark.LEFT_MIDDLE_1);
 
         AddCalibration(HumanBodyBones.LeftMiddleProximal, HumanBodyBones.LeftMiddleIntermediate,
             Landmark.LEFT_MIDDLE_1, Landmark.LEFT_MIDDLE_2);
@@ -218,8 +224,8 @@ private OSCServer getServer() {
             Landmark.LEFT_MIDDLE_2, Landmark.LEFT_MIDDLE_4);
 
         /* Little */
-       // AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftLittleProximal,
-            //Landmark.LEFT_WRIST_ALT, Landmark.LEFT_LITTLE_1);
+        // AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.LeftLittleProximal,
+        //Landmark.LEFT_WRIST_ALT, Landmark.LEFT_LITTLE_1);
 
         AddCalibration(HumanBodyBones.LeftLittleProximal, HumanBodyBones.LeftLittleIntermediate,
             Landmark.LEFT_LITTLE_1, Landmark.LEFT_LITTLE_2);
@@ -230,7 +236,8 @@ private OSCServer getServer() {
 
     }
 
-    private void addRightHandCalibrations() {
+    private void addRightHandCalibrations()
+    {
 
         /* Thumb */
         AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightThumbProximal,
@@ -243,7 +250,7 @@ private OSCServer getServer() {
             Landmark.RIGHT_THUMB_2, Landmark.RIGHT_THUMB_4);
 
         /* Index */
-      //  AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.RightIndexProximal,
+        //  AddCalibration(HumanBodyBones.LeftHand, HumanBodyBones.RightIndexProximal,
         //    Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_INDEX_1);
 
         AddCalibration(HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate,
@@ -253,8 +260,8 @@ private OSCServer getServer() {
             Landmark.RIGHT_INDEX_2, Landmark.RIGHT_INDEX_4);
 
         /* Middle */
-      //  AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightMiddleProximal,
-       //     Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_MIDDLE_1);
+        //  AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightMiddleProximal,
+        //     Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_MIDDLE_1);
 
         AddCalibration(HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate,
             Landmark.RIGHT_MIDDLE_1, Landmark.RIGHT_MIDDLE_2);
@@ -263,8 +270,8 @@ private OSCServer getServer() {
             Landmark.RIGHT_MIDDLE_2, Landmark.RIGHT_MIDDLE_4);
 
         /* Little */
-      //  AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightLittleProximal,
-       //     Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_LITTLE_1);
+        //  AddCalibration(HumanBodyBones.RightHand, HumanBodyBones.RightLittleProximal,
+        //     Landmark.RIGHT_WRIST_ALT, Landmark.RIGHT_LITTLE_1);
 
         AddCalibration(HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate,
             Landmark.RIGHT_LITTLE_1, Landmark.RIGHT_LITTLE_2);
