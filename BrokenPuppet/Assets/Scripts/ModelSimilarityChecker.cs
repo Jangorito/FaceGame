@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Timers;
+using UnityEditor;
 using UnityEngine;
 
 public class ModelSimilarityChecker : MonoBehaviour
@@ -50,6 +51,18 @@ public class ModelSimilarityChecker : MonoBehaviour
 
     private void OnTimedEvent(object source, ElapsedEventArgs e)
     {
+        if (EditorApplication.isPlaying)
+        {
+            Debug.Log("Paused");
+            ((Timer)source).Stop();
+            ((Timer)source).Dispose();
+        }
+        else if (EditorApplication.isPaused)
+        {
+            while(EditorApplication.isPaused)
+                ((Timer)source).Stop();
+            ((Timer)source).Start();
+        }
         if (Successful)
         {
             // Stop the timer
@@ -68,7 +81,7 @@ public class ModelSimilarityChecker : MonoBehaviour
         //Gets the shadows bones
         ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
         GetVectors();
-        Successful = IsModelNear(PuppetVectors, GhostVectors);
+        Successful = IsModelNear(PuppetVectors, GhostVectors);  
     }
 
 
