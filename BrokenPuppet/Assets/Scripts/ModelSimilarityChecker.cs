@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class ModelSimilarityChecker : MonoBehaviour
@@ -17,23 +18,27 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         BrokenPuppet = getPuppetAvatar();
         GhostAvatar = getShadowAvatar();
+        StartCoroutine(Coroutine());
     }
     //Coroutine will run until game ends
     IEnumerator Coroutine()
     {
         yield return new WaitForSeconds(2);
-        BrokenPuppet = getPuppetAvatar();
-        GhostAvatar = getShadowAvatar();
-        //Gets the puppets bones
-        BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-        //print(BrokenPuppetBones.Length);
-        //Gets the shadows bones
-        ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-        //print(ShadowCharacterBones.Length);
-        GetVectors();
-        bool Successful = IsModelNear(PuppetVectors, GhostVectors);
-        if (Successful)
-            GameEnd = true;
+        bool Successful;
+        while (!GameEnd)
+        {
+            BrokenPuppet = getPuppetAvatar();
+            GhostAvatar = getShadowAvatar();
+            //Gets the puppets bones
+            BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+            //Gets the shadows bones
+            ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+            GetVectors();
+            Successful = IsModelNear(PuppetVectors, GhostVectors);
+            if (Successful)
+                break;
+        }
+        GameEnd = true;
     }
 
     //Functions to gathers vectors into an array
@@ -58,10 +63,8 @@ public class ModelSimilarityChecker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StartCoroutine(Coroutine());
-        if(!GameEnd)
+        if(GameEnd)
             StopCoroutine(Coroutine());
-
     }
     //Gets the shadow "ghost" avatar the user has to match
     private ShadowAvatar getShadowAvatar()
@@ -81,25 +84,17 @@ public class ModelSimilarityChecker : MonoBehaviour
         return avatar;
     }
 
-    public Boolean IsModelNear(Vector3[] Puppet, Vector3[] Ghost)
+    public bool IsModelNear(Vector3[] Puppet, Vector3[] Ghost)
     {
-        int count = 0;
         for(int i = 0; i < Puppet.Length; i++)
         {
             //Takes the distance between the puppet and ghost in terms of vectors
-            decimal distance = Math.Round((decimal)Vector3.Distance(Puppet[i], Ghost[i]), 2);
-            print("Puppet vector: " + Puppet[i] + "Ghost vector: " + Ghost[i] + "Distance: " + distance);
+            float distance = Vector3.Distance(Puppet[i], Ghost[i]);
+            print($"Puppet vector: {Puppet[i]} Ghost vector: {Ghost[i]} Distance: {distance}");
             //checks if every bone is <0.25 units away from the corresponding ghost one
-            if ((float) distance <= 0.25)
-            { 
-                //Incremeents the count so we know if all the bones match
-                count++;
-            }
+            if (distance > 0.25)
+                return false;
         }
-        //If all bones match, returns true
-        if (count == 65)
-            return true;
-        else
-            return false;
+        return true;
     }
 }
