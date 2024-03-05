@@ -279,14 +279,19 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1004043733}
+      addedObject: {fileID: 1004043736}
   m_SourcePrefab: {fileID: 100100000, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
 --- !u!1 &1004043731 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
   m_PrefabInstance: {fileID: 1004043730}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1004043733
+--- !u!95 &1004043734 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
+  m_PrefabInstance: {fileID: 1004043730}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1004043736
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -298,7 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7fb65f862e42bd4ca0db159f458e2c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shadow: {fileID: 1004043731}
+  shadowBody: {fileID: 1004043734}
 --- !u!1001 &1416549456
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -387,6 +392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1416549458}
+  shadow: {fileID: 1004043736}
 --- !u!114 &1416549461
 MonoBehaviour:
   m_ObjectHideFlags: 0
