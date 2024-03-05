@@ -10,16 +10,11 @@ from mediapipe.python.solutions.pose import PoseLandmark
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from mediapipe.framework.formats import landmark_pb2
 from pythonosc.udp_client import SimpleUDPClient
-import numpy as np
-import SpoutGL
-from OpenGL import GL
-from itertools import repeat
-import array
+
+
+
 custom_style =""
-TARGET_FPS = 1
-SEND_WIDTH = global_vars.WIDTH
-SEND_HEIGHT = global_vars.HEIGHT
-SENDER_NAME = "SpoutGL-test"
+
 POSE_CONNECTIONS = frozenset([(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5),
                               (5, 6), (6, 8), (9, 10), (11, 12), (11, 13),
                               (13, 15), (12, 14), (14, 16), (11, 23), (12, 24), (23, 24), (23, 25),
@@ -150,7 +145,6 @@ class CaptureThread(threading.Thread):
     counter = 0
     timer = 0.0
 
-            
     def run(self):
         # Open a video capture using OpenCV with specified camera index
         self.cap = cv2.VideoCapture(global_vars.CAM_INDEX) 
@@ -158,20 +152,18 @@ class CaptureThread(threading.Thread):
 
         # Apply custom camera settings if specified in global_vars
         self.ApplyCameraSettings()
-        #self.sendWebCam()
+
         # Wait for a short duration to allow the camera to initialize
         time.sleep(1)
 
         # Print the frames per second of the capture
-        if global_vars.DEBUG:
-            print("Opened Capture @ %s fps" % str(self.cap.get(cv2.CAP_PROP_FPS)))
+        print("Opened Capture @ %s fps" % str(self.cap.get(cv2.CAP_PROP_FPS)))
 
         # Continuously capture frames while the program is running
         while not global_vars.KILL_THREADS:
             self.ret, self.frame = self.cap.read()
             self.isRunning = True
-            
-            
+
             # Print debug information if debugging is enabled (it is at the moment as were in development)
             if global_vars.DEBUG:
                 self.counter = self.counter + 1
@@ -179,16 +171,12 @@ class CaptureThread(threading.Thread):
                     print("Capture FPS: ", self.counter / (time.time() - self.timer))
                     self.counter = 0
                     self.timer = time.time()
-                    
+
     def ApplyCameraSettings(self):
         if global_vars.USE_CUSTOM_CAM_SETTINGS:
             self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
-
-
-
-
 
 # Define a thread for the processing of landmarks
 class BodyThread(threading.Thread):
@@ -210,19 +198,24 @@ class BodyThread(threading.Thread):
         with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.5, refine_face_landmarks = False) as holistic:
             # Wait until the camera is running before starting body landmark processing
             self.WaitForCamera(capture)
-            if global_vars.DEBUG:
-                print("Beginning capture")
+
+            print("Beginning capture")
+            print(capture.cap.isOpened(), global_vars.KILL_THREADS)
 
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
                 image = capture.frame
+
                 # Flip the captured frame horizontally for better visualization
                 image = cv2.flip(image, 1)
                 image.flags.writeable = False
+
                 results = holistic.process(image)
                 self.RemoveHandLandmarks(mp_holistic, results)
                 self.RemovePoseFaceLandmarks(mp_holistic, results)
                 image.flags.writeable = True
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
                 # Draw landmarks on the image
                 self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 #self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
@@ -230,12 +223,12 @@ class BodyThread(threading.Thread):
                 self.DrawCustomPoseLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawLeftHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawRightHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+
+
                 # Display the annotated image
-                if global_vars.SPOUT_ON == True:
-                    self.send(image)
-                if global_vars.SPOUT_ONLY == False:
-                    cv2.imshow('MediaPipe Holistic', image)
-                # Break the loop if the 'Esc' key is pressed
+                cv2.imshow('MediaPipe Holistic', image)
+
+                                # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
 
@@ -259,8 +252,8 @@ class BodyThread(threading.Thread):
                         #s = self.data.encode('utf-8')
                         s = self.data.encode('utf-8')
                         self.client.send_message("/PythonData", s)   # Send OSC message
-                        #print(s)
-                    if global_vars.DEBUG:
+                        print(s)
+                    else:
                         print("Data is empty. Skipping sending OSC message.")
                     # s = self.data.encode('utf-8')
                     # self.client.send_message("/PythonData", s)   # Send OSC message
@@ -438,8 +431,6 @@ class BodyThread(threading.Thread):
                     results.face_landmarks,
                     connections = custom_face_connections,
                     landmark_drawing_spec=drawing_spec)
-    
-
 
 
     def send(self, image):

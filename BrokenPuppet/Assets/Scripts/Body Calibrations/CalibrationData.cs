@@ -53,11 +53,12 @@ public class CalibrationData
     {
         x_limit = Limitations.getXLimit(this.parentBone);
         y_limit = Limitations.getYLimit(this.parentBone);
-        Debug.Log(x_limit);
+        //Debug.Log(x_limit);
     }
 
     public (float, float)[] getLimit()
     {
+        //Debug.Log("int get limits\n");
         return new (float, float)[] { x_limit, y_limit };
     }
 

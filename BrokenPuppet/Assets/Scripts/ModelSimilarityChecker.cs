@@ -1,44 +1,91 @@
 using System;
 using System.Collections;
-using System.Linq;
+using System.Timers;
+using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class ModelSimilarityChecker : MonoBehaviour
 {
-
     public Avatar BrokenPuppet;
     public ShadowAvatar GhostAvatar;
-    Transform[] ShadowCharacterBones;
-    Transform[] BrokenPuppetBones;
-    Vector3[] PuppetVectors = new Vector3[65];
-    Vector3[] GhostVectors = new Vector3[65];
-    bool GameEnd = false;
+    private Transform[] ShadowCharacterBones;
+    private Transform[] BrokenPuppetBones;
+    private Vector3[] PuppetVectors = new Vector3[65];
+    private Vector3[] GhostVectors = new Vector3[65];
+    private static bool GameEnd = false;
+    static bool Successful;
+    public static PlayModeStateChange state;
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         BrokenPuppet = getPuppetAvatar();
         GhostAvatar = getShadowAvatar();
-        StartCoroutine(Coroutine());
+        Successful = false;
+        //StartCoroutine(Coroutine());
+        StartTimer();
+        Debug.Log(Successful);
     }
-    //Coroutine will run until game ends
-    IEnumerator Coroutine()
+
+    private void StartTimer()
     {
-        yield return new WaitForSeconds(2);
-        bool Successful;
-        while (!GameEnd)
+        Timer initialTimer = new Timer();
+        initialTimer.Interval = 8000;
+        initialTimer.Elapsed += InitialEvent;
+        Debug.Log("Initial 8 Seconds started");
+        initialTimer.Start();
+    }
+    private void InitialEvent(object source, ElapsedEventArgs e)
+    {
+        Timer timer = new Timer();
+        timer.Interval = 2000; // 2 seconds
+        timer.Elapsed += OnTimedEvent;
+        timer.Enabled = true;
+        timer.Start();
+
+        Debug.Log("Timer started");
+        EditorApplication.playModeStateChanged += OnPlayModeStateChange;
+        ((Timer)source).Stop();
+        ((Timer)source).Dispose();
+        Debug.Log("Initial Timer Finished");
+        return;
+    }
+
+    static public void OnPlayModeStateChange(PlayModeStateChange change)
+    {
+        state = change;
+        Debug.Log(state);
+    }
+
+    private void OnTimedEvent(object source, ElapsedEventArgs e)
+    {
+        //Debug.Log(state);
+        if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.EnteredEditMode)
         {
-            BrokenPuppet = getPuppetAvatar();
-            GhostAvatar = getShadowAvatar();
-            //Gets the puppets bones
-            BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-            //Gets the shadows bones
-            ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-            GetVectors();
-            Successful = IsModelNear(PuppetVectors, GhostVectors);
-            if (Successful)
-                break;
+            ((Timer)source).Stop();
+            ((Timer)source).Dispose();
+            //Debug.Log("Game ended");
         }
-        GameEnd = true;
+        if (Successful)
+        {
+            // Stop the timer
+            ((Timer)source).Stop();
+            ((Timer)source).Dispose(); // Dispose the timer to release resources
+            //Debug.Log("Timer stopped.");
+            return;
+        }
+        //Debug.Log("Checking Models");
+
+        // Perform actions every 2 seconds
+        BrokenPuppet = getPuppetAvatar();
+        GhostAvatar = getShadowAvatar();
+        //Gets the puppets bones
+        BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+        //Gets the shadows bones
+        ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+        GetVectors();
+        Successful = IsModelNear(PuppetVectors, GhostVectors);  
     }
 
     //Functions to gathers vectors into an array
@@ -60,12 +107,12 @@ public class ModelSimilarityChecker : MonoBehaviour
             i++;
         }
     }
+
     // Update is called once per frame
-    void Update()
-    {
-        if(GameEnd)
-            StopCoroutine(Coroutine());
+    private void Update()
+    {       
     }
+
     //Gets the shadow "ghost" avatar the user has to match
     private ShadowAvatar getShadowAvatar()
     {
@@ -73,8 +120,8 @@ public class ModelSimilarityChecker : MonoBehaviour
         if (avatar == null)
             Debug.LogError("Could not find an Avatar in the scene");
         return avatar;
-
     }
+
     //Gets the puppet avatar the user is manipulating
     private Avatar getPuppetAvatar()
     {
@@ -86,13 +133,13 @@ public class ModelSimilarityChecker : MonoBehaviour
 
     public bool IsModelNear(Vector3[] Puppet, Vector3[] Ghost)
     {
-        for(int i = 0; i < Puppet.Length; i++)
+        for (int i = 0; i < Puppet.Length; i++)
         {
             //Takes the distance between the puppet and ghost in terms of vectors
             float distance = Vector3.Distance(Puppet[i], Ghost[i]);
-            print($"Puppet vector: {Puppet[i]} Ghost vector: {Ghost[i]} Distance: {distance}");
-            //checks if every bone is <0.25 units away from the corresponding ghost one
-            if (distance > 0.25)
+            //print($"Puppet vector: {Puppet[i]} Ghost vector: {Ghost[i]} Distance: {distance}");
+            //checks if every bone is <0.1 units away from the corresponding ghost one
+            if (distance > 0.1)
                 return false;
         }
         return true;
