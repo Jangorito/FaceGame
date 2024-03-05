@@ -24,10 +24,6 @@ public class Avatar : MonoBehaviour
     {
         Limitations.initializeXArray();
         Limitations.initializeYArray();
-        foreach (KeyValuePair<HumanBodyBones, (float, float)> bone in Limitations.x_hashmap)
-        {
-            Debug.Log("Key: " + bone.Key);
-        }
         initialRotation = transform.rotation;
         initialPosition = transform.position;
 

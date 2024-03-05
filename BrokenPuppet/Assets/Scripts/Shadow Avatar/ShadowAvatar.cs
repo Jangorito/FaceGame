@@ -18,6 +18,9 @@ public class ShadowAvatar : MonoBehaviour
     static int[] LeftLeg = { 36, 38, 40, 42 };
     static int[] RightLeg = { 37, 39, 41, 43 };
     static int[] randomBonesSelected = new int[AllBones];
+    static int LeftEye = 21;
+    static int RightEye = 22;
+    static int Jaw = 23;
 
     // Start is called before the first frame update
     void Start()
@@ -42,9 +45,9 @@ public class ShadowAvatar : MonoBehaviour
 
         // Determine the number of bones based on the game difficulty
         int NumberOfBones;
-        if ((int)GameDifficulty == 1)
+        if (GameDifficulty == Difficulty.Easy)
             NumberOfBones = 4;
-        else if ((int)GameDifficulty == 2)
+        else if (GameDifficulty == Difficulty.Medium)
             NumberOfBones = 8;
         else
             NumberOfBones = 12;
@@ -53,9 +56,9 @@ public class ShadowAvatar : MonoBehaviour
         while (i < NumberOfBones)
         {
             // Randomly select an index to assign the transform
-            int r = rnd.Next(AllBones);
-            print(r + "\n");
-            if (r == 22 || r == 23 || r == 21)
+            int bone = rnd.Next(AllBones);
+            print(bone + "\n");
+            if (bone == LeftEye || bone == RightEye || bone == Jaw)
                 continue;
             // Populate array with bone indexes
             // if the index has already been selected
@@ -67,7 +70,7 @@ public class ShadowAvatar : MonoBehaviour
             //if the left leg has already been selected and transformed, dont do the right leg
             //if (RightLeg.Contains(r) && (randomBonesSelected[36] == 1 || randomBonesSelected[38] == 1 || randomBonesSelected[40] == 1 || randomBonesSelected[42] == 1))
             //    continue;
-            randomBonesSelected[r] = 1;
+            randomBonesSelected[bone] = 1;
             i++;
         }
     }
