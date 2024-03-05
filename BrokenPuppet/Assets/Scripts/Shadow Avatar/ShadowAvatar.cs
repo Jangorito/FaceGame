@@ -55,6 +55,8 @@ public class ShadowAvatar : MonoBehaviour
             // Randomly select an index to assign the transform
             int r = rnd.Next(AllBones);
             print(r + "\n");
+            if (r == 22 || r == 23 || r == 21)
+                continue;
             // Populate array with bone indexes
             // if the index has already been selected
             //if (randomBonesSelected[r] == 1)
@@ -179,7 +181,15 @@ public class ShadowAvatar : MonoBehaviour
                 // Randomize rotation for the selected bone
                 Quaternion randomRotation = Quaternion.Lerp(minRotations[i].normalized, maxRotations[i].normalized, UnityEngine.Random.value);
                 // Apply the random rotation to the bone
-                shadowBody.GetBoneTransform((HumanBodyBones)i).rotation = randomRotation;
+                Transform boneTransform = shadowBody.GetBoneTransform((HumanBodyBones)i);
+                if (boneTransform != null)
+                {
+                    boneTransform.rotation = randomRotation;
+                }
+                else
+                {
+                    Debug.LogError("Bone transform is null for index: " + i);
+                }
             }
         }
     }

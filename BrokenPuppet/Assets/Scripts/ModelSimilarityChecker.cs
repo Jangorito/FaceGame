@@ -23,7 +23,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     //Coroutine will run until game ends
     IEnumerator Coroutine()
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(8);
         bool Successful;
         while (!GameEnd)
         {
@@ -38,6 +38,7 @@ public class ModelSimilarityChecker : MonoBehaviour
             if (Successful)
                 break;
         }
+        Debug.Log("Game over");
         GameEnd = true;
     }
 
@@ -91,8 +92,8 @@ public class ModelSimilarityChecker : MonoBehaviour
             //Takes the distance between the puppet and ghost in terms of vectors
             float distance = Vector3.Distance(Puppet[i], Ghost[i]);
             //print($"Puppet vector: {Puppet[i]} Ghost vector: {Ghost[i]} Distance: {distance}");
-            //checks if every bone is <0.25 units away from the corresponding ghost one
-            if (distance > 0.25)
+            //checks if every bone is <0.1 units away from the corresponding ghost one
+            if (distance > 0.1)
                 return false;
         }
         return true;
