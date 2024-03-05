@@ -432,4 +432,25 @@ class BodyThread(threading.Thread):
                     connections = custom_face_connections,
                     landmark_drawing_spec=drawing_spec)
 
-# End of the code
+
+    def send(self, image):
+        # Set up OSC client
+        client = SimpleUDPClient("127.0.0.1", 5008)  # OSC server address and port
+
+        # Convert the image to bytes
+        retval, buffer = cv2.imencode('.jpg', image)
+
+        # Check if image encoding was successful
+        if not retval:
+            print("Error: Failed to encode the image.")
+            return
+
+        # Convert the image buffer to bytes
+        data = buffer.tobytes()
+
+        try:
+            # Send the image bytes via OSC
+            client.send_message("/video", data)
+            print("Image sent successfully via OSC.")
+        except Exception as e:
+            print("Error: Failed to send image via OSC:", str(e))

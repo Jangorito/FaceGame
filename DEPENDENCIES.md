@@ -2,10 +2,9 @@
 
 ..* SpoutGL  
 `pip install SpoutGL`
-
 ..* OSC
 `pip install python-osc`
-
-..* OpenGL
-`pip install python-osc`
-
+..* OpenCV
+`pip install opencv-python`
+..*OpenGL
+`pip install PyOpenGL`

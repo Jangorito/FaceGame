@@ -40,17 +40,39 @@ public class OSCServer : MonoBehaviour
         var receiver = gameObject.AddComponent<OSCReceiver>();
         receiver.LocalPort = 5005;
         receiver.Bind("/PythonData", ReceivedMessage);
+        //receiver.Bind("/video", ReceivedVideoData);
     }
 
-    public static Stream GenerateStreamFromString(string s)
+    // public static Stream GenerateStreamFromString(string s)
+    // {
+    //     var stream = new MemoryStream();
+    //     var writer = new StreamWriter(stream);
+    //     writer.Write(s);
+    //     writer.Flush();
+    //     stream.Position = 0;
+    //     return stream;
+    // }
+private void ReceivedVideoData(OSCMessage message)
+{
+    // Check if the message contains data
+    if (message.ToBlob(out var value))
     {
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        writer.Write(s);
-        writer.Flush();
-        stream.Position = 0;
-        return stream;
+        // Convert the byte array to a string
+        string videoData = Encoding.UTF8.GetString(value);
+
+        // Process the video data as needed
+        // For example, you could display the video data, save it to a file, etc.
+
+        // Here, we'll just log the received video data
+        //Debug.Log("Received video data: " + videoData);
+        Debug.LogWarning("Received ");
     }
+    else
+    {
+        // Handle the case where the message does not contain valid data
+        Debug.LogWarning("Received empty or invalid video data.");
+    }
+}
 
     private void ReceivedMessage(OSCMessage message)
     {
