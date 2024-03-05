@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Timers;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class ModelSimilarityChecker : MonoBehaviour
@@ -14,6 +15,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     private Vector3[] GhostVectors = new Vector3[65];
     private static bool GameEnd = false;
     static bool Successful;
+    public static PlayModeStateChange state;
 
     // Start is called before the first frame update
     private void Start()
@@ -42,21 +44,28 @@ public class ModelSimilarityChecker : MonoBehaviour
         timer.Start();
 
         Debug.Log("Timer started");
-
+        EditorApplication.playModeStateChanged += OnPlayModeStateChange;
         ((Timer)source).Stop();
         ((Timer)source).Dispose();
         Debug.Log("Initial Timer Finished");
         return;
     }
 
+    static public void OnPlayModeStateChange(PlayModeStateChange change)
+    {
+        state = change;
+        Debug.Log(state);
+    }
+
     private void OnTimedEvent(object source, ElapsedEventArgs e)
     {
-        //if (IsUnityPaused())
-        //{
-        //    Debug.Log("Unity is paused. Stopping the timer.");
-        //    ((Timer)source).Stop(); // Stop the timer
-        //    return;
-        //}
+        Debug.Log(state);
+        if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.EnteredEditMode)
+        {
+            ((Timer)source).Stop();
+            ((Timer)source).Dispose();
+            Debug.Log("Game ended");
+        }
         if (Successful)
         {
             // Stop the timer
@@ -76,11 +85,6 @@ public class ModelSimilarityChecker : MonoBehaviour
         ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
         GetVectors();
         Successful = IsModelNear(PuppetVectors, GhostVectors);  
-    }
-
-    private bool IsUnityPaused()
-    {
-        return !Application.isPlaying || Time.timeScale == 0;
     }
 
     //Functions to gathers vectors into an array
