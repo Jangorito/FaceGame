@@ -25,6 +25,7 @@ public class ModelSimilarityChecker : MonoBehaviour
         Successful = false;
         //StartCoroutine(Coroutine());
         StartTimer();
+        Debug.Log(Successful);
     }
 
     private void StartTimer()
@@ -59,22 +60,22 @@ public class ModelSimilarityChecker : MonoBehaviour
 
     private void OnTimedEvent(object source, ElapsedEventArgs e)
     {
-        Debug.Log(state);
+        //Debug.Log(state);
         if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.EnteredEditMode)
         {
             ((Timer)source).Stop();
             ((Timer)source).Dispose();
-            Debug.Log("Game ended");
+            //Debug.Log("Game ended");
         }
         if (Successful)
         {
             // Stop the timer
             ((Timer)source).Stop();
             ((Timer)source).Dispose(); // Dispose the timer to release resources
-            Debug.Log("Timer stopped.");
+            //Debug.Log("Timer stopped.");
             return;
         }
-        Debug.Log("Checking Models");
+        //Debug.Log("Checking Models");
 
         // Perform actions every 2 seconds
         BrokenPuppet = getPuppetAvatar();
