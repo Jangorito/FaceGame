@@ -222,7 +222,6 @@ class BodyThread(threading.Thread):
                 self.RemoveHandLandmarks(mp_holistic, results)
                 self.RemovePoseFaceLandmarks(mp_holistic, results)
                 image.flags.writeable = True
-                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 # Draw landmarks on the image
                 self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 #self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
@@ -444,7 +443,7 @@ class BodyThread(threading.Thread):
 
     def send(self, image):
         # Set up OSC client
-        client = SimpleUDPClient("127.0.0.1", 5005)  # OSC server address and port
+        client = SimpleUDPClient("127.0.0.1", 5008)  # OSC server address and port
 
         # Convert the image to bytes
         retval, buffer = cv2.imencode('.jpg', image)
