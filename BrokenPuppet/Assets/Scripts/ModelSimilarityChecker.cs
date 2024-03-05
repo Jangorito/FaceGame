@@ -51,18 +51,12 @@ public class ModelSimilarityChecker : MonoBehaviour
 
     private void OnTimedEvent(object source, ElapsedEventArgs e)
     {
-        if (EditorApplication.isPlaying)
-        {
-            Debug.Log("Paused");
-            ((Timer)source).Stop();
-            ((Timer)source).Dispose();
-        }
-        else if (EditorApplication.isPaused)
-        {
-            while(EditorApplication.isPaused)
-                ((Timer)source).Stop();
-            ((Timer)source).Start();
-        }
+        //if (IsUnityPaused())
+        //{
+        //    Debug.Log("Unity is paused. Stopping the timer.");
+        //    ((Timer)source).Stop(); // Stop the timer
+        //    return;
+        //}
         if (Successful)
         {
             // Stop the timer
@@ -84,6 +78,10 @@ public class ModelSimilarityChecker : MonoBehaviour
         Successful = IsModelNear(PuppetVectors, GhostVectors);  
     }
 
+    private bool IsUnityPaused()
+    {
+        return !Application.isPlaying || Time.timeScale == 0;
+    }
 
     //Functions to gathers vectors into an array
     public void GetVectors()
