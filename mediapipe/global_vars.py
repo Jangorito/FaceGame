@@ -21,7 +21,7 @@ PIPE_LINE_DEBUG = False
 
 
 #allows you to run the mediapipe view only through spout and not natively 
-SPOUT_ONLY = False
+SPOUT_ONLY = True
 
 
 #turn off spouting = false for no spout

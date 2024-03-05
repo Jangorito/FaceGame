@@ -18,6 +18,8 @@ thread = BodyThread()
 
 
 
+
+
 thread.start()
 
 
@@ -26,6 +28,7 @@ print("Exiting…")
 global_vars.KILL_THREADS = True
 time.sleep(0.5)
 exit()
+
 
 
 

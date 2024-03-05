@@ -223,7 +223,6 @@ class BodyThread(threading.Thread):
                 self.RemoveHandLandmarks(mp_holistic, results)
                 self.RemovePoseFaceLandmarks(mp_holistic, results)
                 image.flags.writeable = True
-                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 # Draw landmarks on the image
                 self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 #self.DrawFaceTesselation(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
@@ -441,23 +440,26 @@ class BodyThread(threading.Thread):
                     landmark_drawing_spec=drawing_spec)
     
 
-    def send(self,image):
-        with SpoutGL.SpoutSender() as sender:
-            sender.setSenderName(SENDER_NAME)
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            # Determine the required buffer size
-            buffer_size = SEND_WIDTH * SEND_HEIGHT * 3  # Assuming 3 bytes per pixel for RGB format
-            # Allocate the buffer with the appropriate size
-            buffer = bytearray(buffer_size)
-            # Convert the image to bytes
-            pixels = image.tobytes()
-            # Copy the image bytes to the buffer and crop size
-            buffer[:len(pixels)] = pixels
-            # Send the image bytes
-            result = sender.sendImage(buffer, SEND_WIDTH, SEND_HEIGHT, GL.GL_BGR, False, 0)
-            # Indicate that a frame is ready to read
-            sender.setFrameSync(SENDER_NAME)
-            # Wait for the next frame
-            time.sleep(1. / 30)
 
-# End of the code
+
+    def send(self, image):
+        # Set up OSC client
+        client = SimpleUDPClient("127.0.0.1", 5008)  # OSC server address and port
+
+        # Convert the image to bytes
+        retval, buffer = cv2.imencode('.jpg', image)
+
+        # Check if image encoding was successful
+        if not retval:
+            print("Error: Failed to encode the image.")
+            return
+
+        # Convert the image buffer to bytes
+        data = buffer.tobytes()
+
+        try:
+            # Send the image bytes via OSC
+            client.send_message("/video", data)
+            print("Image sent successfully via OSC.")
+        except Exception as e:
+            print("Error: Failed to send image via OSC:", str(e))
