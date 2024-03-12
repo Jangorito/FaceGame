@@ -49,6 +49,11 @@ public class CalibrationData
         setInitialRotAndDir();
     }
 
+    public void change_calibrations(Transform newParent, Transform newChild) {
+        this.tparent = newParent;
+        this.tchild = newChild;
+    }
+
     private void setLimits()
     {
         x_limit = Limitations.getXLimit(this.parentBone);

@@ -10,8 +10,11 @@ public class Avatar : MonoBehaviour
     private OSCServer server;
     public Animator animator;
 
+    /** mappings for Bones and its the landmarks it is following */
     public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =
         new Dictionary<HumanBodyBones, CalibrationData>();
+
+    public static Dictionary<HumanBodyBones, CalibrationData> persistantCalibrations;
 
     private Quaternion initialRotation;
     private Vector3 initialPosition;
@@ -19,6 +22,9 @@ public class Avatar : MonoBehaviour
     private CalibrationData spineUpDown, hipsTwist, chest, head;
     public ShadowAvatar shadow;
     private bool calibrated = false;
+
+    /** frequency at which the avatar checks for data on the server */
+    private const float WAIT_FOR = 2.0f;
 
     void Start()
     {
@@ -28,8 +34,15 @@ public class Avatar : MonoBehaviour
         initialPosition = transform.position;
 
         server = getServer();
+
+        /** will check every WAIT_FOR seconds for a connection to the server */
+        while (!server.hasServerConnectedWithClient())
+            wait();
+
         StartCoroutine(Calibrate());
     }
+
+    
 
     void Update()
     {
@@ -41,6 +54,7 @@ public class Avatar : MonoBehaviour
             StartCoroutine(Calibrate());
         }
 
+        /** prevent the avatar from moving if it has not been calibrated */
         if (!calibrated)
             return;
 
@@ -111,8 +125,18 @@ public class Avatar : MonoBehaviour
     /* Changes the movement between the parent and child bone to match the movement between the newParent and newChild landmark data */
     void changeCalibration(HumanBodyBones parent, Landmark newParent, Landmark newChild)
     {
-        Debug.Log("Changed how movement is stored. This function is a WIP");
+        parentCalibrationData[parent].change_calibrations(server.getLandmark(newParent), server.getLandmark(newChild));
     }
+
+    void reset_calibrations() {
+        parentCalibrationData = persistantCalibrations;
+    }
+
+    private IEnumerator wait() {
+        yield return new WaitForSeconds(WAIT_FOR);
+    }
+
+
 
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate()
@@ -131,8 +155,8 @@ public class Avatar : MonoBehaviour
         /* resets the calibration data */
         parentCalibrationData.Clear();
 
-        addLeftHandCalibrations();
-        addRightHandCalibrations();
+        //addLeftHandCalibrations();
+        //addRightHandCalibrations();
         addPoseCalibrations();
 
         /* Manually define neck and hip connections */
@@ -149,6 +173,8 @@ public class Avatar : MonoBehaviour
 
         Debug.Log("Calibrated");
         calibrated = true;
+        persistantCalibrations = parentCalibrationData;
+
         shadow.UpdateShadow();
     }
 

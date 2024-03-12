@@ -13,6 +13,10 @@ public class OSCServer : MonoBehaviour
     private Body body;
     public Transform bodyParent;
 
+    /** flag will be changed to indicate that the server has received some data from a client */
+    private bool hasConnected = false;
+
+
     private string messages;
     public string blob;
 
@@ -51,28 +55,30 @@ public class OSCServer : MonoBehaviour
     //     writer.Flush();
     //     stream.Position = 0;
     //     return stream;
-    // }
-private void ReceivedVideoData(OSCMessage message)
-{
-    // Check if the message contains data
-    if (message.ToBlob(out var value))
+        // }
+    private void ReceivedVideoData(OSCMessage message)
     {
-        // Convert the byte array to a string
-        string videoData = Encoding.UTF8.GetString(value);
+        // Check if the message contains data
+        if (message.ToBlob(out var value))
+        {
+            // Convert the byte array to a string
+            string videoData = Encoding.UTF8.GetString(value);
 
-        // Process the video data as needed
-        // For example, you could display the video data, save it to a file, etc.
+            // Process the video data as needed
+            // For example, you could display the video data, save it to a file, etc.
 
-        // Here, we'll just log the received video data
-        //Debug.Log("Received video data: " + videoData);
-        Debug.LogWarning("Received ");
+            // Here, we'll just log the received video data
+            //Debug.Log("Received video data: " + videoData);
+            Debug.LogWarning("Received ");
+        }
+        else
+        {
+            // Handle the case where the message does not contain valid data
+            Debug.LogWarning("Received empty or invalid video data.");
+        }
     }
-    else
-    {
-        // Handle the case where the message does not contain valid data
-        Debug.LogWarning("Received empty or invalid video data.");
-    }
-}
+
+    public bool hasServerConnectedWithClient() { return hasConnected; }
 
     private void ReceivedMessage(OSCMessage message)
     {
@@ -80,9 +86,9 @@ private void ReceivedVideoData(OSCMessage message)
         if(message.ToBlob(out var value))
         {
             /* Convert byte[] to String */
-            String data = Encoding.UTF8.GetString(value);
+            string data = Encoding.UTF8.GetString(value);
             /* Convert String to String[] for each new line */
-            String[] lines = data.Split('\n');
+            string[] lines = data.Split('\n');
             /* Process each line in data sent */
             foreach (string line in lines)
             {
@@ -99,6 +105,7 @@ private void ReceivedVideoData(OSCMessage message)
         int lenFace = 478;
         int lenHand = 21;
         int index;
+        hasConnected = true;
         /* Order of Landmarks sent
          * Pose -> Face -> LeftHand -> RightHand 
          */
@@ -121,7 +128,6 @@ private void ReceivedVideoData(OSCMessage message)
             case "FL":
                 return;
                 //index += (lenPoses);
-                break;
             case "PL":
                 break;
             default:
