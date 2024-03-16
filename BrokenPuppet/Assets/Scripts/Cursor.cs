@@ -8,6 +8,8 @@ public class Cursor : MonoBehaviour
 
     private Avatar avatar;
     public int Range = 10;
+    internal static CursorLockMode lockState;
+
     public void Start() {
         avatar = getAvatar();
 
