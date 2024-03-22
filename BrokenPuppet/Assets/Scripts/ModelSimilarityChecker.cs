@@ -24,8 +24,8 @@ public class ModelSimilarityChecker : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        BrokenPuppet = getPuppetAvatar();
-        GhostAvatar = getShadowAvatar();
+        //BrokenPuppet = getPuppetAvatar();
+        //GhostAvatar = getShadowAvatar();
         Successful = false;
         //StartCoroutine(Coroutine());
         StartTimer();
@@ -55,13 +55,10 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         if (!Successful) // Only check models if the round is not successful
         {
-            Vector3 puppetPosition = getPuppetAvatar().transform.position;
-            Vector3 ghostPosition = getShadowAvatar().transform.position;
-            Debug.Log("********" + puppetPosition + " " + ghostPosition);
+            Vector3 puppetPosition = BrokenPuppet.transform.position;
+            Vector3 ghostPosition = GhostAvatar.transform.position;
+            //Debug.Log("********" + puppetPosition + " " + ghostPosition);
 
-            // Perform actions every frame
-            BrokenPuppet = getPuppetAvatar();
-            GhostAvatar = getShadowAvatar();
             //Gets the puppets bones
             BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
             //Gets the shadows bones
@@ -113,9 +110,12 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         for (int i = 0; i < Puppet.Length; i++)
         {
+            // Calculate the Offset between the Puppet and the Ghost
+            Vector3 offset = Puppet[i] - Ghost[i];
+
             // Adjust the positions by adding the offsets
-            Vector3 adjustedPuppetPosition = Puppet[i] + puppetPosition;
-            Vector3 adjustedGhostPosition = Ghost[i] + ghostPosition;
+            Vector3 adjustedPuppetPosition = Puppet[i] - offset;
+            Vector3 adjustedGhostPosition = Ghost[i];
 
             // Takes the distance between the puppet and ghost in terms of vectors
             float distance = Vector3.Distance(adjustedPuppetPosition, adjustedGhostPosition);
