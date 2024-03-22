@@ -14,7 +14,7 @@ public class displayImageP2 : MonoBehaviour
     void Start()
     {
         receiver = gameObject.AddComponent<OSCReceiver>();
-        receiver.LocalPort = 5008;
+        receiver.LocalPort = 5018;
         receiver.Bind("/video", ReceivedVideoData);
 
     }
