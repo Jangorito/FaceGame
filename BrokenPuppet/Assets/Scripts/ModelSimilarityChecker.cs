@@ -6,6 +6,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 using TMPro;
+using System.Linq;
 
 public class ModelSimilarityChecker : MonoBehaviour
 {
@@ -69,6 +70,33 @@ public class ModelSimilarityChecker : MonoBehaviour
             GetVectors();
             Successful = IsModelNear(PuppetVectors, GhostVectors, puppetPosition, ghostPosition);
         }
+        else // Calculate percentage match if successful
+        {
+            float totalDifference = 0f;
+            GetVectors();
+            int numVectors = PuppetVectors.Length; // Assuming PuppetVectors and GhostVectors have the same length
+
+            for (int i = 0; i < numVectors; i++)
+            {
+                Vector3 puppetVector = PuppetVectors[i];
+                Vector3 ghostVector = GhostVectors[i];
+                totalDifference += Vector3.Distance(puppetVector, ghostVector);
+            }
+
+            // Normalize the result
+            float maxPossibleDistance = Vector3.Distance(Vector3.zero, Vector3.one) * numVectors;
+            float normalizedDifference = totalDifference / maxPossibleDistance;
+
+            // Calculate percentage match
+            float percentageMatch = Mathf.Clamp01(1f - normalizedDifference) * 100f;
+
+            Debug.Log("Percentage Match: " + percentageMatch + "%");
+        }
+    }
+
+    public bool getSuccessful()
+    {
+        return Successful;
     }
 
     //Functions to gathers vectors into an array
