@@ -11,10 +11,28 @@ from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from mediapipe.framework.formats import landmark_pb2
 from pythonosc.udp_client import SimpleUDPClient
 import numpy as np
-import SpoutGL
+#import SpoutGL
 from OpenGL import GL
 from itertools import repeat
 import array
+import socket
+
+
+
+
+
+
+
+
+
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
+
+print(get_ip_address())
+
 custom_style =""
 TARGET_FPS = 1
 SEND_WIDTH = global_vars.WIDTH
@@ -141,6 +159,8 @@ for tuple in custom_face_connections:
 
 custom_face_landmarks = list(set(custom_face_landmarks))
 
+
+
 # Define a thread for capturing video frames
 class CaptureThread(threading.Thread):
     cap = None
@@ -152,6 +172,9 @@ class CaptureThread(threading.Thread):
 
             
     def run(self):
+
+
+
         # Open a video capture using OpenCV with specified camera index
         self.cap = cv2.VideoCapture(global_vars.CAM_INDEX) 
         #the camera you usually use is index 0 but you can play around with in mediapipeavatar\global_vars.py if you want to use an external cam
@@ -245,7 +268,7 @@ class BodyThread(threading.Thread):
 
                 if self.client is None and time.time() - self.timeSinceCheckedConnection >= 1 and not global_vars.PIPE_LINE_DEBUG:
                     ip = "127.0.0.1"
-                    port = 5015
+                    port = 5005
                     self.client = SimpleUDPClient(ip, port)  # Create client
 
                 if self.client is not None or global_vars.PIPE_LINE_DEBUG:
@@ -444,7 +467,7 @@ class BodyThread(threading.Thread):
 
     def send(self, image):
         # Set up OSC client
-        client = SimpleUDPClient("127.0.0.1", 5018)  # OSC server address and port
+        client = SimpleUDPClient("192.168.0.115", 5010)  # OSC server address and port
 
         # Convert the image to bytes
         retval, buffer = cv2.imencode('.jpg', image)
@@ -463,3 +486,36 @@ class BodyThread(threading.Thread):
             print("Image sent successfully via OSC.")
         except Exception as e:
             print("Error: Failed to send image via OSC:", str(e))
+    # def send(self, image):
+    #     # Set up OSC client
+    #     #client = SimpleUDPClcient("192.168.0.115", 12345)  # OSC server address and port
+
+
+    #     # Convert the image to bytes
+    #     retval, buffer = cv2.imencode('.jpg', image)
+
+    #     # Check if image encoding was successful
+    #     if not retval:
+    #         print("Error: Failed to encode the image.")
+    #         return
+
+    #     # Convert the image buffer to bytes
+    #     data = buffer.tobytes()
+
+    #     try:
+    #         # Send the image bytes via OSC
+    #         print("Image sent successfully via OSC.")
+
+
+
+    #         sender_socket.send(data)
+    #     except Exception as e:
+    #         print("Error: Failed to send image via OSC:", str(e))
+
+
+
+
+
+
+
+

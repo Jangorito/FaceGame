@@ -20,9 +20,11 @@ PIPE_LINE_DEBUG = False
 # allows you to test on the python side without opening a pipeline to unity (c#)
 
 
+
+
 #allows you to run the mediapipe view only through spout and not natively 
 SPOUT_ONLY = False
 
 
 #turn off spouting = false for no spout
-SPOUT_ON = False
+SPOUT_ON = True
