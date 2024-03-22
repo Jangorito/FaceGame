@@ -17,20 +17,33 @@ public class ModelSimilarityChecker : MonoBehaviour
     private Vector3[] PuppetVectors = new Vector3[65];
     private Vector3[] GhostVectors = new Vector3[65];
     private static bool GameEnd = false;
-    static bool Successful;
+    bool Successful;
     public static PlayModeStateChange state;
     public TextMeshProUGUI pointsText;
-    public int points =0;
+    public int points = 0;
+
+    // Int to tell what Model that instance is
+    private static int instances = 0;
+    private int instance;
+
+    // The Offset between the unmoved BrokenPuppet and the GhostAvatar
+    Vector3 modelOffset;
 
     // Start is called before the first frame update
     private void Start()
     {
-        //BrokenPuppet = getPuppetAvatar();
-        //GhostAvatar = getShadowAvatar();
+        // Player Number
+        instance = ++instances;
+
+        BrokenPuppet = getPuppetAvatar();
+        GhostAvatar = getShadowAvatar();
         Successful = false;
         //StartCoroutine(Coroutine());
         StartTimer();
         Debug.Log(Successful);
+
+        // Calculate the initial offset that will be matched against
+        modelOffset = getOffset(GhostAvatar.transform.position, BrokenPuppet.transform.position);
     }
 
     private void StartTimer()
@@ -54,6 +67,12 @@ public class ModelSimilarityChecker : MonoBehaviour
 
     private void Update()
     {
+
+        // Will stop the Avatar from checking before Shadow Avatar has moved
+        if (!GhostAvatar.isShadowAvatarReady()) {
+            return;
+        }
+
         if (!Successful) // Only check models if the round is not successful
         {
             Vector3 puppetPosition = BrokenPuppet.transform.position;
@@ -87,7 +106,7 @@ public class ModelSimilarityChecker : MonoBehaviour
             // Calculate percentage match
             float percentageMatch = Mathf.Clamp01(1f - normalizedDifference) * 100f;
 
-            Debug.Log("Percentage Match: " + percentageMatch + "%");
+            Debug.Log("Percentage Match for " + instance  + ": " + percentageMatch + "%");
         }
     }
 
@@ -134,15 +153,19 @@ public class ModelSimilarityChecker : MonoBehaviour
         return avatar;
     }
 
+    Vector3 getOffset(Vector3 from, Vector3 to) {
+        return to - from;
+    }
+
     public bool IsModelNear(Vector3[] Puppet, Vector3[] Ghost, Vector3 puppetPosition, Vector3 ghostPosition)
     {
         for (int i = 0; i < Puppet.Length; i++)
         {
-            // Calculate the Offset between the Puppet and the Ghost
-            Vector3 offset = Puppet[i] - Ghost[i];
+            // Calculate the Offset from the Ghost to the Puppet
+            Vector3 offset = getOffset(Ghost[i], Puppet[i]);
 
             // Adjust the positions by adding the offsets
-            Vector3 adjustedPuppetPosition = Puppet[i] - offset;
+            Vector3 adjustedPuppetPosition = Puppet[i] - modelOffset;
             Vector3 adjustedGhostPosition = Ghost[i];
 
             // Takes the distance between the puppet and ghost in terms of vectors

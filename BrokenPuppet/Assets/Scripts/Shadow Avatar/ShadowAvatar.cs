@@ -22,6 +22,9 @@ public class ShadowAvatar : MonoBehaviour
     static int RightEye = 22;
     static int Jaw = 23;
 
+    // Will flag if the Shadow is in a broken pose
+    private bool isShadowReady = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -197,13 +200,26 @@ public class ShadowAvatar : MonoBehaviour
         }
     }
 
+    public bool isShadowAvatarReady() {
+        return isShadowReady;
+    }
+
+    public void setShadowAvatarStatus(bool val) {
+        Debug.Log("Shadow now ready");
+        isShadowReady = val;
+    }
+
+
+
     public void UpdateShadow()
     {
-
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();
         MoveModel();
+        
+        // Will flag that the shadow avatar is ready to be matched again
+        setShadowAvatarStatus(true);
     }
 
 }
