@@ -11,10 +11,28 @@ from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from mediapipe.framework.formats import landmark_pb2
 from pythonosc.udp_client import SimpleUDPClient
 import numpy as np
-import SpoutGL
+#import SpoutGL
 from OpenGL import GL
 from itertools import repeat
 import array
+import socket
+
+
+
+
+
+
+
+
+
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
+
+print(get_ip_address())
+
 custom_style =""
 TARGET_FPS = 1
 SEND_WIDTH = global_vars.WIDTH
