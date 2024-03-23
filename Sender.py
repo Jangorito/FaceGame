@@ -1,25 +1,21 @@
 import socket
 
-# Receiver's IP address and port
-receiver_ip = '192.168.0.115'  # Change this to the IP address of the receiver
-receiver_port = 12345  # Change this to the port on which receiver is listening
+def send_broadcast_message(message, port):
+    # Create a UDP socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-# Create a socket object
-sender_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        # Send the message to the broadcast address
+        s.sendto(message.encode(), ('192.168.0.255', port))
+        print("Broadcast message sent successfully.")
+    except Exception as e:
+        print("Failed to send broadcast message:", e)
+    finally:
+        s.close()
 
-# Connect to the receiver
-sender_socket.connect((receiver_ip, receiver_port))
+# Example usage
+message = "Hello, this is a broadcast message!"
+port = 5020  # Choose the port number
 
-while True:
-    # Get input from the user
-    message = input("Enter your message: ")
-
-    # Send the message to the receiver
-    sender_socket.send(message.encode())
-
-    # Terminate if the message is 'exit'
-    if message.lower() == 'exit':
-        break
-
-# Close the socket
-sender_socket.close()
+send_broadcast_message(message, port)

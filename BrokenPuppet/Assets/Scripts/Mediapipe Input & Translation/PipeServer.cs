@@ -41,7 +41,7 @@ public class OSCServer : MonoBehaviour
         receiver.LocalPort = 5005;
         receiver.Bind("/PythonData", ReceivedMessage);
         //receiver.Bind("/video", ReceivedVideoData);
-    }
+   }
 
     // public static Stream GenerateStreamFromString(string s)
     // {

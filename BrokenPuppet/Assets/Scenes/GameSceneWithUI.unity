@@ -2504,6 +2504,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7fb65f862e42bd4ca0db159f458e2c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shadowBody: {fileID: 0}
 --- !u!1 &1033549475
 GameObject:
   m_ObjectHideFlags: 0
@@ -2514,7 +2515,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1033549476}
   - component: {fileID: 1033549478}
-  - component: {fileID: 1033549477}
+  - component: {fileID: 1033549480}
+  - component: {fileID: 1033549479}
   m_Layer: 0
   m_Name: Player1'sLF
   m_TagString: Untagged
@@ -2542,7 +2544,15 @@ RectTransform:
   m_AnchoredPosition: {x: 0.48, y: -1.32}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1033549477
+--- !u!222 &1033549478
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1033549475}
+  m_CullTransparentMesh: 1
+--- !u!114 &1033549479
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2551,7 +2561,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1033549475}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Script: {fileID: 11500000, guid: b02b5631098c99541b0256ca8c5296e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayImage: {fileID: 1033549480}
+--- !u!114 &1033549480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1033549475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -2562,21 +2585,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
---- !u!222 &1033549478
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1033549475}
-  m_CullTransparentMesh: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1001 &1055530827
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2649,7 +2667,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1063959171}
   - component: {fileID: 1063959173}
-  - component: {fileID: 1063959172}
+  - component: {fileID: 1063959175}
+  - component: {fileID: 1063959174}
   m_Layer: 0
   m_Name: Player2'sLF
   m_TagString: Untagged
@@ -2677,7 +2696,15 @@ RectTransform:
   m_AnchoredPosition: {x: 2.2, y: -1.32}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1063959172
+--- !u!222 &1063959173
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1063959170}
+  m_CullTransparentMesh: 1
+--- !u!114 &1063959174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2686,7 +2713,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1063959170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Script: {fileID: 11500000, guid: d0ed7e77896b22c4c91bc0ded9637c4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayImage: {fileID: 1063959175}
+--- !u!114 &1063959175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1063959170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -2697,21 +2737,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
---- !u!222 &1063959173
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1063959170}
-  m_CullTransparentMesh: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1001 &1104712719
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2882,6 +2917,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7fb65f862e42bd4ca0db159f458e2c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shadowBody: {fileID: 0}
 --- !u!1001 &1155814456
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4014,6 +4050,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75409c1b03f1094fbb2ab70f7a740c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  shadow: {fileID: 0}
 --- !u!114 &1416549461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4026,6 +4064,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 005aba71e9fd7754d9897d28fada0e30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BrokenPuppet: {fileID: 0}
+  GhostAvatar: {fileID: 0}
 --- !u!1 &1488171581
 GameObject:
   m_ObjectHideFlags: 0
@@ -4443,6 +4483,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 005aba71e9fd7754d9897d28fada0e30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BrokenPuppet: {fileID: 0}
+  GhostAvatar: {fileID: 0}
 --- !u!114 &1578104200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4455,6 +4497,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75409c1b03f1094fbb2ab70f7a740c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  shadow: {fileID: 0}
 --- !u!1001 &1587679500
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4951,6 +4995,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7e6252487092f4e866e89b6cf34b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bodyParent: {fileID: 0}
+  blob: 
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0
