@@ -267,8 +267,8 @@ class BodyThread(threading.Thread):
                     print(time.time() - self.timeSinceCheckedConnection)
 
                 if self.client is None and time.time() - self.timeSinceCheckedConnection >= 1 and not global_vars.PIPE_LINE_DEBUG:
-                    ip = "127.0.0.1"
-                    port = 5005
+                    ip = "192.168.0.115"
+                    port = 5012
                     self.client = SimpleUDPClient(ip, port)  # Create client
 
                 if self.client is not None or global_vars.PIPE_LINE_DEBUG:
