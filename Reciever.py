@@ -2,38 +2,54 @@ import socket
 
 # Host and port to listen on
 host = '0.0.0.0'  # Listen on all available interfaces
-port = 5010
 
-# IP address and port to forward the data
-forward_ip = '127.0.0.1'  # Local IP address of the device
-forward_port = 5018  # Port to forward the data to
+# Configuration for the first socket
+port1 = 5010
+forward_ip1 = '127.0.0.1'  # Local IP address of the device
+forward_port1 = 5018  # Port to forward the data to
 
-# Create a UDP socket for receiving
-receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# Configuration for the second socket
+port2 = 5012
+forward_ip2 = '127.0.0.1'  # Local IP address of the device
+forward_port2 = 5015  # Port to forward the data to
 
-# Bind the socket to the host and port
-receiver_socket.bind((host, port))
+# Create UDP sockets for receiving
+receiver_socket1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+receiver_socket2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-print("Receiver is waiting for messages...")
+# Bind the first socket to the host and port1
+receiver_socket1.bind((host, port1))
+print(f"Receiver is waiting for messages on port {port1}...")
 
-# Create a UDP socket for forwarding
-forward_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# Bind the second socket to the host and port2
+receiver_socket2.bind((host, port2))
+print(f"Receiver is waiting for messages on port {port2}...")
+
+# Create UDP sockets for forwarding
+forward_socket1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+forward_socket2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:
-    # Receive data from the sender
-    data, addr = receiver_socket.recvfrom(230400)
+    # Receive data from the first sender
+    data1, addr1 = receiver_socket1.recvfrom(230400)
+    print(f"Message from {addr1} (Port {port1}): {data1}")
 
-    # Decode and print the received data
-    message = data
-    print(f"Message from {addr}: {message}")
+    # Forward the received data to the local IP of the device (for the first socket)
+    forward_socket1.sendto(data1, (forward_ip1, forward_port1))
 
-    # Forward the received data to the local IP of the device
-    forward_socket.sendto(data, (forward_ip, forward_port))
+    # Receive data from the second sender
+    data2, addr2 = receiver_socket2.recvfrom(230400)
+    print(f"Message from {addr2} (Port {port2}): {data2}")
 
-    # Terminate if the message is 'exit'
-    if message.lower() == 'exit':
+    # Forward the received data to the local IP of the device (for the second socket)
+    forward_socket2.sendto(data2, (forward_ip2, forward_port2))
+
+    # Terminate if the message is 'exit' (you may want to handle this differently for two sockets)
+    if data1.lower() == b'exit' or data2.lower() == b'exit':
         break
 
 # Close the sockets
-receiver_socket.close()
-forward_socket.close()
+receiver_socket1.close()
+receiver_socket2.close()
+forward_socket1.close()
+forward_socket2.close()
