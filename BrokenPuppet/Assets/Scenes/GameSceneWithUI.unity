@@ -582,7 +582,7 @@ GameObject:
   - component: {fileID: 441972431}
   - component: {fileID: 441972430}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: '%Match'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3150,7 +3150,7 @@ MonoBehaviour:
   BrokenPuppet: {fileID: 1416549459}
   GhostAvatar: {fileID: 1004043733}
   pointsText: {fileID: 1595471477}
-  PercentageMatchText: {fileID: 0}
+  PercentageMatchText: {fileID: 441972430}
   points: 0
 --- !u!1 &1488171581
 GameObject:
@@ -3498,7 +3498,7 @@ MonoBehaviour:
   BrokenPuppet: {fileID: 1578104200}
   GhostAvatar: {fileID: 1004043733}
   pointsText: {fileID: 1638882057}
-  PercentageMatchText: {fileID: 0}
+  PercentageMatchText: {fileID: 441972430}
   points: 0
 --- !u!114 &1578104200
 MonoBehaviour:
