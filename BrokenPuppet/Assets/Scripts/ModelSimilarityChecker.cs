@@ -20,6 +20,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     bool Successful;
     public static PlayModeStateChange state;
     public TextMeshProUGUI pointsText;
+    public TextMeshProUGUI PercentageMatchText;
     public int points = 0;
 
     // Int to tell what Model that instance is
@@ -105,6 +106,8 @@ public class ModelSimilarityChecker : MonoBehaviour
 
             // Calculate percentage match
             float percentageMatch = Mathf.Clamp01(1f - normalizedDifference) * 100f;
+
+            PercentageMatchText.text = percentageMatch.ToString() + "Player " + instance + ": " + percentageMatch + "% Match\n";
 
             Debug.Log("Percentage Match for " + instance  + ": " + percentageMatch + "%");
         }
