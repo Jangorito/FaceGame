@@ -1,10 +1,18 @@
-# broadcast_receiver.py
+#IMPORTS
 
 import socket
 import netifaces
 import ipaddress
-import time
+
+
+
+#GLOBALVARS
+
 broadcastFlag = True
+
+
+#FUNCTIONS 
+
 def get_local_network_info():
     # Get the local IP address
     local_ip = socket.gethostbyname(socket.gethostname())
@@ -22,7 +30,6 @@ def get_local_network_info():
                     network_address = addr_info['addr']
                     subnet_mask = addr_info['netmask']
                     return network_address, subnet_mask
-
 def calculate_broadcast_address(network_address, subnet_mask):
     # Create an IPv4Network object
     network = ipaddress.IPv4Network(network_address + '/' + subnet_mask, strict=False)
@@ -31,7 +38,6 @@ def calculate_broadcast_address(network_address, subnet_mask):
     broadcast_address = network.broadcast_address
 
     return str(broadcast_address)
-
 def send_broadcast_message(port):
     # Get the local network information
     network_address, subnet_mask = get_local_network_info()
@@ -54,10 +60,6 @@ def send_broadcast_message(port):
             s.close()
     else:
         print("Failed to retrieve local network information.")
-
-
-
-
 def send_stop_message(port):
     # Get the local network information
     network_address, subnet_mask = get_local_network_info()
@@ -80,12 +82,6 @@ def send_stop_message(port):
             s.close()
     else:
         print("Failed to retrieve local network information.")
-
-
-
-
-
-
 def receive_and_forward_messages(port1, forward_ip1, forward_port1, port2, forward_ip2, forward_port2):
     global broadcastFlag 
     # Host to listen on

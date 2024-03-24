@@ -1,3 +1,4 @@
+#IMPORTS
 import socket
 from body import BodyThread
 import global_vars
@@ -7,7 +8,9 @@ import body
 import socket
 from threading import Thread
 import body
+#FUNCTIONS
 
+#function for receieiving the broadcast messages
 def receive_broadcast_message(port, ip_received_callback):
     ipFlag = False  # ipFlag is for when we have received a successful IP broadcast we stop checking for it
     # Create a UDP socket for listening for broadcast
@@ -45,9 +48,9 @@ def receive_broadcast_message(port, ip_received_callback):
         s.close()
 
 # Callback function to handle received IP address
-# Once broadcast signal recieved it sets the IP address for the body
-# And starts the camera thread
 def handle_ip_received(ip_address):
+    # Once broadcast signal recieved it sets the IP address for the body
+    # And starts the camera thread
     if ip_address:
         body.ipAddress = ip_address
         thread = BodyThread()
@@ -55,7 +58,7 @@ def handle_ip_received(ip_address):
 
 
 
-#start of None threaded Code
+#NONE THREADED CODE
 
 
 
@@ -64,6 +67,7 @@ port = 5020  # Choose the port number
 broadcast_thread = Thread(target=receive_broadcast_message, args=(port, handle_ip_received))
 broadcast_thread.start()
 
+#exit code
 # Wait for user input to close (manual close)
 input("Press Enter to exit...")
 print("Exiting…")
@@ -71,7 +75,7 @@ global_vars.KILL_THREADS = True
 time.sleep(0.5)
 exit()
 
-
+#END
 
 
 
