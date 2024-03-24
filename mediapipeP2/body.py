@@ -16,9 +16,9 @@ from OpenGL import GL
 from itertools import repeat
 import array
 import socket
+#import main 
 
-
-
+ipAddress = ""
 
 
 
@@ -267,9 +267,8 @@ class BodyThread(threading.Thread):
                     print(time.time() - self.timeSinceCheckedConnection)
 
                 if self.client is None and time.time() - self.timeSinceCheckedConnection >= 1 and not global_vars.PIPE_LINE_DEBUG:
-                    ip = "192.168.0.115"
                     port = 5012
-                    self.client = SimpleUDPClient(ip, port)  # Create client
+                    self.client = SimpleUDPClient(ipAddress, port)  # Create client
 
                 if self.client is not None or global_vars.PIPE_LINE_DEBUG:
                     # Set up data for OSC messaging
@@ -467,7 +466,7 @@ class BodyThread(threading.Thread):
 
     def send(self, image):
         # Set up OSC client
-        client = SimpleUDPClient("192.168.0.115", 5010)  # OSC server address and port
+        client = SimpleUDPClient(ipAddress, 5010)  # OSC server address and port
 
         # Convert the image to bytes
         retval, buffer = cv2.imencode('.jpg', image)

@@ -8,3 +8,5 @@
 `pip install opencv-python`
 ..*OpenGL
 `pip install PyOpenGL`
+..*Netifaces
+ `pip install netifaces`
