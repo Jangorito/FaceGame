@@ -1,12 +1,9 @@
 from body import BodyThread
 import time
-import struct
 import global_vars
 import threading
 import Reciever
 from sys import exit
-import signal  # Import signal module to handle termination signal
-
 # Example usage
 port1 = 5010
 forward_ip1 = '127.0.0.1'  # Local IP address of the device
