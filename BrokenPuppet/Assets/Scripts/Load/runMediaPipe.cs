@@ -59,7 +59,22 @@ public class RunPythonOnPlay
                 // Send Enter key
                 pythonProcess.StandardInput.Write("\n");
 
-                DebugLog("Python script terminated.");
+                DebugLog("Python script termination signals sent.");
+
+                // Wait for a brief moment to allow the process to respond to the termination signals
+                System.Threading.Thread.Sleep(1000); // Adjust the sleep duration as needed
+
+                // Check again if the process has exited
+                if (!pythonProcess.HasExited)
+                {
+                    // If the process has not exited, forcefully kill it
+                    pythonProcess.Kill();
+                    DebugLog("Python script forcibly terminated.");
+                }
+                else
+                {
+                    DebugLog("Python script terminated.");
+                }
             }
         }
     }

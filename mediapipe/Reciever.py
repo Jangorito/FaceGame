@@ -1,17 +1,18 @@
-#IMPORTS
-
 import socket
 import netifaces
 import ipaddress
+import atexit
 
-
-
-#GLOBALVARS
-
+# GLOBALVARS
 broadcastFlag = True
 
+# Define socket variables globally
+receiver_socket1 = None
+receiver_socket2 = None
+forward_socket1 = None
+forward_socket2 = None
 
-#FUNCTIONS 
+# FUNCTIONS
 
 def get_local_network_info():
     # Get the local IP address
@@ -30,6 +31,7 @@ def get_local_network_info():
                     network_address = addr_info['addr']
                     subnet_mask = addr_info['netmask']
                     return network_address, subnet_mask
+
 def calculate_broadcast_address(network_address, subnet_mask):
     # Create an IPv4Network object
     network = ipaddress.IPv4Network(network_address + '/' + subnet_mask, strict=False)
@@ -38,6 +40,7 @@ def calculate_broadcast_address(network_address, subnet_mask):
     broadcast_address = network.broadcast_address
 
     return str(broadcast_address)
+
 def send_broadcast_message(port):
     # Get the local network information
     network_address, subnet_mask = get_local_network_info()
@@ -60,6 +63,7 @@ def send_broadcast_message(port):
             s.close()
     else:
         print("Failed to retrieve local network information.")
+
 def send_stop_message(port):
     # Get the local network information
     network_address, subnet_mask = get_local_network_info()
@@ -82,8 +86,14 @@ def send_stop_message(port):
             s.close()
     else:
         print("Failed to retrieve local network information.")
+
 def receive_and_forward_messages(port1, forward_ip1, forward_port1, port2, forward_ip2, forward_port2):
     global broadcastFlag 
+    global receiver_socket1
+    global receiver_socket2
+    global forward_socket1
+    global forward_socket2
+
     # Host to listen on
     host = '0.0.0.0'  # Listen on all available interfaces
 
@@ -123,10 +133,23 @@ def receive_and_forward_messages(port1, forward_ip1, forward_port1, port2, forwa
         if data1.lower() == b'exit' or data2.lower() == b'exit':
             break
 
-    # Close the sockets
-    receiver_socket1.close()
-    receiver_socket2.close()
-    forward_socket1.close()
-    forward_socket2.close()
+    # Close the sockets (moved to close_sockets_on_exit function)
 
+def close_sockets_on_exit():
+    global receiver_socket1
+    global receiver_socket2
+    global forward_socket1
+    global forward_socket2
 
+    # Close the sockets if they exist
+    if receiver_socket1:
+        receiver_socket1.close()
+    if receiver_socket2:
+        receiver_socket2.close()
+    if forward_socket1:
+        forward_socket1.close()
+    if forward_socket2:
+        forward_socket2.close()
+
+# Register the function to be called upon program exit
+atexit.register(close_sockets_on_exit)
