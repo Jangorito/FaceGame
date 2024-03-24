@@ -10,18 +10,24 @@ public class DisplayImage : MonoBehaviour
 
     // OSC Receiver
     private OSCReceiver receiver;
-     void Start()
-     {
+
+    // Debug toggle
+    public bool debugMode = true;
+
+    void Start()
+    {
         receiver = gameObject.AddComponent<OSCReceiver>();
         receiver.LocalPort = 5008;
         receiver.Bind("/video", ReceivedVideoData);
-
-     }
+    }
 
     // Method to handle received video data
-   private void ReceivedVideoData(OSCMessage message)
+    private void ReceivedVideoData(OSCMessage message)
     {
-        Debug.LogError("being called");
+        if (debugMode)
+        {
+            Debug.LogError("Received OSC message: " + message);
+        }
 
         if (displayImage == null)
         {
@@ -72,7 +78,10 @@ public class DisplayImage : MonoBehaviour
             // Apply the sprite to the UI Image
             displayImage.sprite = sprite;
 
-            Debug.LogError("Received and displayed image via OSC.");
+            if (debugMode)
+            {
+                Debug.LogError("Received and displayed image via OSC.");
+            }
         }
         catch (System.Exception e)
         {
@@ -93,4 +102,3 @@ public class DisplayImage : MonoBehaviour
         return texture;
     }
 }
-

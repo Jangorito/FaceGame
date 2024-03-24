@@ -6,23 +6,28 @@ using System;
 public class displayImageP2 : MonoBehaviour
 {
     // UI Image to display the received image
-    public Image displayImage; // Renamed from displayImageP2
+    public Image displayImage;
 
     // OSC Receiver
     private OSCReceiver receiver;
+
+    // Toggle for debug mode
+    public bool debugMode = false;
 
     void Start()
     {
         receiver = gameObject.AddComponent<OSCReceiver>();
         receiver.LocalPort = 5018;
         receiver.Bind("/video", ReceivedVideoData);
-
     }
 
     // Method to handle received video data
     private void ReceivedVideoData(OSCMessage message)
     {
-        Debug.LogError("being called");
+        if (debugMode)
+        {
+            Debug.Log("ReceivedVideoData method called.");
+        }
 
         if (displayImage == null)
         {
@@ -73,7 +78,10 @@ public class displayImageP2 : MonoBehaviour
             // Apply the sprite to the UI Image
             displayImage.sprite = sprite;
 
-            Debug.LogError("Received and displayed image via OSC.");
+            if (debugMode)
+            {
+                Debug.Log("Received and displayed image via OSC.");
+            }
         }
         catch (System.Exception e)
         {

@@ -6,10 +6,19 @@ using System.Diagnostics;
 public class RunPythonOnPlay
 {
     private static Process pythonProcess;
+    private static bool debugMode = false; // Set to true for debug messages, false to disable
 
     static RunPythonOnPlay()
     {
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    }
+
+    static void DebugLog(string message)
+    {
+        if (debugMode)
+        {
+            UnityEngine.Debug.Log(message);
+        }
     }
 
     static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -30,14 +39,14 @@ public class RunPythonOnPlay
 
             pythonProcess = new Process();
             pythonProcess.StartInfo = startInfo;
-            pythonProcess.OutputDataReceived += (sender, e) => { UnityEngine.Debug.Log(e.Data); };
-            pythonProcess.ErrorDataReceived += (sender, e) => { UnityEngine.Debug.LogError(e.Data); };
+            pythonProcess.OutputDataReceived += (sender, e) => { DebugLog(e.Data); };
+            pythonProcess.ErrorDataReceived += (sender, e) => { DebugLog(e.Data); };
 
             pythonProcess.Start();
             pythonProcess.BeginOutputReadLine();
             pythonProcess.BeginErrorReadLine();
 
-            UnityEngine.Debug.Log("Python script started!");
+            DebugLog("Python script started!");
         }
         else if (state == PlayModeStateChange.ExitingPlayMode)
         {
@@ -49,7 +58,7 @@ public class RunPythonOnPlay
                 // Send Enter key
                 pythonProcess.StandardInput.Write("\n");
 
-                UnityEngine.Debug.Log("Python script terminated.");
+                DebugLog("Python script terminated.");
             }
         }
     }
