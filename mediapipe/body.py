@@ -5,14 +5,10 @@ import threading #camera thread
 import time #for fps ect
 import global_vars  #  global_vars module is defined in global_vars.py
 from pythonosc.udp_client import SimpleUDPClient #to set up and use udp clients for sending OSC data
-import socket #to connect to an IP address
 
 
 custom_style =""
-TARGET_FPS = 1
-SEND_WIDTH = global_vars.WIDTH
-SEND_HEIGHT = global_vars.HEIGHT
-SENDER_NAME = "SpoutGL-test"
+
 POSE_CONNECTIONS = frozenset([(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5),
                               (5, 6), (6, 8), (9, 10), (11, 12), (11, 13),
                               (13, 15), (12, 14), (14, 16), (11, 23), (12, 24), (23, 24), (23, 25),
