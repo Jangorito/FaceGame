@@ -1,29 +1,12 @@
-import struct
-import cv2
-import mediapipe as mp
-import threading
-import time
+import cv2 #image facilities
+import mediapipe as mp #mediapipe for tracking
+import threading #camera thread
+import time #for fps ect
 import global_vars  #  global_vars module is defined in global_vars.py
-import struct
-import json
-from mediapipe.python.solutions.pose import PoseLandmark
-from mediapipe.python.solutions.drawing_utils import DrawingSpec
-from mediapipe.framework.formats import landmark_pb2
-from pythonosc.udp_client import SimpleUDPClient
-import numpy as np
-#import SpoutGL
-from OpenGL import GL
-from itertools import repeat
-import array
-import socket
-#import main 
+from pythonosc.udp_client import SimpleUDPClient #to set up and use udp clients for sending OSC data
+import socket #to connect to an IP address
 
 ipAddress = ""
-
-
-
-
-
 
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
