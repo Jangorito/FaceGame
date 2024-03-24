@@ -1,6 +1,7 @@
 import socket
 import netifaces
 import ipaddress
+import time
 
 def get_local_network_info():
     # Get the local IP address
@@ -26,24 +27,24 @@ def calculate_broadcast_address(network_address, subnet_mask):
     
     # Get the broadcast address from the network object
     broadcast_address = network.broadcast_address
-    
+
     return str(broadcast_address)
 
-def send_broadcast_message(message, port):
+def send_broadcast_message( port):
     # Get the local network information
     network_address, subnet_mask = get_local_network_info()
 
     if network_address and subnet_mask:
         # Calculate the broadcast address
         broadcast_address = calculate_broadcast_address(network_address, subnet_mask)
-        print(broadcast_address)
+        
         # Create a UDP socket
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         try:
             # Send the message to the broadcast address
-            s.sendto(message.encode(), (broadcast_address, port))
+            s.sendto(network_address.encode(), (broadcast_address, port))
             print("Broadcast message sent successfully.")
         except Exception as e:
             print("Failed to send broadcast message:", e)
@@ -56,4 +57,27 @@ def send_broadcast_message(message, port):
 message = "Hello, this is a broadcast message!"
 port = 5020  # Choose the port number
 
-send_broadcast_message(message, port)
+# Start time for the broadcast loop
+start_time = time.time()
+
+while True:
+    # Send broadcast message
+    send_broadcast_message( port)
+    
+    # Check for stop message every second
+    if time.time() - start_time >= 1:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as receive_socket:
+            receive_socket.bind(('0.0.0.0', port))
+            receive_socket.settimeout(1)  # Set timeout to 1 second
+            try:
+                data, addr = receive_socket.recvfrom(1024)
+                if data.decode() == "stop":
+                    print("Received stop message. Stopping broadcast loop.")
+                    exit()
+            except socket.timeout:
+                pass  # Continue the broadcast loop if no message is received within 1 second
+    
+    # Wait for the next second to send the next broadcast message
+    time.sleep(1)
+
+

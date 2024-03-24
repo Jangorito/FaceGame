@@ -24,6 +24,7 @@ public class RunPythonOnPlay
             startInfo.FileName = "python"; // Use the system's default Python interpreter
             startInfo.Arguments = pythonScriptPath;
             startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardInput = true;  // Redirect standard input to allow sending signals
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
 
@@ -40,11 +41,14 @@ public class RunPythonOnPlay
         }
         else if (state == PlayModeStateChange.ExitingPlayMode)
         {
-            // Check if the process is running before attempting to kill it
+            // Check if the process is running before attempting to send signals
             if (pythonProcess != null && !pythonProcess.HasExited)
             {
-                // Kill the Python process
-                pythonProcess.Kill();
+                // Send Escape key
+                pythonProcess.StandardInput.Write((char)27);
+                // Send Enter key
+                pythonProcess.StandardInput.Write("\n");
+
                 UnityEngine.Debug.Log("Python script terminated.");
             }
         }
