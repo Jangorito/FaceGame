@@ -1,3 +1,4 @@
+#IMPORTS
 import cv2 #image facilities
 import mediapipe as mp #mediapipe for tracking
 import threading #camera thread
@@ -6,21 +7,6 @@ import global_vars  #  global_vars module is defined in global_vars.py
 from pythonosc.udp_client import SimpleUDPClient #to set up and use udp clients for sending OSC data
 import socket #to connect to an IP address
 
-
-
-
-
-
-
-
-
-def get_ip_address():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    return s.getsockname()[0]
-
-
-print(get_ip_address())
 
 custom_style =""
 TARGET_FPS = 1
