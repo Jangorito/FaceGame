@@ -128,9 +128,7 @@ class CaptureThread(threading.Thread):
     frame = None
     isRunning = False
     counter = 0
-    timer = 0.0
-
-            
+    timer = 0.0     
     def run(self):
         # Open a video capture using OpenCV with specified camera index
         self.cap = cv2.VideoCapture(global_vars.CAM_INDEX) 
