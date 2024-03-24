@@ -36,6 +36,7 @@ public class RunPythonOnPlay
             startInfo.RedirectStandardInput = true;  // Redirect standard input to allow sending signals
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
+            startInfo.CreateNoWindow = true; // Prevents the command-line window from appearing
 
             pythonProcess = new Process();
             pythonProcess.StartInfo = startInfo;

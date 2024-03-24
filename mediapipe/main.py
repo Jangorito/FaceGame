@@ -52,6 +52,7 @@ Reciever.send_stop_message(broadcastPort)
 global_vars.KILL_THREADS = True
 time.sleep(0.5)
 Reciever.exit()
+time.sleep(0.5)
 exit()
 
 
