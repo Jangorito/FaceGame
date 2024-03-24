@@ -2,7 +2,6 @@ import socket
 from body import BodyThread
 import global_vars
 from sys import exit
-import struct
 import time
 import body
 import socket
@@ -10,7 +9,7 @@ from threading import Thread
 import body
 
 def receive_broadcast_message(port, ip_received_callback):
-    ipFlag =False
+    ipFlag = False  # ipFlag is for when we have received a successful IP broadcast we stop checking for it
     # Create a UDP socket
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -19,27 +18,29 @@ def receive_broadcast_message(port, ip_received_callback):
     try:
         # Bind the socket to the port
         s.bind(('', port))
-        print(f"Listening for broadcast messages on port {port}...")
+        if global_vars.MAINDEBUG:
+            print(f"Listening for broadcast messages on port {port}...")
 
         while True:
             # Receive message
             data, addr = s.recvfrom(1024)
-            if data and (ipFlag==False):
+            if data and not ipFlag:
                 ip_address = data.decode()  # Assuming the message is the IP address
-                print(f"Received broadcast message from {addr}: {ip_address}")
+                if global_vars.MAINDEBUG:
+                    print(f"Received broadcast message from {addr}: {ip_address}")
                 ip_received_callback(ip_address)  # Pass the IP address to the callback function
-                ipFlag =True
-            elif (data.decode() == "STOP"):
+                ipFlag = True
+            elif data.decode() == "STOP":
                 s.close()
-                print("Exiting…")
+                if global_vars.MAINDEBUG:
+                    print("Exiting…")
                 global_vars.KILL_THREADS = True
                 time.sleep(0.5)
                 exit()
     
-
-    
     except Exception as e:
-        print("Error:", e)
+        if global_vars.MAINDEBUG:
+            print("Error:", e)
     finally:
         s.close()
 

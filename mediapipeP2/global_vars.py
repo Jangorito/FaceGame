@@ -2,7 +2,10 @@
 KILL_THREADS = False
 
 # Toggle this in order to view how your WebCam is being interpreted (reduces performance).
-DEBUG = False 
+DEBUG = False
+
+#toggle this to see any debug messages coming from main threads
+MAINDEBUG = True 
 
 # Settings do not universally apply, not all WebCams support all frame rates and resolutions
 CAM_INDEX = 0

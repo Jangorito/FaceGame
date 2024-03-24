@@ -77,4 +77,4 @@ crashlytics-build.properties
 #system specific 
 Settings.json
 #to be different for each user
-#global_vars.py
+global_vars.py
