@@ -4,6 +4,8 @@ using System.Timers;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.UIElements;
+using TMPro;
 
 public class ModelSimilarityChecker : MonoBehaviour
 {
@@ -16,6 +18,8 @@ public class ModelSimilarityChecker : MonoBehaviour
     private static bool GameEnd = false;
     static bool Successful;
     public static PlayModeStateChange state;
+    public TextMeshProUGUI pointsText;
+    public int points =0;
 
     // Start is called before the first frame update
     private void Start()
@@ -142,6 +146,8 @@ public class ModelSimilarityChecker : MonoBehaviour
             if (distance > 0.1)
                 return false;
         }
+        points += 5;
+        pointsText.text = $"Points: {points}";
         return true;
     }
 }
