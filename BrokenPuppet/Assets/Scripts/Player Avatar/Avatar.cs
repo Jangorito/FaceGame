@@ -6,8 +6,10 @@ using UnityEngine;
 /* Controls the movement of the character */
 public class Avatar : MonoBehaviour
 {
-
+    // The reference to the active Server that receives Mediapipe input
     private OSCServer server;
+
+    // The reference to the animator controlling the Avatar transforms
     public Animator animator;
 
     /** mappings for Bones and its the landmarks it is following */
@@ -16,95 +18,113 @@ public class Avatar : MonoBehaviour
 
     public static Dictionary<HumanBodyBones, CalibrationData> persistantCalibrations;
 
+    // The Avatar's initial rotation
     private Quaternion initialRotation;
+
+    // The Avatar's initial position
     private Vector3 initialPosition;
+
+    // The target rotation for the hips
     private Quaternion targetRot;
     private CalibrationData spineUpDown, hipsTwist, chest, head;
-    public ShadowAvatar shadow;
+
+    // Flags if the avatar has been calibrated
     private bool calibrated = false;
 
-    /** frequency at which the avatar checks for data on the server */
+    // frequency at which the avatar checks for data on the server
     private const float WAIT_FOR = 2.0f;
+
+    // Flags if script should output debugging info
+    public bool shouldDebug = false;
+
+    // Used to display debugging info
+    Logger logger;
+
+    // TODO: separate the shadow implementation from Avatar
+    public ShadowAvatar shadow;
 
     void Start()
     {
+        logger = new Logger(shouldDebug);
+
+        // Initialises all of the joint limitations
         Limitations.initializeXArray();
         Limitations.initializeYArray();
+
+        // Sets the initial rotation and position of the Avatar
         initialRotation = transform.rotation;
         initialPosition = transform.position;
 
+        // Checks if there is an active server in the game
         server = getServer();
 
-        /** will check every WAIT_FOR seconds for a connection to the server */
+        // Will check every WAIT_FOR seconds for a connection
         while (!server.hasServerConnectedWithClient())
             wait();
 
+
+        // Starts the initial calibration of the avatar
         StartCoroutine(Calibrate());
     }
 
-    
+    // Moves the bone
+    public void updateBoneTransform(HumanBodyBones bone, CalibrationData calibration) {
+        animator.GetBoneTransform(bone).rotation = calibration.getRotation();
+    }
 
     void Update()
     {
-        /* Allow Player to re-calibrate */
+        // Allows player to re-calibrate the avatar
         if (Input.GetKeyDown("space"))
         {
-            Debug.Log("Re-Calibrating...");
+            logger.LogMsg("Re-Calibrating...");
             resetAvatar();
             StartCoroutine(Calibrate());
         }
 
-        /** prevent the avatar from moving if it has not been calibrated */
+       // prevent model from moving if not calibrated
         if (!calibrated)
             return;
 
-        /* Moves the model */
+        // Moves each joint in the Calibration Data
         foreach (var i in parentCalibrationData)
         {
-            Quaternion deltaRotation = Quaternion.FromToRotation(i.Value.initialDirection,
-            i.Value.getCurrentDirection());
-
-            animator.GetBoneTransform(i.Key).rotation = deltaRotation * i.Value.initialRotation;
+           updateBoneTransform(i.Key, i.Value);
         }
 
-        /* only compute additional rotations if avatar has been calibrated */
-        if (parentCalibrationData.Count > 0)
-        {
+        // Moves the head, hips, and spine to match movement in body
 
-            /* calculate new rotations */
-            Quaternion headr = Quaternion.FromToRotation(head.initialDirection, head.getCurrentDirection());
-            Quaternion twist = Quaternion.FromToRotation(hipsTwist.initialDirection,
-                Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f));
-            Quaternion updown = Quaternion.FromToRotation(spineUpDown.initialDirection,
-                Vector3.Slerp(spineUpDown.initialDirection, spineUpDown.getCurrentDirection(), .25f));
+        /* calculate new rotations */
+        Quaternion headr = Quaternion.FromToRotation(head.initialDirection, head.getCurrentDirection());
+        Quaternion twist = Quaternion.FromToRotation(hipsTwist.initialDirection,
+            Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f));
+        Quaternion updown = Quaternion.FromToRotation(spineUpDown.initialDirection,
+            Vector3.Slerp(spineUpDown.initialDirection, spineUpDown.getCurrentDirection(), .25f));
 
-            // Compute the final rotations.
-            Quaternion h = updown * updown * updown * twist * twist;
-            Quaternion s = h * twist * updown;
-            Quaternion c = s * twist * twist;
-            float speed = 10f;
-            hipsTwist.Tick(h * hipsTwist.initialRotation, speed);
-            spineUpDown.Tick(s * spineUpDown.initialRotation, speed);
-            chest.Tick(c * chest.initialRotation, speed);
-            head.Tick(updown * twist * headr * head.initialRotation, speed);
+        // Compute the final rotations.
+        Quaternion h = updown * updown * updown * twist * twist;
+        Quaternion s = h * twist * updown;
+        Quaternion c = s * twist * twist;
+        float speed = 10f;
+        hipsTwist.Tick(h * hipsTwist.initialRotation, speed);
+        spineUpDown.Tick(s * spineUpDown.initialRotation, speed);
+        chest.Tick(c * chest.initialRotation, speed);
+        head.Tick(updown * twist * headr * head.initialRotation, speed);
 
-            // For additional responsiveness, we rotate the entire transform slightly based on the hips.
-            Vector3 d = Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f);
-            d.y *= 0.5f;
-            Quaternion deltaRotTracked = Quaternion.FromToRotation(hipsTwist.initialDirection, d);
-            targetRot = deltaRotTracked * initialRotation;
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
-        }
+        // For additional responsiveness, we rotate the entire transform slightly based on the hips.
+        Vector3 d = Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f);
+        d.y *= 0.5f;
+        Quaternion deltaRotTracked = Quaternion.FromToRotation(hipsTwist.initialDirection, d);
+        targetRot = deltaRotTracked * initialRotation;
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
     }
-
-
 
     /* attemps to find the active PipeServer to gain access to data */
     private OSCServer getServer()
     {
         OSCServer server = FindObjectOfType<OSCServer>();
         if (server == null)
-            Debug.LogError("Could not find a PipeServer in the scene");
+            logger.LogError("Could not find a PipeServer in the scene");
         return server;
 
     }
@@ -136,8 +156,6 @@ public class Avatar : MonoBehaviour
         yield return new WaitForSeconds(WAIT_FOR);
     }
 
-
-
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate()
     {
@@ -146,7 +164,7 @@ public class Avatar : MonoBehaviour
         int t = 5;
         while (t > 0)
         {
-            Debug.Log("Calibrating in: " + t);
+            logger.LogMsg("Calibrating in: " + t.ToString());
             t--;
             yield return new WaitForSeconds(1f);
         }

@@ -7,6 +7,13 @@
  * 21 right hand
  */
 
+public enum LenLandmark {
+    Total = 543,
+    Poses = 33,
+    Face = 478,
+    LeftHand = 21,
+    RightHand = 21
+}
 
 public enum Landmark { 
     NOSE = 0,

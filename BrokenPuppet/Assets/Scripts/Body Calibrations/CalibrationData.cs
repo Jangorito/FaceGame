@@ -101,4 +101,9 @@ public class CalibrationData
         initialDirection = oInitialDirection;
         initialRotation = oInitialRotation;
     }
+
+    // returns the new rotation of the calibration
+    public Quaternion getRotation() {
+        return Quaternion.identity;
+    }
 }

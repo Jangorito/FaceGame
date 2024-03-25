@@ -8,54 +8,65 @@ public class OSCServer : MonoBehaviour
 {
     private const int LANDMARK_COUNT = 543;
 
+    // Stores the movement of the Neck and Hip from mediapipe
     private Transform virtualNeck, virtualHip;
+
+    // The fastest that a bone can move 
     private float maxSpeed = 50f;
+
     private Body body;
     public Transform bodyParent;
 
     /** flag will be changed to indicate that the server has received some data from a client */
     private bool hasConnected = false;
 
+    // Flags if script should output debugging info
+    public bool shouldDebug = false;
 
-    private string messages;
-    public string blob;
+    // Used to display debugging info
+    Logger logger;
 
+    // The port that the OSC will listen on
+    public int receiver_port  = 5005;
+
+    // The channel that the OSC will listen on 
+    public string receiver_channel = "/PythonData";
 
     // Start is called before the first frame update
     void Start() {
 
-        body = new Body(bodyParent, LANDMARK_COUNT);
+        // set instance of the logger
+        logger = new Logger(shouldDebug);
+
+        // create the body object
+        body = new Body(bodyParent);
+
+        // set the neck and hip
         virtualNeck = new GameObject("VirtualNeck").transform;
         virtualHip = new GameObject("VirtualHip").transform;
 
-        Debug.Log("Initialising OSC Bindings");
+        // establish OSC bindings
+        logger.LogMsg("Initialising OSC Bindings");
         Initialise();
-        Debug.Log("OSC Bindings Initialised");
+        logger.LogMsg("OSC Bindings Initialised");
     }
 
     // Update is called once per frame
     void Update() {
         updateInstances();
-
     }
     private void Initialise()
     {
         // Initialize the receiver
         var receiver = gameObject.AddComponent<OSCReceiver>();
-        receiver.LocalPort = 5005;
-        receiver.Bind("/PythonData", ReceivedMessage);
-        //receiver.Bind("/video", ReceivedVideoData);
+
+        // set the port
+        receiver.LocalPort = receiver_port;
+
+        // bind receiver to OSC channel
+        receiver.Bind(receiver_channel, ReceivedMessage);
     }
 
-    // public static Stream GenerateStreamFromString(string s)
-    // {
-    //     var stream = new MemoryStream();
-    //     var writer = new StreamWriter(stream);
-    //     writer.Write(s);
-    //     writer.Flush();
-    //     stream.Position = 0;
-    //     return stream;
-        // }
     private void ReceivedVideoData(OSCMessage message)
     {
         // Check if the message contains data
@@ -69,31 +80,39 @@ public class OSCServer : MonoBehaviour
 
             // Here, we'll just log the received video data
             //Debug.Log("Received video data: " + videoData);
-            Debug.LogWarning("Received ");
+            logger.LogWar("Received ");
         }
         else
         {
             // Handle the case where the message does not contain valid data
-            Debug.LogWarning("Received empty or invalid video data.");
+            logger.LogWar("Received empty or invalid video data.");
         }
     }
 
     public bool hasServerConnectedWithClient() { return hasConnected; }
 
+    /* Order of Landmarks sent
+         * Pose -> Face -> LeftHand -> RightHand 
+         */
     private void ReceivedMessage(OSCMessage message)
     {
-        /* Data send is long byte[] */
+        // read message as long byte[] */
         if(message.ToBlob(out var value))
         {
-            /* Convert byte[] to String */
-            string data = Encoding.UTF8.GetString(value);
-            /* Convert String to String[] for each new line */
-            string[] lines = data.Split('\n');
-            /* Process each line in data sent */
+            // Convert byte[] to String
+            string inputData = Encoding.UTF8.GetString(value);
+
+            // Split data into array of each line
+            string[] lines = inputData.Split('\n');
+
+            // Process each line in data sent
             foreach (string line in lines)
             {
+                // ignore empty/EOF lines
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
+
+                // process data of the line
                 parseInput(line);
             }
         }
@@ -101,64 +120,80 @@ public class OSCServer : MonoBehaviour
 
     /* Converts the String line to its respective Data */
     private void parseInput(string line) {
-        int lenPoses = 33;
-        int lenFace = 478;
-        int lenHand = 21;
-        int index;
         hasConnected = true;
-        /* Order of Landmarks sent
-         * Pose -> Face -> LeftHand -> RightHand 
-         */
+
+        // Split line into the input parts
         string[] parts = line.Split('|');
+
+        // format should be: Type | Index | X | Y | Z
+        // e.g. PL | 21 | 0.2372 | 0.35 | 0.01
         if (parts.Length != 5)
         {
-            Debug.Log("Invalid Input detected: " + parts);
+            logger.LogMsg("Invalid Input detected: " + parts);
+
+            // Ignore invalid input
             return;
         }
-        /* calculate the offset index to add new position to buffer */
-        index = int.Parse(parts[1]);
+
+        // Calculate the global index of the given local index
+        int index = int.Parse(parts[1]);
         switch (parts[0])
         {
             case "RH":
-                index += (lenHand + lenFace + lenPoses);
+                index += ((int)LenLandmark.LeftHand + (int)LenLandmark.Face + (int)LenLandmark.Poses);
                 break;
+
             case "LH":
-                index += (lenPoses + lenFace);
+                index += ((int)LenLandmark.Face + (int)LenLandmark.Poses);
                 break;
+
             case "FL":
+                index += (int)LenLandmark.Poses;
+
+                // ignore Face input now
                 return;
-                //index += (lenPoses);
+
+            // Pose landmarks are sent first so no offset needed
             case "PL":
                 break;
+
+            // Invalid data has been given
             default:
-                break;
+                return;
         }
-    /* Add new position to position buffer */
-    body.addValue(index, new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
+
+        // Add new position to body position buffer: invert the z coord
+        body.addValue(index, new Vector3(
+            float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
     }
 
     /* Uses the localPosition array to move the instances */
     private void updateInstances() {
-        for (int i = 0; i < LANDMARK_COUNT; i++) {
-            /* do not add movement vector if landmark not recorded enough */
+        for (int i = 0; i < (int)LenLandmark.Total; i++) {
+
+            // Do not update movement vecotr if landmark not recorded enough
             if (body.bPositions[i].enoughSamplesRecorded()) {
-                /* add avarage movement recorded to current position */
+
+                // Take avarage of vectors recorded to gain new movement
                 body.instances[i].transform.position = Vector3.MoveTowards(
-                    body.instances[i].transform.position, body.bPositions[i].getBuffer(), Time.deltaTime * maxSpeed);
+                    body.instances[i].transform.position, body.bPositions[i].getBuffer(),
+                    Time.deltaTime * maxSpeed);
                 
+                // Clear the Accumulated Buffer of input vectors
                 body.bPositions[i].resetSamples();
             }
         }
 
+        // Use shoulder input to move neck
         virtualNeck.transform.position = (body.instances[(int)Landmark.RIGHT_SHOULDER].transform.position + 
             body.instances[(int)Landmark.LEFT_SHOULDER].transform.position) / 2f;
+
+        // Use left and right hip input to move hip
         virtualHip.transform.position = (body.instances[(int)Landmark.RIGHT_HIP].transform.position + 
             body.instances[(int)Landmark.LEFT_HIP].transform.position) / 2f;
-
-
     }
 
-    /* returns position of landmark given */
+    // Get transform representing landmark
     public Transform getLandmark(Landmark mark) {
             return body.instances[(int)mark].transform;
     }

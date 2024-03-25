@@ -8,11 +8,11 @@ public class Body
     public AccumulatedBuffer[] bPositions;
     public GameObject[] instances;
 
-    public Body(Transform parent, int lenLandmarks) {
-        bPositions = new AccumulatedBuffer[lenLandmarks];
-        instances = new GameObject[lenLandmarks];
+    public Body(Transform parent) {
+        bPositions = new AccumulatedBuffer[(int)LenLandmark.Total];
+        instances = new GameObject[(int)LenLandmark.Total];
 
-        for (int i =0; i < lenLandmarks; i++) {
+        for (int i =0; i < (int)LenLandmark.Total; i++) {
             instances[i] = new GameObject(((Landmark)i).ToString());
             instances[i].transform.parent = parent;
             instances[i].transform.localScale = Vector3.one;
