@@ -153,6 +153,7 @@ public class Avatar : MonoBehaviour
     }
 
     private IEnumerator wait() {
+        logger.LogMsg("Waiting for Connection...");
         yield return new WaitForSeconds(WAIT_FOR);
     }
 
