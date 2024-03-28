@@ -43,7 +43,6 @@ public class Avatar : MonoBehaviour
 
         if (!calibrated)
             return;
-
         /* Moves the model */
         foreach (var i in parentCalibrationData)
         {
