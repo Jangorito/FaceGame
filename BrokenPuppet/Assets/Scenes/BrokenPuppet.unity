@@ -786,7 +786,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1740593561}
   - component: {fileID: 1740593560}
-  - component: {fileID: 1740593562}
   m_Layer: 0
   m_Name: PipeServer
   m_TagString: Untagged
@@ -807,7 +806,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyParent: {fileID: 1896538856}
-  shouldDebug: 0
+  shouldDebug: 1
   receiver_port: 5005
   receiver_channel: /PythonData
 --- !u!4 &1740593561
@@ -826,18 +825,6 @@ Transform:
   - {fileID: 1896538856}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1740593562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740593559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c5ef6fd898100049b2c855ec9c942f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1896538855
 GameObject:
   m_ObjectHideFlags: 0

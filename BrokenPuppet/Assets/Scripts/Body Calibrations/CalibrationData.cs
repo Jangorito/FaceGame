@@ -104,6 +104,8 @@ public class CalibrationData
 
     // returns the new rotation of the calibration
     public Quaternion getRotation() {
-        return Quaternion.identity;
+        // Calculate rotation based on mediapipe input
+        Quaternion deltaRotation = Quaternion.FromToRotation(initialDirection, getCurrentDirection());
+        return deltaRotation * initialRotation;
     }
 }

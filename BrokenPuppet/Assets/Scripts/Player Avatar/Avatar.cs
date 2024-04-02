@@ -58,9 +58,18 @@ public class Avatar : MonoBehaviour
         // Checks if there is an active server in the game
         server = getServer();
 
+        if (!server) {
+            logger.LogError("Could not find Server Object");
+            return;
+        }
+
         // Will check every WAIT_FOR seconds for a connection
-        while (!server.hasServerConnectedWithClient())
+        while (!server.hasServerConnectedWithClient()) {
+            logger.LogMsg("Waiting for Server Connection...");
             wait();
+        }
+
+        logger.LogMsg("Avatar has connected to Server");
 
 
         // Starts the initial calibration of the avatar
@@ -69,7 +78,19 @@ public class Avatar : MonoBehaviour
 
     // Moves the bone
     public void updateBoneTransform(HumanBodyBones bone, CalibrationData calibration) {
-        animator.GetBoneTransform(bone).rotation = calibration.getRotation();
+
+        // Get rotation of bone
+        Quaternion deltaRotation = calibration.getRotation();
+
+        /** 
+         If the rotation is the same assume no input detected:
+            Copy parent rotation to still get movement
+         */
+        if (deltaRotation == animator.GetBoneTransform(bone).rotation)
+            deltaRotation = animator.GetBoneTransform(bone).parent.rotation;
+
+        // Apply calculated rotation
+        animator.GetBoneTransform(bone).rotation = deltaRotation;
     }
 
     void Update()
@@ -160,6 +181,8 @@ public class Avatar : MonoBehaviour
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate()
     {
+        logger.LogMsg("Starting Calibration");
+
 
         /* waits t seconds */
         int t = 5;
@@ -190,7 +213,7 @@ public class Avatar : MonoBehaviour
             HumanBodyBones.Neck, HumanBodyBones.Head,
             server.getVirtualNeck(), server.getLandmark(Landmark.NOSE), ref animator, ref server);
 
-        Debug.Log("Calibrated");
+        logger.LogMsg("Calibrated");
         calibrated = true;
         persistantCalibrations = parentCalibrationData;
 

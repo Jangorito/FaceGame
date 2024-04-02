@@ -17,7 +17,7 @@ public class OSCServer : MonoBehaviour
     private Body body;
     public Transform bodyParent;
 
-    /** flag will be changed to indicate that the server has received some data from a client */
+    // flags if the server has received data from a client
     private bool hasConnected = false;
 
     // Flags if script should output debugging info
@@ -89,7 +89,10 @@ public class OSCServer : MonoBehaviour
         }
     }
 
-    public bool hasServerConnectedWithClient() { return hasConnected; }
+    public bool hasServerConnectedWithClient() { 
+        logger.LogMsg("Checking if server has connected with client...");
+        return hasConnected; 
+    }
 
     /* Order of Landmarks sent
          * Pose -> Face -> LeftHand -> RightHand 
