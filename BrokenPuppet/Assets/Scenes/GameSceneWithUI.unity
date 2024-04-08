@@ -2277,6 +2277,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1113793020
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1113793021}
+  m_Layer: 0
+  m_Name: MovementBreaker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1113793021
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113793020}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.09834123, y: 1.1750634, z: -0.56478024}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1176918658
 GameObject:
   m_ObjectHideFlags: 0
@@ -3129,6 +3160,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1416549460}
+  shouldDebug: 0
   shadow: {fileID: 1004043733}
 --- !u!95 &1416549460 stripped
 Animator:
@@ -3150,7 +3182,7 @@ MonoBehaviour:
   BrokenPuppet: {fileID: 1416549459}
   GhostAvatar: {fileID: 1004043733}
   pointsText: {fileID: 1595471477}
-  PercentageMatchText: {fileID: 441972430}
+  PercentageMatchText: {fileID: 0}
   points: 0
 --- !u!1 &1488171581
 GameObject:
@@ -3498,7 +3530,7 @@ MonoBehaviour:
   BrokenPuppet: {fileID: 1578104200}
   GhostAvatar: {fileID: 1004043733}
   pointsText: {fileID: 1638882057}
-  PercentageMatchText: {fileID: 441972430}
+  PercentageMatchText: {fileID: 0}
   points: 0
 --- !u!114 &1578104200
 MonoBehaviour:
@@ -3513,6 +3545,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1578104201}
+  shouldDebug: 0
   shadow: {fileID: 1004043733}
 --- !u!95 &1578104201 stripped
 Animator:
@@ -4043,7 +4076,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyParent: {fileID: 0}
-  blob: 
+  shouldDebug: 0
+  receiver_port: 5005
+  receiver_channel: /PythonData
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0
@@ -4793,3 +4828,4 @@ SceneRoots:
   - {fileID: 1707649853}
   - {fileID: 746752716}
   - {fileID: 1056674897}
+  - {fileID: 1113793021}
