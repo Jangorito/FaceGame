@@ -76,6 +76,14 @@ public class Avatar : MonoBehaviour
         StartCoroutine(Calibrate());
     }
 
+    public void change_calibrations(Dictionary<HumanBodyBones, CalibrationData> movement) {
+        parentCalibrationData = movement;
+    }
+
+    public Dictionary<HumanBodyBones, CalibrationData> getCalibrations() {
+        return persistantCalibrations;
+    }
+
     // Moves the bone
     public void updateBoneTransform(HumanBodyBones bone, CalibrationData calibration) {
 
@@ -163,15 +171,11 @@ public class Avatar : MonoBehaviour
         head.reset();
     }
 
-    /* Changes the movement between the parent and child bone to match the movement between the newParent and newChild landmark data */
-    void changeCalibration(HumanBodyBones parent, Landmark newParent, Landmark newChild)
-    {
-        parentCalibrationData[parent].change_calibrations(server.getLandmark(newParent), server.getLandmark(newChild));
-    }
-
     void reset_calibrations() {
         parentCalibrationData = persistantCalibrations;
     }
+
+    public bool isCalibrated() { return calibrated; }
 
     private IEnumerator wait() {
         logger.LogMsg("Waiting for Connection...");
