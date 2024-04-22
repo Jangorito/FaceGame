@@ -1,6 +1,4 @@
 using UnityEngine;
-using System;
-using System.IO;
 using System.Text;
 using extOSC;
 
@@ -15,11 +13,15 @@ public class OSCServer : MonoBehaviour
     private Body body;
     public Transform bodyParent;
 
+    public GameObject Player1;
+    public GameObject Player1Shadow;
+    //public GameObject Player2;
+
     // flags if the server has received data from a client
-    private bool hasConnected = false;
+    private bool bHasConnected = false;
 
     // Flags if script should output debugging info
-    public bool shouldDebug = false;
+    public bool shouldDebug;
 
     // Used to display debugging info
     private Logger logger;
@@ -30,14 +32,16 @@ public class OSCServer : MonoBehaviour
     // The channel that the OSC will listen on 
     public string receiver_channel = "/PythonData";
 
-    // Start is called before the first frame update
-    void Start() {
+    private void Awake()
+    {
 
         // set instance of the logger
-        logger = new Logger(shouldDebug);
+        logger = new(shouldDebug);
+
+        logger.LogMsg("OSCServer::Awake");
 
         // create the body object
-        body = new Body(bodyParent);
+        body = new(bodyParent);
 
         // set the neck and hip
         virtualNeck = new GameObject("VirtualNeck").transform;
@@ -49,10 +53,25 @@ public class OSCServer : MonoBehaviour
         logger.LogMsg("OSC Bindings Initialised");
     }
 
+    // Start is called before the first frame update
+    void Start() {
+        logger.LogMsg("OSCServer::Start");
+
+        // Activate Player 1
+        Player1.SetActive(true);
+
+        // Activate Player 1 Shadow
+        Player1Shadow.SetActive(true);
+
+        // Activate Player 2
+        //Player2.SetActive(true);
+    }
+
     // Update is called once per frame
     void Update() {
         UpdateInstances();
     }
+
     private void Initialise()
     {
         // Initialize the receiver
@@ -88,8 +107,8 @@ public class OSCServer : MonoBehaviour
     }
 
     public bool HasClients() { 
-        logger.LogMsg("Checking if server has connected with client...");
-        return hasConnected; 
+        logger.LogMsg("OSCServer::HasClients");
+        return bHasConnected; 
     }
 
     /* Order of Landmarks sent
@@ -121,7 +140,7 @@ public class OSCServer : MonoBehaviour
 
     /* Converts the String line to its respective Data */
     private void ParseInput(string line) {
-        hasConnected = true;
+        bHasConnected = true;
 
         // Split line into the input parts
         string[] parts = line.Split('|');

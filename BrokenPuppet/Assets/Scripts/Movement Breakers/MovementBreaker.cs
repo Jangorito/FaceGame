@@ -33,8 +33,11 @@ public class MovementBreaker : MonoBehaviour
 
     void Start()
     {
-        logger = new Logger(shouldDebug);
-        random = new System.Random();
+        logger = new(shouldDebug);
+
+        logger.LogMsg("MovementBreaker::Start");
+
+        random = new();
 
         // Wait for each avatar to be calibrated
         while (!player_1.isCalibrated()) {

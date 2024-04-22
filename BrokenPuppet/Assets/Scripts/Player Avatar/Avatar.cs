@@ -26,7 +26,7 @@ public class Avatar : MonoBehaviour
     private CalibrationData spineUpDown, hipsTwist, chest, head;
 
     // Flags if the avatar has been calibrated
-    private bool calibrated = false;
+    private bool bIsCalibrated = false;
 
     // frequency at which the avatar checks for data on the server
     private const float WAIT_FOR = 2.0f;
@@ -40,9 +40,11 @@ public class Avatar : MonoBehaviour
     // TODO: separate the shadow implementation from Avatar
     public ShadowAvatar shadow;
 
-    void Start()
+    private void Awake()
     {
-        logger = new Logger(shouldDebug);
+        logger = new(shouldDebug);
+
+        logger.LogMsg("Avatar::Awake");
 
         // Initialises all of the joint limitations
         Limitations.initializeXArray();
@@ -51,26 +53,37 @@ public class Avatar : MonoBehaviour
         // Sets the initial rotation and position of the Avatar
         initialRotation = transform.rotation;
         initialPosition = transform.position;
+    }
 
-        // Checks if there is an active server in the game
+    void Start()
+    {
+        logger.LogMsg("Avatar::Start");
+
+        // Find Active Server Object
         server = GetServer();
+        if (server == null) {
+            logger.LogError("Avatar::Start | No OSCServer in the scene");
+        }
+        logger.LogMsg("Avatar::Start | Server online");
 
-        if (!server) {
-            logger.LogError("Could not find Server Object");
-            return;
+        if (!server.HasClients()) {
+            logger.LogMsg("Avatar::Start | Server is not connected");
         }
 
-        // Will check every WAIT_FOR seconds for a connection
-        while (!server.HasClients()) {
-            logger.LogMsg("Avatar::Start | Waiting for Server Connection...");
-            StartCoroutine(Wait());
-        }
-
-        logger.LogMsg("Avatar has connected to Server");
-
+       // logger.LogMsg("Avatar::Start | Server connected to Mediapipe");
 
         // Starts the initial calibration of the avatar
-        StartCoroutine(Calibrate());
+        //StartCoroutine(Calibrate());
+    }
+
+    private void OnEnable()
+    {
+        logger.LogMsg("Avatar::OnEnable");
+    }
+
+    private void OnDisable()
+    {
+        logger.LogMsg("Avatar:OnDisable");
     }
 
     public void change_calibrations(Dictionary<HumanBodyBones, CalibrationData> movement) {
@@ -98,8 +111,31 @@ public class Avatar : MonoBehaviour
         animator.GetBoneTransform(bone).rotation = deltaRotation;
     }
 
+    /* attemps to find the active PipeServer to gain access to data */
+    private OSCServer GetServer()
+    {
+        logger.LogMsg("Avatar::GetServer");
+        return FindObjectOfType<OSCServer>();
+    }
+
     void Update()
     {
+        logger.LogMsg("Avatar::Update");
+        // Check if Avatar has been Calibrated
+        if (!IsCalibrated()) {
+
+            // Check if Server has received Data
+            if (!server.HasClients()) { 
+                logger.LogMsg("Avatar::Update | No input data from Server");
+                return;
+            } else {
+                logger.LogMsg("Avatar::Update | Input data detected from Server");
+                StartCoroutine(Calibrate());
+            }
+        }
+
+        logger.LogMsg("Avatar::Update | Updating Avatar position");
+
         // Allows player to re-calibrate the avatar
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -109,7 +145,7 @@ public class Avatar : MonoBehaviour
         }
 
        // prevent model from moving if not calibrated
-        if (!calibrated)
+        if (!bIsCalibrated)
             return;
 
         // Moves each joint in the Calibration Data
@@ -145,16 +181,6 @@ public class Avatar : MonoBehaviour
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
     }
 
-    /* attemps to find the active PipeServer to gain access to data */
-    private OSCServer GetServer()
-    {
-        OSCServer server = FindObjectOfType<OSCServer>();
-        if (server == null)
-            logger.LogError("Avatar::GetServer | Could not find a PipeServer in the scene");
-        return server;
-
-    }
-
     /* returns the avatar to the base pose */
     void resetAvatar()
     {
@@ -168,7 +194,7 @@ public class Avatar : MonoBehaviour
         head.reset();
     }
 
-    public bool isCalibrated() { return calibrated; }
+    public bool isCalibrated() { return bIsCalibrated; }
 
     private IEnumerator Wait() {
         logger.LogMsg("Avatar::Wait | Waiting for Connection...");
@@ -178,18 +204,16 @@ public class Avatar : MonoBehaviour
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate()
     {
-        logger.LogMsg("Avatar::Calibrate | Starting Calibration");
-
-
         /* waits t seconds */
         int t = 5;
         while (t > 0)
         {
-            logger.LogMsg("Calibrating in: " + t.ToString());
+            logger.LogMsg("Avatar::Calibrate | Calibrating in: " + t.ToString());
             t--;
             yield return new WaitForSeconds(1f);
         }
 
+        logger.LogMsg("Avatar::Calibrate | Starting Calibration");
 
         /* resets the calibration data */
         parentCalibrationData.Clear();
@@ -210,10 +234,14 @@ public class Avatar : MonoBehaviour
             HumanBodyBones.Neck, HumanBodyBones.Head,
             server.GetVirtualNeck(), server.GetLandmark(Landmark.NOSE), ref animator, ref server);
 
-        logger.LogMsg("Calibrated");
-        calibrated = true;
         shadow.UpdateShadow();
+
+        logger.LogMsg("Avatar::Calibrate | Finished Calibration");
+        SetIsCalibrated(true);
     }
+
+    private void SetIsCalibrated(bool val) { bIsCalibrated = val; }
+    private bool IsCalibrated() { return bIsCalibrated; }
 
     public Transform getBoneTransform(HumanBodyBones bone)
     {

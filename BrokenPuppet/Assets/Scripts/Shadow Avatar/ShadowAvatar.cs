@@ -34,6 +34,7 @@ public class ShadowAvatar : MonoBehaviour
     void Start()
     {
         logger = new Logger(bShouldDebug);
+        logger.LogMsg("ShadowAvatar::Start");
         GameDifficulty = Randomiser.GameDifficulty;
 
     }
@@ -211,6 +212,7 @@ public class ShadowAvatar : MonoBehaviour
 
     public void UpdateShadow()
     {
+        logger.LogMsg("ShadowAvatar::UpdateShadow");
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();
