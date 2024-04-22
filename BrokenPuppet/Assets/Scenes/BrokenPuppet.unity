@@ -838,7 +838,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyParent: {fileID: 1896538856}
-  Player1: {fileID: 0}
+  Player1: {fileID: 1416549457}
+  Player1Shadow: {fileID: 1004043731}
   shouldDebug: 1
   receiver_port: 5005
   receiver_channel: /PythonData

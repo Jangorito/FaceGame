@@ -28,6 +28,9 @@ public class Avatar : MonoBehaviour
     // Flags if the avatar has been calibrated
     private bool bIsCalibrated = false;
 
+    // Flags if the avatar is calibrated
+    private bool bIsCalibrating = false;
+
     // frequency at which the avatar checks for data on the server
     private const float WAIT_FOR = 2.0f;
 
@@ -102,10 +105,11 @@ public class Avatar : MonoBehaviour
 
         /** 
          If the rotation is the same assume no input detected:
-            Copy parent rotation to still get movement
+            Do not move bone - should move with parent
          */
         if (deltaRotation == animator.GetBoneTransform(bone).rotation)
-            deltaRotation = animator.GetBoneTransform(bone).parent.rotation;
+            return;
+            
 
         // Apply calculated rotation
         animator.GetBoneTransform(bone).rotation = deltaRotation;
@@ -121,14 +125,16 @@ public class Avatar : MonoBehaviour
     void Update()
     {
         logger.LogMsg("Avatar::Update");
-        // Check if Avatar has been Calibrated
-        if (!IsCalibrated()) {
+
+        // Check if Avatar has been Calibrated or Is calibrating
+        if (!IsCalibrated() && !IsCalibrating()) {
 
             // Check if Server has received Data
             if (!server.HasClients()) { 
                 logger.LogMsg("Avatar::Update | No input data from Server");
                 return;
             } else {
+
                 logger.LogMsg("Avatar::Update | Input data detected from Server");
                 StartCoroutine(Calibrate());
             }
@@ -139,14 +145,14 @@ public class Avatar : MonoBehaviour
         // Allows player to re-calibrate the avatar
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            logger.LogMsg("Re-Calibrating...");
+            logger.LogMsg("Avatar::Update | Re-Calibrating Avatar...");
+
+            // Move Avatar back into T-pose
             resetAvatar();
+
+            // Calibrate the Avatar
             StartCoroutine(Calibrate());
         }
-
-       // prevent model from moving if not calibrated
-        if (!bIsCalibrated)
-            return;
 
         // Moves each joint in the Calibration Data
         foreach (var i in parentCalibrationData)
@@ -196,14 +202,11 @@ public class Avatar : MonoBehaviour
 
     public bool isCalibrated() { return bIsCalibrated; }
 
-    private IEnumerator Wait() {
-        logger.LogMsg("Avatar::Wait | Waiting for Connection...");
-        yield return new WaitForSeconds(WAIT_FOR);
-    }
-
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate()
     {
+        SetIsCalibrating(true);
+
         /* waits t seconds */
         int t = 5;
         while (t > 0)
@@ -216,11 +219,16 @@ public class Avatar : MonoBehaviour
         logger.LogMsg("Avatar::Calibrate | Starting Calibration");
 
         /* resets the calibration data */
+        // Empty all Calibrations from the previous Calibration Data
         parentCalibrationData.Clear();
 
-        AddLeftHandCalibrations();
-        AddRightHandCalibrations();
+
+        // ==== CALIBRATIONS ====
+
         AddPoseCalibrations();
+        //AddLeftHandCalibrations();
+        //AddRightHandCalibrations();
+        
 
         /* Manually define neck and hip connections */
         spineUpDown = new CalibrationData(
@@ -242,6 +250,9 @@ public class Avatar : MonoBehaviour
 
     private void SetIsCalibrated(bool val) { bIsCalibrated = val; }
     private bool IsCalibrated() { return bIsCalibrated; }
+
+    private void SetIsCalibrating(bool val) { bIsCalibrating = val; }
+    private bool IsCalibrating() { return bIsCalibrating; } 
 
     public Transform getBoneTransform(HumanBodyBones bone)
     {
