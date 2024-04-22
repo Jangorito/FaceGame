@@ -26,8 +26,8 @@ public class CalibrationData
         this.childLandmark = childLandmark;
 
         getBoneTransforms(ref animator);
-        tchild = server.getLandmark(parentLandmark);
-        tparent = server.getLandmark(childLandmark);
+        tchild = server.GetLandmark(parentLandmark);
+        tparent = server.GetLandmark(childLandmark);
 
         setInitialRotAndDir();
     }

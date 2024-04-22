@@ -20,15 +20,19 @@ public class RunPythonOnPlay
             string pythonScriptPath = @"..\mediapipe\main.py";
 
             // Start Python process
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "python"; // Use the system's default Python interpreter
-            startInfo.Arguments = pythonScriptPath;
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "python", // Use the system's default Python interpreter
+                Arguments = pythonScriptPath,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
 
-            pythonProcess = new Process();
-            pythonProcess.StartInfo = startInfo;
+            pythonProcess = new Process
+            {
+                StartInfo = startInfo,
+            };
             pythonProcess.OutputDataReceived += (sender, e) => { UnityEngine.Debug.Log(e.Data); };
             pythonProcess.ErrorDataReceived += (sender, e) => { UnityEngine.Debug.LogError(e.Data); };
 

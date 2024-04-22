@@ -6,13 +6,11 @@ using extOSC;
 
 public class OSCServer : MonoBehaviour
 {
-    private const int LANDMARK_COUNT = 543;
-
     // Stores the movement of the Neck and Hip from mediapipe
     private Transform virtualNeck, virtualHip;
 
     // The fastest that a bone can move 
-    private float maxSpeed = 50f;
+    private const float maxSpeed = 50f;
 
     private Body body;
     public Transform bodyParent;
@@ -24,7 +22,7 @@ public class OSCServer : MonoBehaviour
     public bool shouldDebug = false;
 
     // Used to display debugging info
-    Logger logger;
+    private Logger logger;
 
     // The port that the OSC will listen on
     public int receiver_port  = 5005;
@@ -53,7 +51,7 @@ public class OSCServer : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        updateInstances();
+        UpdateInstances();
     }
     private void Initialise()
     {
@@ -89,7 +87,7 @@ public class OSCServer : MonoBehaviour
         }
     }
 
-    public bool hasServerConnectedWithClient() { 
+    public bool HasClients() { 
         logger.LogMsg("Checking if server has connected with client...");
         return hasConnected; 
     }
@@ -116,13 +114,13 @@ public class OSCServer : MonoBehaviour
                     continue;
 
                 // process data of the line
-                parseInput(line);
+                ParseInput(line);
             }
         }
     }
 
     /* Converts the String line to its respective Data */
-    private void parseInput(string line) {
+    private void ParseInput(string line) {
         hasConnected = true;
 
         // Split line into the input parts
@@ -151,7 +149,7 @@ public class OSCServer : MonoBehaviour
                 break;
 
             case "FL":
-                index += (int)LenLandmark.Poses;
+                //index += (int)LenLandmark.Poses;
 
                 // ignore Face input now
                 return;
@@ -171,7 +169,7 @@ public class OSCServer : MonoBehaviour
     }
 
     /* Uses the localPosition array to move the instances */
-    private void updateInstances() {
+    private void UpdateInstances() {
         for (int i = 0; i < (int)LenLandmark.Total; i++) {
 
             // Do not update movement vecotr if landmark not recorded enough
@@ -197,15 +195,15 @@ public class OSCServer : MonoBehaviour
     }
 
     // Get transform representing landmark
-    public Transform getLandmark(Landmark mark) {
+    public Transform GetLandmark(Landmark mark) {
             return body.instances[(int)mark].transform;
     }
 
-    public Transform getVirtualHip() {
+    public Transform GetVirtualHip() {
         return virtualHip;
     }
 
-    public Transform getVirtualNeck() {
+    public Transform GetVirtualNeck() {
         return virtualNeck;
     }
 }

@@ -13,10 +13,7 @@ public class Avatar : MonoBehaviour
     public Animator animator;
 
     /** mappings for Bones and its the landmarks it is following */
-    public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =
-        new Dictionary<HumanBodyBones, CalibrationData>();
-
-    public static Dictionary<HumanBodyBones, CalibrationData> persistantCalibrations;
+    public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
 
     // The Avatar's initial rotation
     private Quaternion initialRotation;
@@ -56,7 +53,7 @@ public class Avatar : MonoBehaviour
         initialPosition = transform.position;
 
         // Checks if there is an active server in the game
-        server = getServer();
+        server = GetServer();
 
         if (!server) {
             logger.LogError("Could not find Server Object");
@@ -64,9 +61,9 @@ public class Avatar : MonoBehaviour
         }
 
         // Will check every WAIT_FOR seconds for a connection
-        while (!server.hasServerConnectedWithClient()) {
-            logger.LogMsg("Waiting for Server Connection...");
-            wait();
+        while (!server.HasClients()) {
+            logger.LogMsg("Avatar::Start | Waiting for Server Connection...");
+            StartCoroutine(Wait());
         }
 
         logger.LogMsg("Avatar has connected to Server");
@@ -81,7 +78,7 @@ public class Avatar : MonoBehaviour
     }
 
     public Dictionary<HumanBodyBones, CalibrationData> getCalibrations() {
-        return persistantCalibrations;
+        return parentCalibrationData;
     }
 
     // Moves the bone
@@ -104,7 +101,7 @@ public class Avatar : MonoBehaviour
     void Update()
     {
         // Allows player to re-calibrate the avatar
-        if (Input.GetKeyDown("space"))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             logger.LogMsg("Re-Calibrating...");
             resetAvatar();
@@ -149,11 +146,11 @@ public class Avatar : MonoBehaviour
     }
 
     /* attemps to find the active PipeServer to gain access to data */
-    private OSCServer getServer()
+    private OSCServer GetServer()
     {
         OSCServer server = FindObjectOfType<OSCServer>();
         if (server == null)
-            logger.LogError("Could not find a PipeServer in the scene");
+            logger.LogError("Avatar::GetServer | Could not find a PipeServer in the scene");
         return server;
 
     }
@@ -171,21 +168,17 @@ public class Avatar : MonoBehaviour
         head.reset();
     }
 
-    void reset_calibrations() {
-        parentCalibrationData = persistantCalibrations;
-    }
-
     public bool isCalibrated() { return calibrated; }
 
-    private IEnumerator wait() {
-        logger.LogMsg("Waiting for Connection...");
+    private IEnumerator Wait() {
+        logger.LogMsg("Avatar::Wait | Waiting for Connection...");
         yield return new WaitForSeconds(WAIT_FOR);
     }
 
     /* Sets up Mappings between Unity Bones and The Landmarks */
     public IEnumerator Calibrate()
     {
-        logger.LogMsg("Starting Calibration");
+        logger.LogMsg("Avatar::Calibrate | Starting Calibration");
 
 
         /* waits t seconds */
@@ -201,26 +194,24 @@ public class Avatar : MonoBehaviour
         /* resets the calibration data */
         parentCalibrationData.Clear();
 
-        //addLeftHandCalibrations();
-        //addRightHandCalibrations();
-        addPoseCalibrations();
+        AddLeftHandCalibrations();
+        AddRightHandCalibrations();
+        AddPoseCalibrations();
 
         /* Manually define neck and hip connections */
         spineUpDown = new CalibrationData(
             HumanBodyBones.Spine, HumanBodyBones.Neck,
-            server.getVirtualHip(), server.getVirtualNeck(), ref animator, ref server);
+            server.GetVirtualHip(), server.GetVirtualNeck(), ref animator, ref server);
         hipsTwist = new CalibrationData(HumanBodyBones.Hips, HumanBodyBones.Hips,
             Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
         chest = new CalibrationData(HumanBodyBones.Chest, HumanBodyBones.Chest,
             Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref server);
         head = new CalibrationData(
             HumanBodyBones.Neck, HumanBodyBones.Head,
-            server.getVirtualNeck(), server.getLandmark(Landmark.NOSE), ref animator, ref server);
+            server.GetVirtualNeck(), server.GetLandmark(Landmark.NOSE), ref animator, ref server);
 
         logger.LogMsg("Calibrated");
         calibrated = true;
-        persistantCalibrations = parentCalibrationData;
-
         shadow.UpdateShadow();
     }
 
@@ -232,12 +223,12 @@ public class Avatar : MonoBehaviour
     private void AddCalibration(HumanBodyBones parent, HumanBodyBones child,
         Landmark trackParent, Landmark trackChild)
     {
-        CalibrationData data = new CalibrationData(parent, child,
+        CalibrationData data = new(parent, child,
                 trackParent, trackChild, ref animator, ref server);
         parentCalibrationData.Add(parent, data);
     }
 
-    private void addPoseCalibrations()
+    private void AddPoseCalibrations()
     {
         AddCalibration(HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm,
             Landmark.RIGHT_SHOULDER, Landmark.RIGHT_ELBOW);
@@ -264,7 +255,7 @@ public class Avatar : MonoBehaviour
             Landmark.RIGHT_KNEE, Landmark.RIGHT_ANKLE);
     }
 
-    private void addLeftHandCalibrations()
+    private void AddLeftHandCalibrations()
     {
 
         /* Thumb */
@@ -310,7 +301,7 @@ public class Avatar : MonoBehaviour
 
     }
 
-    private void addRightHandCalibrations()
+    private void AddRightHandCalibrations()
     {
 
         /* Thumb */

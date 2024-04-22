@@ -30,9 +30,17 @@ public class ModelSimilarityChecker : MonoBehaviour
     // The Offset between the unmoved BrokenPuppet and the GhostAvatar
     Vector3 modelOffset;
 
+    // Will Output Debugging info
+    Logger logger;
+
+    // Flags if should output debugging info
+    public bool bShouldDebug;
+
     // Start is called before the first frame update
     private void Start()
     {
+        logger = new Logger(bShouldDebug);
+
         // Player Number
         instance = ++instances;
 
@@ -41,7 +49,7 @@ public class ModelSimilarityChecker : MonoBehaviour
         Successful = false;
         //StartCoroutine(Coroutine());
         StartTimer();
-        Debug.Log(Successful);
+        logger.LogMsg("ModelSimilarityChecker::Start | Is Successful + " + Successful.ToString());
 
         // Calculate the initial offset that will be matched against
         modelOffset = getOffset(GhostAvatar.transform.position, BrokenPuppet.transform.position);
@@ -49,9 +57,11 @@ public class ModelSimilarityChecker : MonoBehaviour
 
     private void StartTimer()
     {
-        Timer initialTimer = new Timer();
-        initialTimer.Interval = 8000;
-        initialTimer.AutoReset = false; // Set AutoReset to false to ensure it only triggers once
+        Timer initialTimer = new()
+        {
+            Interval = 8000,
+            AutoReset = false,
+        };
         initialTimer.Elapsed += (sender, args) =>
         {
             // Call CheckModels after 8 seconds
@@ -62,7 +72,7 @@ public class ModelSimilarityChecker : MonoBehaviour
             initialTimer.Dispose();
         };
 
-        Debug.Log("Initial 8 Seconds started");
+        logger.LogMsg("ModelSimilarityChecker::StartTimer | Initial 8 seconds started");
         initialTimer.Start();
     }
 
@@ -70,7 +80,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
 
         // Will stop the Avatar from checking before Shadow Avatar has moved
-        if (!GhostAvatar.isShadowAvatarReady()) {
+        if (!GhostAvatar.IsShadowAvatarReady()) {
             return;
         }
 
@@ -109,7 +119,7 @@ public class ModelSimilarityChecker : MonoBehaviour
 
             PercentageMatchText.text = percentageMatch.ToString() + "Player " + instance + ": " + percentageMatch + "% Match\n";
 
-            Debug.Log("Percentage Match for " + instance  + ": " + percentageMatch + "%");
+            logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + instance + ": " + percentageMatch + "%");
         }
     }
 
@@ -143,7 +153,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         ShadowAvatar avatar = FindObjectOfType<ShadowAvatar>();
         if (avatar == null)
-            Debug.LogError("Could not find an Avatar in the scene");
+            logger.LogError("ModelSimilarityChecker::getShadowAvatar | Could not find an Avatar in the scene");
         return avatar;
     }
 
@@ -152,7 +162,7 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         Avatar avatar = FindObjectOfType<Avatar>();
         if (avatar == null)
-            Debug.LogError("Could not find an Avatar in the scene");
+            logger.LogError("ModelSimilarityChecker::getPuppetAvatar | Could not find an Avatar in the scene");
         return avatar;
     }
 

@@ -334,6 +334,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayImage: {fileID: 998332449}
+  bShouldDebug: 0
 --- !u!114 &998332449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -461,6 +462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shadowBody: {fileID: 1004043734}
+  bShouldDebug: 0
 --- !u!1 &1094629430
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,7 +683,9 @@ MonoBehaviour:
   BrokenPuppet: {fileID: 1416549459}
   GhostAvatar: {fileID: 1004043736}
   pointsText: {fileID: 0}
+  PercentageMatchText: {fileID: 0}
   points: 0
+  bShouldDebug: 0
 --- !u!1 &1488171581
 GameObject:
   m_ObjectHideFlags: 0
@@ -885,8 +889,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1aff619cd601204ab0accaf8e093a69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player_1: {fileID: 0}
-  player_2: {fileID: 0}
+  MIN: 1
+  MAX: 5
+  player_1: {fileID: 1416549459}
+  player_2: {fileID: 1416549459}
   shouldDebug: 0
 --- !u!4 &2131924440
 Transform:
