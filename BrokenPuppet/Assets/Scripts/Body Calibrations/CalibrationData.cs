@@ -26,8 +26,8 @@ public class CalibrationData
         this.childLandmark = childLandmark;
 
         getBoneTransforms(ref animator);
-        tchild = server.getLandmark(parentLandmark);
-        tparent = server.getLandmark(childLandmark);
+        tchild = server.GetLandmark(parentLandmark);
+        tparent = server.GetLandmark(childLandmark);
 
         setInitialRotAndDir();
     }
@@ -47,6 +47,11 @@ public class CalibrationData
         this.tchild = tchild;
 
         setInitialRotAndDir();
+    }
+
+    public void change_calibrations(Transform newParent, Transform newChild) {
+        this.tparent = newParent;
+        this.tchild = newChild;
     }
 
     private void setLimits()
@@ -95,5 +100,12 @@ public class CalibrationData
     public void reset() {
         initialDirection = oInitialDirection;
         initialRotation = oInitialRotation;
+    }
+
+    // returns the new rotation of the calibration
+    public Quaternion getRotation() {
+        // Calculate rotation based on mediapipe input
+        Quaternion deltaRotation = Quaternion.FromToRotation(initialDirection, getCurrentDirection());
+        return deltaRotation * initialRotation;
     }
 }

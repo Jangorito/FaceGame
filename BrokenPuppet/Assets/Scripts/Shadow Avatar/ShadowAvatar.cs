@@ -11,7 +11,6 @@ public class ShadowAvatar : MonoBehaviour
     public static Quaternion[] minRotations;
     public static Quaternion[] maxRotations;
     public static Difficulty GameDifficulty;
-    float MaxMin;
 
 
     static int AllBones = 51;
@@ -22,9 +21,20 @@ public class ShadowAvatar : MonoBehaviour
     static int RightEye = 22;
     static int Jaw = 23;
 
+    // Will output Debugging Info
+    static Logger logger;
+
+    // Flags if should output debugging info
+    public bool bShouldDebug;
+
+    // Will flag if the Shadow is in a broken pose
+    private bool isShadowReady = false;
+
     // Start is called before the first frame update
     void Start()
     {
+        logger = new Logger(bShouldDebug);
+        logger.LogMsg("ShadowAvatar::Start");
         GameDifficulty = Randomiser.GameDifficulty;
 
     }
@@ -57,7 +67,8 @@ public class ShadowAvatar : MonoBehaviour
         {
             // Randomly select an index to assign the transform
             int bone = rnd.Next(AllBones);
-            print(bone + "\n");
+            logger.LogMsg("ShadowAvatar::SelectRandomBones | " + bone.ToString());
+
             if (bone == LeftEye || bone == RightEye || bone == Jaw)
                 continue;
             // Populate array with bone indexes
@@ -74,15 +85,6 @@ public class ShadowAvatar : MonoBehaviour
             i++;
         }
     }
-
-    /* Moves the model */
-    //foreach(var i in parentCalibrationData)
-    // {
-    ///     Quaternion deltaRotation = Quaternion.FromToRotation(i.Value.initialDirection,
-    //    i.Value.getCurrentDirection());
-
-    //     animator.GetBoneTransform(i.Key).rotation = deltaRotation* i.Value.initialRotation;
-    // }
 
     void MoveModel()
     {
@@ -191,19 +193,33 @@ public class ShadowAvatar : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("Bone transform is null for index: " + i);
+                    logger.LogError("ShadowAvatar::GenerateRandomPose | Bone transform is null for index :" + i);
                 }
             }
         }
     }
 
+    public bool IsShadowAvatarReady() {
+        return isShadowReady;
+    }
+
+    public void SetShadowAvatarStatus(bool val) {
+        logger.LogMsg("ShadowAvatar::setShadowAvatarStatus | Shaodw now ready");
+        isShadowReady = val;
+    }
+
+
+
     public void UpdateShadow()
     {
-
+        logger.LogMsg("ShadowAvatar::UpdateShadow");
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();
         MoveModel();
+        
+        // Will flag that the shadow avatar is ready to be matched again
+        SetShadowAvatarStatus(true);
     }
 
 }

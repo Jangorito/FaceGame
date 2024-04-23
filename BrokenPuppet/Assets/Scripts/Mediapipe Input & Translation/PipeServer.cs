@@ -6,7 +6,9 @@ using extOSC;
 
 public class OSCServer : MonoBehaviour
 {
-    private const int LANDMARK_COUNT = 543;
+    public GameObject Player1;
+    public GameObject Player2;
+    public GameObject ShadowPuppet;
 
     private Transform virtualNeck, virtualHip;
     private float maxSpeed = 50f;
@@ -16,17 +18,47 @@ public class OSCServer : MonoBehaviour
     private string messages;
     public string blob;
 
+    // Used to Display debugging info
+    Logger logger;
+    
+    // Flags if should display debugging info
+    bool bShouldDebug;
 
-    // Start is called before the first frame update
-    void Start() {
+    // Flags if server received any data
+    bool bHasConnected = false;
 
-        body = new Body(bodyParent, LANDMARK_COUNT);
+    private void Awake()
+    {
+        // make instance of the logger
+        logger = new(bShouldDebug);
+
+        logger.LogMsg("PipeServer::Awake");
+
+        // create new body object
+        body = new Body(bodyParent);
+
+        // set the neck and hip
         virtualNeck = new GameObject("VirtualNeck").transform;
         virtualHip = new GameObject("VirtualHip").transform;
 
-        Debug.Log("Initialising OSC Bindings");
+        // establish OSC bindings
+        logger.LogMsg("Initialising OSC Bindings");
         Initialise();
-        Debug.Log("OSC Bindings Initialised");
+        logger.LogMsg("OSC Bindings Initialised");
+    }
+
+    // Start is called before the first frame update
+    void Start() {
+        logger.LogMsg("OSCServer::Start");
+
+        // Activate Shadow Avatar
+        ShadowPuppet.SetActive(true);
+
+        // Activate Player 1
+        Player1.SetActive(true);
+
+        // Activate Player 2
+        Player2.SetActive(true);
     }
 
     // Update is called once per frame
@@ -38,41 +70,18 @@ public class OSCServer : MonoBehaviour
     {
         // Initialize the receiver
         var receiver = gameObject.AddComponent<OSCReceiver>();
+
+        // set the port
         receiver.LocalPort = 5005;
+
+        // bind receiver to OSC channel
         receiver.Bind("/PythonData", ReceivedMessage);
-        //receiver.Bind("/video", ReceivedVideoData);
    }
 
-    // public static Stream GenerateStreamFromString(string s)
-    // {
-    //     var stream = new MemoryStream();
-    //     var writer = new StreamWriter(stream);
-    //     writer.Write(s);
-    //     writer.Flush();
-    //     stream.Position = 0;
-    //     return stream;
-    // }
-private void ReceivedVideoData(OSCMessage message)
-{
-    // Check if the message contains data
-    if (message.ToBlob(out var value))
-    {
-        // Convert the byte array to a string
-        string videoData = Encoding.UTF8.GetString(value);
-
-        // Process the video data as needed
-        // For example, you could display the video data, save it to a file, etc.
-
-        // Here, we'll just log the received video data
-        //Debug.Log("Received video data: " + videoData);
-        Debug.LogWarning("Received ");
+    public bool HasClients() {
+        logger.LogMsg("OSCServer::HasClients");
+        return bHasConnected;
     }
-    else
-    {
-        // Handle the case where the message does not contain valid data
-        Debug.LogWarning("Received empty or invalid video data.");
-    }
-}
 
     private void ReceivedMessage(OSCMessage message)
     {
@@ -95,73 +104,75 @@ private void ReceivedVideoData(OSCMessage message)
 
     /* Converts the String line to its respective Data */
     private void parseInput(string line) {
-        int lenPoses = 33;
-        int lenFace = 478;
-        int lenHand = 21;
-        int index;
-        /* Order of Landmarks sent
-         * Pose -> Face -> LeftHand -> RightHand 
-         */
+        bHasConnected = true;
+
+        // Split line into the input parts
         string[] parts = line.Split('|');
+
+        // format should be: Type | Index | X | Y | Z
         if (parts.Length != 5)
         {
-            Debug.Log("Invalid Input detected: " + parts);
+            logger.LogMsg("Invalid input detected: " + parts);
             return;
         }
         /* calculate the offset index to add new position to buffer */
-        index = int.Parse(parts[1]);
+        int index = int.Parse(parts[1]);
         switch (parts[0])
         {
             case "RH":
-                index += (lenHand + lenFace + lenPoses);
+                index += ((int)LenLandmark.LeftHand + (int)LenLandmark.Face + (int)LenLandmark.Poses);
                 break;
             case "LH":
-                index += (lenPoses + lenFace);
+                index += ((int)LenLandmark.Face + (int)LenLandmark.Poses);
                 break;
             case "FL":
                 return;
-                //index += (lenPoses);
-                break;
             case "PL":
                 break;
+            
+            // Invalid data has been given
             default:
-                break;
+                return;
         }
-    /* Add new position to position buffer */
-    body.addValue(index, new Vector3(float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
+    // Add new position to body position buffer; invert the z coord
+    body.addValue(index, new Vector3(
+        float.Parse(parts[2]), float.Parse(parts[3]), -float.Parse(parts[4])));
     }
 
     /* Uses the localPosition array to move the instances */
     private void updateInstances() {
-        for (int i = 0; i < LANDMARK_COUNT; i++) {
-            /* do not add movement vector if landmark not recorded enough */
+        for (int i = 0; i < (int)LenLandmark.Total; i++) {
+            // Do not update movement vector if landmark not recorded enough
             if (body.bPositions[i].enoughSamplesRecorded()) {
-                /* add avarage movement recorded to current position */
+                // Take average of vectors recorded to gain new movement
                 body.instances[i].transform.position = Vector3.MoveTowards(
-                    body.instances[i].transform.position, body.bPositions[i].getBuffer(), Time.deltaTime * maxSpeed);
+                    body.instances[i].transform.position, body.bPositions[i].getBuffer(), 
+                    Time.deltaTime * maxSpeed);
                 
+                // Clear the Accumulated Buffer of input vectors
                 body.bPositions[i].resetSamples();
             }
         }
-
+        
+        // Use shoulder input to move neck
         virtualNeck.transform.position = (body.instances[(int)Landmark.RIGHT_SHOULDER].transform.position + 
             body.instances[(int)Landmark.LEFT_SHOULDER].transform.position) / 2f;
+
+        // use left and right hip input to move hip
         virtualHip.transform.position = (body.instances[(int)Landmark.RIGHT_HIP].transform.position + 
             body.instances[(int)Landmark.LEFT_HIP].transform.position) / 2f;
-
-
     }
 
-    /* returns position of landmark given */
-    public Transform getLandmark(Landmark mark) {
+    // Get transform representing landmark
+    public Transform GetLandmark(Landmark mark) {
             return body.instances[(int)mark].transform;
     }
 
-    public Transform getVirtualHip() {
+    public Transform GetVirtualHip() {
         return virtualHip;
     }
 
-    public Transform getVirtualNeck() {
+    public Transform GetVirtualNeck() {
         return virtualNeck;
     }
 }

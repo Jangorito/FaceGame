@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028334, g: 0.22571328, b: 0.3069217, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -334,6 +334,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayImage: {fileID: 998332449}
+  bShouldDebug: 0
 --- !u!114 &998332449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -428,6 +429,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: ShadowAvatar
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: -8700617353114198275, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
@@ -461,6 +470,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shadowBody: {fileID: 1004043734}
+  bShouldDebug: 0
 --- !u!1 &1094629430
 GameObject:
   m_ObjectHideFlags: 0
@@ -628,6 +638,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BrokenPuppetModel_2
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: -8700617353114198275, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
@@ -664,6 +678,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1416549458}
+  shouldDebug: 1
   shadow: {fileID: 1004043736}
 --- !u!114 &1416549461
 MonoBehaviour:
@@ -679,6 +694,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BrokenPuppet: {fileID: 1416549459}
   GhostAvatar: {fileID: 1004043736}
+  pointsText: {fileID: 0}
+  PercentageMatchText: {fileID: 0}
+  points: 0
+  bShouldDebug: 0
 --- !u!1 &1488171581
 GameObject:
   m_ObjectHideFlags: 0
@@ -782,7 +801,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1740593561}
-  - component: {fileID: 1740593560}
+  - component: {fileID: 1740593562}
   m_Layer: 0
   m_Name: PipeServer
   m_TagString: Untagged
@@ -790,20 +809,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1740593560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740593559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7e6252487092f4e866e89b6cf34b33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bodyParent: {fileID: 1896538856}
-  blob: 
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0
@@ -820,6 +825,23 @@ Transform:
   - {fileID: 1896538856}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1740593562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740593559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caa66bb028920d243b5121da568756b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Player1: {fileID: 1416549457}
+  Player2: {fileID: 0}
+  ShadowPuppet: {fileID: 1004043731}
+  bodyParent: {fileID: 1896538856}
+  blob: 
 --- !u!1 &1896538855
 GameObject:
   m_ObjectHideFlags: 0

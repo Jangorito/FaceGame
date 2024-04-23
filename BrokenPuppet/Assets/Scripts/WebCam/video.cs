@@ -8,14 +8,19 @@ public class DisplayImage : MonoBehaviour
     // UI Image to display the received image
     public Image displayImage;
 
+    // Used to display Debugging Info
+    Logger logger;
+
+    // Flags if should output debugging info
+    public bool bShouldDebug;
+
     // OSC Receiver
     private OSCReceiver receiver;
 
-    // Debug toggle
-    public bool debugMode = true;
-
     void Start()
     {
+        logger = new (bShouldDebug);
+
         receiver = gameObject.AddComponent<OSCReceiver>();
         receiver.LocalPort = 5008;
         receiver.Bind("/video", ReceivedVideoData);
@@ -24,26 +29,23 @@ public class DisplayImage : MonoBehaviour
     // Method to handle received video data
     private void ReceivedVideoData(OSCMessage message)
     {
-        if (debugMode)
-        {
-            Debug.LogError("Received OSC message: " + message);
-        }
+        logger.LogMsg("DisplayImage::ReceivedVideoData: " + message);
 
         if (displayImage == null)
         {
-            Debug.LogError("Display image is not assigned.");
+            logger.LogError("DisplayImage::ReceivedVideoData | Display Image is not assigned");
             return;
         }
 
         if (message == null)
         {
-            Debug.LogError("Received null OSC message.");
+            logger.LogError("DisplayImage::ReceivedVideoData | Received null OSC message");
             return;
         }
 
         if (!message.ToBlob(out var value))
         {
-            Debug.LogError("Received empty or invalid video data.");
+            logger.LogError("DisplayImage::ReceivedVideoData | Received empty or invalid video data");
 
             // Create a white texture
             Texture2D whiteTexture = CreateWhiteTexture();
@@ -56,10 +58,10 @@ public class DisplayImage : MonoBehaviour
         try
         {
             // Convert the byte array to a texture
-            Texture2D texture = new Texture2D(2, 2);
+            Texture2D texture = new(2, 2);
             if (!texture.LoadImage(value))
             {
-                Debug.LogError("Failed to load image data.");
+                logger.LogError("DisplayImage::ReiceivedVideoData | Failed to load image data");
                 return;
             }
 
@@ -78,20 +80,17 @@ public class DisplayImage : MonoBehaviour
             // Apply the sprite to the UI Image
             displayImage.sprite = sprite;
 
-            if (debugMode)
-            {
-                Debug.LogError("Received and displayed image via OSC.");
-            }
+            logger.LogMsg("DisplayImage::ReiceivedVideoData | Received and displayed image via osc");
         }
         catch (System.Exception e)
         {
-            Debug.LogError("Error while processing image data: " + e.Message);
+            logger.LogError("DisplayImage::ReceivedVideoData | Error while processing image data: " + e.Message);
         }
     }
 
     private Texture2D CreateWhiteTexture()
     {
-        Texture2D texture = new Texture2D(2, 2);
+        Texture2D texture = new(2, 2);
         Color[] pixels = new Color[4];
         for (int i = 0; i < pixels.Length; i++)
         {

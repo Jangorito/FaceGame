@@ -29,14 +29,15 @@ public class RunPythonOnPlay
             string pythonScriptPath = @"..\mediapipe\main.py";
 
             // Start Python process
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "python"; // Use the system's default Python interpreter
-            startInfo.Arguments = pythonScriptPath;
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardInput = true;  // Redirect standard input to allow sending signals
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.CreateNoWindow = true; // Prevents the command-line window from appearing
+            ProcessStartInfo startInfo = new() {
+            FileName = "python", // Use the system's default Python interpreter
+            Arguments = pythonScriptPath,
+            UseShellExecute = false,
+            RedirectStandardInput = true,  // Redirect standard input to allow sending signals
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true // Prevents the command-line window from appearing
+        };
 
             pythonProcess = new Process();
             pythonProcess.StartInfo = startInfo;

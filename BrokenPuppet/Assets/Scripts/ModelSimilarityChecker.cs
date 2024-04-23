@@ -4,6 +4,9 @@ using System.Timers;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.UIElements;
+using TMPro;
+using System.Linq;
 
 public class ModelSimilarityChecker : MonoBehaviour
 {
@@ -14,78 +17,115 @@ public class ModelSimilarityChecker : MonoBehaviour
     private Vector3[] PuppetVectors = new Vector3[65];
     private Vector3[] GhostVectors = new Vector3[65];
     private static bool GameEnd = false;
-    static bool Successful;
+    bool Successful;
     public static PlayModeStateChange state;
+    public TextMeshProUGUI pointsText;
+    public TextMeshProUGUI PercentageMatchText;
+    public int points = 0;
+
+    // Int to tell what Model that instance is
+    private static int instances = 0;
+    private int instance;
+
+    // The Offset between the unmoved BrokenPuppet and the GhostAvatar
+    Vector3 modelOffset;
+
+    // Will Output Debugging info
+    Logger logger;
+
+    // Flags if should output debugging info
+    public bool bShouldDebug;
 
     // Start is called before the first frame update
     private void Start()
     {
+        logger = new Logger(bShouldDebug);
+
+        // Player Number
+        instance = ++instances;
+
         BrokenPuppet = getPuppetAvatar();
         GhostAvatar = getShadowAvatar();
         Successful = false;
         //StartCoroutine(Coroutine());
         StartTimer();
-        Debug.Log(Successful);
+        logger.LogMsg("ModelSimilarityChecker::Start | Is Successful + " + Successful.ToString());
+
+        // Calculate the initial offset that will be matched against
+        modelOffset = getOffset(GhostAvatar.transform.position, BrokenPuppet.transform.position);
     }
 
     private void StartTimer()
     {
-        Timer initialTimer = new Timer();
-        initialTimer.Interval = 8000;
-        initialTimer.Elapsed += InitialEvent;
-        Debug.Log("Initial 8 Seconds started");
+        Timer initialTimer = new()
+        {
+            Interval = 8000,
+            AutoReset = false,
+        };
+        initialTimer.Elapsed += (sender, args) =>
+        {
+            // Call CheckModels after 8 seconds
+            //CheckModels();
+
+            // Dispose of the timer after it's used
+            initialTimer.Stop();
+            initialTimer.Dispose();
+        };
+
+        logger.LogMsg("ModelSimilarityChecker::StartTimer | Initial 8 seconds started");
         initialTimer.Start();
     }
-    private void InitialEvent(object source, ElapsedEventArgs e)
-    {
-        Timer timer = new Timer();
-        timer.Interval = 2000; // 2 seconds
-        timer.Elapsed += OnTimedEvent;
-        timer.Enabled = true;
-        timer.Start();
 
-        Debug.Log("Timer started");
-        EditorApplication.playModeStateChanged += OnPlayModeStateChange;
-        ((Timer)source).Stop();
-        ((Timer)source).Dispose();
-        Debug.Log("Initial Timer Finished");
-        return;
-    }
-
-    static public void OnPlayModeStateChange(PlayModeStateChange change)
+    private void Update()
     {
-        state = change;
-        Debug.Log(state);
-    }
 
-    private void OnTimedEvent(object source, ElapsedEventArgs e)
-    {
-        //Debug.Log(state);
-        if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.EnteredEditMode)
-        {
-            ((Timer)source).Stop();
-            ((Timer)source).Dispose();
-            //Debug.Log("Game ended");
-        }
-        if (Successful)
-        {
-            // Stop the timer
-            ((Timer)source).Stop();
-            ((Timer)source).Dispose(); // Dispose the timer to release resources
-            //Debug.Log("Timer stopped.");
+        // Will stop the Avatar from checking before Shadow Avatar has moved
+        if (!GhostAvatar.IsShadowAvatarReady()) {
             return;
         }
-        //Debug.Log("Checking Models");
 
-        // Perform actions every 2 seconds
-        BrokenPuppet = getPuppetAvatar();
-        GhostAvatar = getShadowAvatar();
-        //Gets the puppets bones
-        BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-        //Gets the shadows bones
-        ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
-        GetVectors();
-        Successful = IsModelNear(PuppetVectors, GhostVectors);  
+        if (!Successful) // Only check models if the round is not successful
+        {
+            Vector3 puppetPosition = BrokenPuppet.transform.position;
+            Vector3 ghostPosition = GhostAvatar.transform.position;
+            //Debug.Log("********" + puppetPosition + " " + ghostPosition);
+
+            //Gets the puppets bones
+            BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+            //Gets the shadows bones
+            ShadowCharacterBones = GhostAvatar.GetComponentInChildren<SkinnedMeshRenderer>().bones;
+            GetVectors();
+            Successful = IsModelNear(PuppetVectors, GhostVectors, puppetPosition, ghostPosition);
+        }
+        else // Calculate percentage match if successful
+        {
+            float totalDifference = 0f;
+            GetVectors();
+            int numVectors = PuppetVectors.Length; // Assuming PuppetVectors and GhostVectors have the same length
+
+            for (int i = 0; i < numVectors; i++)
+            {
+                Vector3 puppetVector = PuppetVectors[i];
+                Vector3 ghostVector = GhostVectors[i];
+                totalDifference += Vector3.Distance(puppetVector, ghostVector);
+            }
+
+            // Normalize the result
+            float maxPossibleDistance = Vector3.Distance(Vector3.zero, Vector3.one) * numVectors;
+            float normalizedDifference = totalDifference / maxPossibleDistance;
+
+            // Calculate percentage match
+            float percentageMatch = Mathf.Clamp01(1f - normalizedDifference) * 100f;
+
+            PercentageMatchText.text = percentageMatch.ToString() + "Player " + instance + ": " + percentageMatch + "% Match\n";
+
+            logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + instance + ": " + percentageMatch + "%");
+        }
+    }
+
+    public bool getSuccessful()
+    {
+        return Successful;
     }
 
     //Functions to gathers vectors into an array
@@ -108,17 +148,12 @@ public class ModelSimilarityChecker : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    private void Update()
-    {       
-    }
-
     //Gets the shadow "ghost" avatar the user has to match
     private ShadowAvatar getShadowAvatar()
     {
         ShadowAvatar avatar = FindObjectOfType<ShadowAvatar>();
         if (avatar == null)
-            Debug.LogError("Could not find an Avatar in the scene");
+            logger.LogError("ModelSimilarityChecker::getShadowAvatar | Could not find an Avatar in the scene");
         return avatar;
     }
 
@@ -127,21 +162,34 @@ public class ModelSimilarityChecker : MonoBehaviour
     {
         Avatar avatar = FindObjectOfType<Avatar>();
         if (avatar == null)
-            Debug.LogError("Could not find an Avatar in the scene");
+            logger.LogError("ModelSimilarityChecker::getPuppetAvatar | Could not find an Avatar in the scene");
         return avatar;
     }
 
-    public bool IsModelNear(Vector3[] Puppet, Vector3[] Ghost)
+    Vector3 getOffset(Vector3 from, Vector3 to) {
+        return to - from;
+    }
+
+    public bool IsModelNear(Vector3[] Puppet, Vector3[] Ghost, Vector3 puppetPosition, Vector3 ghostPosition)
     {
         for (int i = 0; i < Puppet.Length; i++)
         {
-            //Takes the distance between the puppet and ghost in terms of vectors
-            float distance = Vector3.Distance(Puppet[i], Ghost[i]);
-            //print($"Puppet vector: {Puppet[i]} Ghost vector: {Ghost[i]} Distance: {distance}");
-            //checks if every bone is <0.1 units away from the corresponding ghost one
+            // Calculate the Offset from the Ghost to the Puppet
+            Vector3 offset = getOffset(Ghost[i], Puppet[i]);
+
+            // Adjust the positions by adding the offsets
+            Vector3 adjustedPuppetPosition = Puppet[i] - modelOffset;
+            Vector3 adjustedGhostPosition = Ghost[i];
+
+            // Takes the distance between the puppet and ghost in terms of vectors
+            float distance = Vector3.Distance(adjustedPuppetPosition, adjustedGhostPosition);
+
+            // Checks if every bone is <0.1 units away from the corresponding ghost one
             if (distance > 0.1)
                 return false;
         }
+        points += 5;
+        pointsText.text = $"Points: {points}";
         return true;
     }
 }
