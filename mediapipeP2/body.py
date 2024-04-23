@@ -108,6 +108,7 @@ FACE_CONNECTIONS = frozenset().union(*[
 
 
 #GLOBALVARS
+ipAddress = "" #only different GV for P2 for collecting the IP boradcast 
 custom_style =""
 custom_connections = list(POSE_CONNECTIONS)
 custom_face_connections = list(FACE_CONNECTIONS)
@@ -120,7 +121,10 @@ for tuple in custom_face_connections:
     custom_face_landmarks.extend([int1, int2])
 
 
-#Thread for capturing video frames
+
+
+
+# Define a thread for capturing video frames
 class CaptureThread(threading.Thread):
     #camera data 
     cap = None
@@ -128,7 +132,7 @@ class CaptureThread(threading.Thread):
     frame = None
     isRunning = False
     counter = 0
-    timer = 0.0     
+    timer = 0.0       
     def run(self):
         # Open a video capture using OpenCV with specified camera index
         self.cap = cv2.VideoCapture(global_vars.CAM_INDEX) 
@@ -163,7 +167,8 @@ class CaptureThread(threading.Thread):
             self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
-#Thread for the processing of landmarks
+
+# Define a thread for the processing of landmarks
 class BodyThread(threading.Thread):
     data = ""
     client = None
@@ -212,9 +217,8 @@ class BodyThread(threading.Thread):
                 if global_vars.DEBUG:
                     print(time.time() - self.timeSinceCheckedConnection)
                 if self.client is None and time.time() - self.timeSinceCheckedConnection >= 1 and not global_vars.PIPE_LINE_DEBUG:
-                    ip = "127.0.0.1"
-                    port = 5005
-                    self.client = SimpleUDPClient(ip, port)  # Create client
+                    port = 5012 #port to send to P1
+                    self.client = SimpleUDPClient(ipAddress, port)  # Create client
                 if self.client is not None or global_vars.PIPE_LINE_DEBUG:
                     # Set up data for OSC messaging
                     self.data = ""
@@ -360,8 +364,9 @@ class BodyThread(threading.Thread):
                     landmark_drawing_spec=drawing_spec)
     #Function for sending the OSC data for the raw Image webcam data
     def send(self, image):
-        # Set up OSC client
-        client = SimpleUDPClient("127.0.0.1", 5008)  # OSC server address and port
+          # Set up OSC client
+        port = 5010#port to send raw image data to P1
+        client = SimpleUDPClient(ipAddress,port)  # OSC server address and port
         # Convert the image to bytes
         retval, buffer = cv2.imencode('.jpg', image)
         # Check if image encoding was successful
@@ -376,3 +381,8 @@ class BodyThread(threading.Thread):
             print("Image sent successfully via OSC.")
         except Exception as e:
             print("Error: Failed to send image via OSC:", str(e))
+
+
+
+
+

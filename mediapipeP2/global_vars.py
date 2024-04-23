@@ -2,7 +2,10 @@
 KILL_THREADS = False
 
 # Toggle this in order to view how your WebCam is being interpreted (reduces performance).
-DEBUG = False 
+DEBUG = False
+
+#toggle this to see any debug messages coming from main threads
+MAINDEBUG = True 
 
 # Settings do not universally apply, not all WebCams support all frame rates and resolutions
 CAM_INDEX = 0
@@ -18,8 +21,6 @@ MODEL_COMPLEXITY = 1
 PIPE_LINE_DEBUG = False
 #if true, pipeline is printed and not opened with a unity project, prints after encoding
 # allows you to test on the python side without opening a pipeline to unity (c#)
-
-
 
 
 #allows you to run the mediapipe view only through spout and not natively 
