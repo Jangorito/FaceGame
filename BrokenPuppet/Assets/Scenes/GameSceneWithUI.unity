@@ -3119,11 +3119,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_Name
-      value: BrokenPuppetModel_2
+      value: Player1Avatar
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -3488,11 +3488,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_Name
-      value: BrokenPuppetModel_2
+      value: Player2Avatar
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -4078,11 +4078,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa66bb028920d243b5121da568756b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Player1: {fileID: 0}
-  Player2: {fileID: 0}
-  ShadowPuppet: {fileID: 0}
-  bodyParent: {fileID: 0}
+  Player1: {fileID: 1416549457}
+  Player2: {fileID: 1578104198}
+  ShadowPuppet: {fileID: 1004043731}
+  bodyParent: {fileID: 1896538856}
   blob: 
+  bShouldDebug: 0
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0

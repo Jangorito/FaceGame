@@ -22,7 +22,7 @@ public class OSCServer : MonoBehaviour
     Logger logger;
     
     // Flags if should display debugging info
-    bool bShouldDebug;
+    public bool bShouldDebug;
 
     // Flags if server received any data
     bool bHasConnected = false;
