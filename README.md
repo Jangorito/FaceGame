@@ -8,7 +8,3 @@
 ```
 2022.3.14f1
 ```
-
-## Contributors
-- psyrb8
-- psyts18
