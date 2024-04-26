@@ -2051,6 +2051,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shadowBody: {fileID: 1004043734}
+  Player1Object: {fileID: 1416549457}
+  boneTransforms: []
+  minRotations: []
+  maxRotations: []
+  GameDifficulty: 0
   bShouldDebug: 0
 --- !u!95 &1004043734 stripped
 Animator:
