@@ -3294,7 +3294,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -3333,7 +3333,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iClientID: 0
   animator: {fileID: 1416549460}
-  shouldDebug: 0
+  shouldDebug: 1
   shadow: {fileID: 1004043733}
 --- !u!95 &1416549460 stripped
 Animator:
@@ -3664,7 +3664,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -3719,7 +3719,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75409c1b03f1094fbb2ab70f7a740c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iClientID: 0
+  iClientID: 1
   animator: {fileID: 1578104201}
   shouldDebug: 0
   shadow: {fileID: 1004043733}
@@ -4253,7 +4253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player1: {fileID: 1416549457}
   Player2: {fileID: 1578104198}
-  m_bShouldDebug: 0
+  m_bShouldDebug: 1
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0
