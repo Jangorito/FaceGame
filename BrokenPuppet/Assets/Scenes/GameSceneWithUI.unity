@@ -2108,8 +2108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0ed7e77896b22c4c91bc0ded9637c4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayImage: {fileID: 0}
-  debugMode: 0
+  displayImage: {fileID: 1037686557}
+  bShouldDebug: 0
 --- !u!114 &1037686557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3331,6 +3331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75409c1b03f1094fbb2ab70f7a740c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  iClientID: 0
   animator: {fileID: 1416549460}
   shouldDebug: 0
   shadow: {fileID: 1004043733}
@@ -3718,6 +3719,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75409c1b03f1094fbb2ab70f7a740c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  iClientID: 0
   animator: {fileID: 1578104201}
   shouldDebug: 0
   shadow: {fileID: 1004043733}
@@ -4251,10 +4253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player1: {fileID: 1416549457}
   Player2: {fileID: 1578104198}
-  ShadowPuppet: {fileID: 1004043731}
-  bodyParent: {fileID: 1896538856}
-  blob: 
-  bShouldDebug: 0
+  m_bShouldDebug: 0
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0
