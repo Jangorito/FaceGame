@@ -39,16 +39,6 @@ public class MovementBreaker : MonoBehaviour
 
         random = new();
 
-        // Wait for each avatar to be calibrated
-        while (!player_1.isCalibrated()) {
-            logger.LogMsg("Waiting for player one to be calibrated...");
-            StartCoroutine(wait());
-        }
-        while (!player_2.isCalibrated()) {
-            logger.LogMsg("Waiting for player two to be calibrated...");
-            StartCoroutine(wait());
-        }
-
 
         // Get backup of each player avatars movement
         originalMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];

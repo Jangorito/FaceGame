@@ -19,18 +19,20 @@ public class CalibrationData
     public Quaternion initialRotation;
     
     public CalibrationData(HumanBodyBones parentBone, HumanBodyBones childBone, 
-        Landmark parentLandmark, Landmark childLandmark, ref Animator animator, ref OSCServer server) {
+        Landmark parentLandmark, Landmark childLandmark, ref Animator animator, ref AvatarBody body) {
         setBones(parentBone, childBone);
+
 
         this.parentLandmark = parentLandmark;
         this.childLandmark = childLandmark;
 
         getBoneTransforms(ref animator);
-        tchild = server.GetLandmark(parentLandmark);
-        tparent = server.GetLandmark(childLandmark);
+        tchild = body.GetLandmark(parentLandmark);
+        tparent = body.GetLandmark(childLandmark);
 
         setInitialRotAndDir();
     }
+
 
     private void setBones(HumanBodyBones parentBone, HumanBodyBones childBone) {
         this.parentBone = parentBone;
@@ -39,8 +41,9 @@ public class CalibrationData
     }
 
     public CalibrationData(HumanBodyBones parentBone, HumanBodyBones childBone, Transform tparent, 
-        Transform tchild, ref Animator animator, ref OSCServer server) {
+        Transform tchild, ref Animator animator, ref AvatarBody server) {
         setBones(parentBone, childBone);
+
 
         getBoneTransforms(ref animator);
         this.tparent = tparent;
