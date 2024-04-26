@@ -18,7 +18,7 @@ public class OSCServer : MonoBehaviour
         logger = new(m_bShouldDebug);
 
         initialise_receiver(5005, Player1);
-        initialise_receiver(5012, Player2);
+        initialise_receiver(5015, Player2);
     }
 
     private void initialise_receiver(int iPort, GameObject Player) {
