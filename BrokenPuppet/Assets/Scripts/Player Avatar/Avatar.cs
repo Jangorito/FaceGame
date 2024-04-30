@@ -94,6 +94,8 @@ public class Avatar : MonoBehaviour
 
     public AvatarBody getAvatarBody() { return m_AvatarBody; }
 
+    public Boolean StopAvatarMoving = false;
+
     void Update()
     {
         m_AvatarBody.updateBody();
@@ -153,6 +155,10 @@ public class Avatar : MonoBehaviour
         Quaternion deltaRotTracked = Quaternion.FromToRotation(hipsTwist.initialDirection, d);
         targetRot = deltaRotTracked * initialRotation;
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
+        if (StopAvatarMoving)
+        {
+            return;
+        }
     }
 
     /* returns the avatar to the base pose */
