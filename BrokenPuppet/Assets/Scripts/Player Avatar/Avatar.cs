@@ -162,7 +162,7 @@ public class Avatar : MonoBehaviour
     }
 
     /* returns the avatar to the base pose */
-    void resetAvatar()
+    public void resetAvatar()
     {
         foreach (var i in parentCalibrationData)
         {

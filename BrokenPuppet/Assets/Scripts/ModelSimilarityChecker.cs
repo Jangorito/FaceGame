@@ -121,6 +121,7 @@ public class ModelSimilarityChecker : MonoBehaviour
 
             logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + instance + ": " + percentageMatch + "%");
             BrokenPuppet.StopAvatarMoving = true;
+            return;
         }
     }
 

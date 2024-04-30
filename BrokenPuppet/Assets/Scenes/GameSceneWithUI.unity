@@ -2418,6 +2418,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1135677857
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135677859}
+  - component: {fileID: 1135677858}
+  m_Layer: 0
+  m_Name: NextLevel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1135677858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135677857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc64194842d31bf42ae37a4bcb6213b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shadow: {fileID: 1004043733}
+  Player1: {fileID: 1416549457}
+  Player2: {fileID: 1578104198}
+--- !u!4 &1135677859
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135677857}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 54.25395, y: 2.3068943, z: -126.77926}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1176918658
 GameObject:
   m_ObjectHideFlags: 0
@@ -3335,6 +3382,7 @@ MonoBehaviour:
   animator: {fileID: 1416549460}
   shouldDebug: 1
   shadow: {fileID: 1004043733}
+  StopAvatarMoving: 0
 --- !u!95 &1416549460 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
@@ -3723,6 +3771,7 @@ MonoBehaviour:
   animator: {fileID: 1578104201}
   shouldDebug: 0
   shadow: {fileID: 1004043733}
+  StopAvatarMoving: 0
 --- !u!95 &1578104201 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 989bc4c65eb5b0944a8cd0e7d120285d, type: 3}
@@ -5004,3 +5053,4 @@ SceneRoots:
   - {fileID: 746752716}
   - {fileID: 1056674897}
   - {fileID: 1113793021}
+  - {fileID: 1135677859}
