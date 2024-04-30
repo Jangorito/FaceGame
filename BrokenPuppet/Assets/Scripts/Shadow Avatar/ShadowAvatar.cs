@@ -16,6 +16,9 @@ public class ShadowAvatar : MonoBehaviour
     public Quaternion[] maxRotations;
     public Difficulty GameDifficulty;
 
+    public GameObject nextLevel;
+    public NextLevelTest level;
+    int levelCount;
 
     static int AllBones = 51;
     static int[] LeftLeg = { 36, 38, 40, 42 };
@@ -48,7 +51,8 @@ public class ShadowAvatar : MonoBehaviour
         }
 
         GameDifficulty = Randomiser.GameDifficulty;
-
+        level = nextLevel.GetComponent<NextLevelTest>();
+        levelCount = level.getLevel();
     }
 
     // Update is called once per frame
@@ -70,11 +74,11 @@ public class ShadowAvatar : MonoBehaviour
         // Determine the number of bones based on the game difficulty
         int NumberOfBones;
         if (GameDifficulty == Difficulty.Easy)
-            NumberOfBones = 4;
+            NumberOfBones = 2 + levelCount;
         else if (GameDifficulty == Difficulty.Medium)
-            NumberOfBones = 8;
+            NumberOfBones = 4 + levelCount;
         else
-            NumberOfBones = 12;
+            NumberOfBones = 6 + levelCount;
         // Populate the array with random bone indexes
         int i = 0;
         while (i < NumberOfBones)
