@@ -13,7 +13,7 @@ public class Avatar : MonoBehaviour
     public Animator animator;
 
     /** mappings for Bones and its the landmarks it is following */
-    public static Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
+    public Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
     
     private AvatarBody m_AvatarBody;
 
@@ -120,6 +120,8 @@ public class Avatar : MonoBehaviour
             // Move Avatar back into T-pose
             resetAvatar();
 
+            SetIsCalibrated(false);
+
             // Calibrate the Avatar
             StartCoroutine(Calibrate());
         }
@@ -216,15 +218,13 @@ public class Avatar : MonoBehaviour
             HumanBodyBones.Neck, HumanBodyBones.Head,
             m_AvatarBody.GetVirtualNeck(), m_AvatarBody.GetVirtualHip(), ref animator, ref m_AvatarBody);
 
-        shadow.UpdateShadow();
-
         logger.LogMsg("Avatar::Calibrate | Finished Calibration");
         SetIsCalibrated(true);
         SetIsCalibrating(false);
     }
 
     private void SetIsCalibrated(bool val) { bIsCalibrated = val; }
-    private bool IsCalibrated() { return bIsCalibrated; }
+    public bool IsCalibrated() { return bIsCalibrated; }
 
     private void SetIsCalibrating(bool val) { bIsCalibrating = val; }
     private bool IsCalibrating() { return bIsCalibrating; } 
