@@ -23,8 +23,6 @@ public class AvatarBody
 
     Logger logger;
     private const bool m_bShouldDebug = false;
-
-    private CalibrationData spineUpDown, hipsTwist, chest, head;
     
     public AvatarBody(int iClientID) {
         logger = new Logger(m_bShouldDebug);

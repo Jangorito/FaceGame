@@ -1,16 +1,20 @@
 using System;
-using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ShadowAvatar : MonoBehaviour
 {
 
-    public  Animator shadowBody;
+    public Animator shadowBody;
+    public GameObject Player1Object;
 
-    public static Transform[] boneTransforms;
-    public static Quaternion[] minRotations;
-    public static Quaternion[] maxRotations;
-    public static Difficulty GameDifficulty;
+    private Avatar Player1;
+
+    public Transform[] boneTransforms;
+    public Quaternion[] minRotations;
+    public Quaternion[] maxRotations;
+    public Difficulty GameDifficulty;
 
 
     static int AllBones = 51;
@@ -22,7 +26,7 @@ public class ShadowAvatar : MonoBehaviour
     static int Jaw = 23;
 
     // Will output Debugging Info
-    static Logger logger;
+    Logger logger;
 
     // Flags if should output debugging info
     public bool bShouldDebug;
@@ -33,8 +37,16 @@ public class ShadowAvatar : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        logger = new Logger(bShouldDebug);
+        logger = new(bShouldDebug);
         logger.LogMsg("ShadowAvatar::Start");
+
+        Player1 = Player1Object.GetComponent<Avatar>();
+
+        if (Player1 == null) {
+            logger.LogMsg("ShadowAvatar::Start | Player 1 Object not set/ has no Avatar Script");
+            this.enabled = false;
+        }
+
         GameDifficulty = Randomiser.GameDifficulty;
 
     }
@@ -42,11 +54,13 @@ public class ShadowAvatar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /* Copy the movement of the avatar */
+        if (Player1.IsCalibrated() && !isShadowReady) {
+            UpdateShadow();
+        }
 
     }
 
-    static void SelectRandomBones()
+    void SelectRandomBones()
     {
         // Clear the array
         Array.Clear(randomBonesSelected, 0, randomBonesSelected.Length);
@@ -135,12 +149,12 @@ public class ShadowAvatar : MonoBehaviour
         maxRotations = new Quaternion[AllBones];
 
         int i = 0;
-        foreach (var item in Avatar.parentCalibrationData)
+        foreach (var item in Player1.parentCalibrationData)
         {
             // Check if calibration data exists for the bone
-            if (Avatar.parentCalibrationData[item.Key] != null)
+            if (Player1.parentCalibrationData[item.Key] != null)
             {
-                (float, float)[] limits = Avatar.parentCalibrationData[item.Key].getLimit();
+                (float, float)[] limits = Player1.parentCalibrationData[item.Key].getLimit();
                 float x1 = limits[0].Item1;
                 float x2 = limits[0].Item2;
                 float y1 = limits[1].Item1;
@@ -204,7 +218,7 @@ public class ShadowAvatar : MonoBehaviour
     }
 
     public void SetShadowAvatarStatus(bool val) {
-        logger.LogMsg("ShadowAvatar::setShadowAvatarStatus | Shaodw now ready");
+        logger.LogMsg("ShadowAvatar::setShadowAvatarStatus | Shadow now ready");
         isShadowReady = val;
     }
 
