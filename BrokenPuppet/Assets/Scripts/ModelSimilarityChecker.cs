@@ -120,6 +120,7 @@ public class ModelSimilarityChecker : MonoBehaviour
             PercentageMatchText.text = percentageMatch.ToString() + "Player " + instance + ": " + percentageMatch + "% Match\n";
 
             logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + instance + ": " + percentageMatch + "%");
+            BrokenPuppet.StopAvatarMoving = true;
         }
     }
 
