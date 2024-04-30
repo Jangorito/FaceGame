@@ -118,6 +118,8 @@ public class Avatar : MonoBehaviour
             // Move Avatar back into T-pose
             resetAvatar();
 
+            SetIsCalibrated(false);
+
             // Calibrate the Avatar
             StartCoroutine(Calibrate());
         }
