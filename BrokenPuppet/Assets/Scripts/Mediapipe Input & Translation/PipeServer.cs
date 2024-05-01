@@ -34,6 +34,7 @@ public class OSCServer : MonoBehaviour
             logger.LogMsg("OSCServer::initialise_receiver | Failed to bind on port: " + iPort);
     }
 
+
     private void received(OSCMessage message) {
         logger.LogMsg("OSCServer::received | Received OSC Message");
     }
