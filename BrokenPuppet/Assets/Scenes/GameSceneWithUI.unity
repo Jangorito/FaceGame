@@ -2185,12 +2185,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shadowBody: {fileID: 1004043734}
-  Player1Object: {fileID: 0}
+  Player1Object: {fileID: 428426961}
   boneTransforms: []
   minRotations: []
   maxRotations: []
   GameDifficulty: 0
-  nextLevel: {fileID: 0}
+  nextLevel: {fileID: 1135677857}
   level: {fileID: 0}
   bShouldDebug: 0
 --- !u!95 &1004043734 stripped
