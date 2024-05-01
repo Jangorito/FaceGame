@@ -60,7 +60,7 @@ public class Movement : MonoBehaviour
         string[] parts = input.Split('|');
         if(parts[0] =="LH")
         {
-            Debug.Log("hello");
+            //Debug.Log("hello");
              if(int.Parse(parts[1])==15)
                 {
                         wristCoords.x = float.Parse(parts[2]);

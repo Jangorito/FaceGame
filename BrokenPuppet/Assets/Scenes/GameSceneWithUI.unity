@@ -2189,8 +2189,9 @@ MonoBehaviour:
   boneTransforms: []
   minRotations: []
   maxRotations: []
-  GameDifficulty: 0
   nextLevel: {fileID: 1135677857}
+  gameLevel: {fileID: 1610064299}
+  difficulty: {fileID: 0}
   level: {fileID: 0}
   bShouldDebug: 0
 --- !u!95 &1004043734 stripped
@@ -4064,6 +4065,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1595471475}
   m_CullTransparentMesh: 1
+--- !u!1 &1610064299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1610064301}
+  - component: {fileID: 1610064300}
+  m_Layer: 0
+  m_Name: Difficulty
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1610064300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610064299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebc69f99e4dc1b74bb41786141537f20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1610064301
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610064299}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 501.85254, y: 257.09915, z: -120.51754}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1638882055
 GameObject:
   m_ObjectHideFlags: 0
@@ -5207,3 +5252,4 @@ SceneRoots:
   - {fileID: 1056674897}
   - {fileID: 1113793021}
   - {fileID: 1135677859}
+  - {fileID: 1610064301}

@@ -7,7 +7,7 @@ public class NextLevelTest : MonoBehaviour
     public ShadowAvatar shadow;
     public GameObject Player1;
     public GameObject Player2;
-    public int level = 0;
+    public int level = 1;
 
     Avatar player1;
     Avatar player2;
