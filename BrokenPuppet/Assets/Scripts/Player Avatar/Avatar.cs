@@ -18,6 +18,7 @@ public class Avatar : MonoBehaviour
     private AvatarBody m_AvatarBody;
 
 
+
     // The Avatar's initial rotation
     private Quaternion initialRotation;
 

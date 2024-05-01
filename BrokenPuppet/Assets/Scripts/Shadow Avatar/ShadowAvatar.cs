@@ -7,13 +7,18 @@ public class ShadowAvatar : MonoBehaviour
 {
 
     public Animator shadowBody;
-    public GameObject Player1Object;
 
-    private Avatar Player1;
+    public GameObject PlayerOne;
+    public GameObject PlayerTwo;
+
+    private Avatar P1;
+    private Avatar P2;
 
     public Transform[] boneTransforms;
     public Quaternion[] minRotations;
     public Quaternion[] maxRotations;
+
+    
 
     public GameObject nextLevel;
     public GameObject gameLevel;
@@ -39,24 +44,36 @@ public class ShadowAvatar : MonoBehaviour
     // Will flag if the Shadow is in a broken pose
     private bool isShadowReady = false;
 
+    private bool m_bHasPlayers = false;
+
+    private bool m_bIsInPose = false;
+
     // Start is called before the first frame update
     void Start()
     {
         logger = new(bShouldDebug);
         logger.LogMsg("ShadowAvatar::Start");
 
-        Player1 = Player1Object.GetComponent<Avatar>();
-
-        if (Player1 == null) {
-            logger.LogMsg("ShadowAvatar::Start | Player 1 Object not set/ has no Avatar Script");
-            this.enabled = false;
+        // Find Valid Player 1 Avatar Script
+        P1 = PlayerOne.GetComponent<Avatar>();
+        if (P1 == null) {
+            logger.LogMsg("ShadowAvatar::Start | PlayerOne Object Does not contain Avatar Component");
+            return;
         }
 
+        // Find valid Player 2 Avatar script
+        P2 = PlayerTwo.GetComponent<Avatar>();
+        if (P2 == null) {
+            logger.LogMsg("ShadowAvatar::Start | PlayerTwo Object does not contain Avatar Component");
+            return;
+        }
+
+        // Flag that there are players
+        m_bHasPlayers = true;
+
+        // Get Difficulty
         difficulty = gameLevel.GetComponent<DifficultyCollision>();
-
         gameDifficulty = difficulty.getDifficulty();
-        Debug.Log(gameDifficulty);
-
         level = nextLevel.GetComponent<NextLevelTest>();
         levelCount = level.getLevel();
     }
@@ -64,10 +81,19 @@ public class ShadowAvatar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Player1.IsCalibrated() && !isShadowReady) {
-            UpdateShadow();
-        }
+        // Do nothing if no players
+        if (!m_bHasPlayers)
+            return;
 
+        if (P1.IsCalibrated() && P2.IsCalibrated()) 
+            if (!m_bIsInPose)
+                assumePose();
+
+    }
+
+    void assumePose() {
+        m_bIsInPose = true;
+        UpdateShadow();
     }
 
     void SelectRandomBones()
@@ -159,12 +185,12 @@ public class ShadowAvatar : MonoBehaviour
         maxRotations = new Quaternion[AllBones];
 
         int i = 0;
-        foreach (var item in Player1.parentCalibrationData)
+        foreach (var item in P1.parentCalibrationData)
         {
             // Check if calibration data exists for the bone
-            if (Player1.parentCalibrationData[item.Key] != null)
+            if (P1.parentCalibrationData[item.Key] != null)
             {
-                (float, float)[] limits = Player1.parentCalibrationData[item.Key].getLimit();
+                (float, float)[] limits = P1.parentCalibrationData[item.Key].getLimit();
                 float x1 = limits[0].Item1;
                 float x2 = limits[0].Item2;
                 float y1 = limits[1].Item1;
