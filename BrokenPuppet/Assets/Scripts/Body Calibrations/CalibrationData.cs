@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class CalibrationData 
 {
@@ -100,11 +101,10 @@ public class CalibrationData
         return (tchild.position - tparent.position).normalized;
     }
 
-    public void reset() {
-        initialDirection = oInitialDirection;
-        initialRotation = oInitialRotation;
-    }
+    public void reset(ref Animator animator) {
+        animator.GetBoneTransform(parentBone).rotation = oInitialRotation;
 
+    }
     // returns the new rotation of the calibration
     public Quaternion getRotation() {
         // Calculate rotation based on mediapipe input

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MovementBreaker : MonoBehaviour
@@ -15,11 +16,11 @@ public class MovementBreaker : MonoBehaviour
     // The Maximum number of joints that can be changed
     public int MAX = 5;
 
-    // Reference to the player one avatar 
-    public Avatar player_1;
+    public GameObject Player1;
+    public GameObject Player2;
 
-    // Reference to the player two avatar
-    public Avatar player_2;
+    private Avatar P1;
+    private Avatar P2;
 
     // Store index of players calibrations data
     private const int p1 = 0;
@@ -29,35 +30,54 @@ public class MovementBreaker : MonoBehaviour
     private Logger logger;
     public bool shouldDebug = false;
 
+    bool m_bPlayer1Calibrated = false;
+    bool m_bPlayer2Calibrated = false;
+    bool m_bIsBroken = false;
+
     System.Random random;
+
+    private void Awake()
+    {
+        P1 = Player1.GetComponent<Avatar>();
+        P2 = Player2.GetComponent<Avatar>();
+    }
 
     void Start()
     {
         logger = new(shouldDebug);
-
         logger.LogMsg("MovementBreaker::Start");
-
         random = new();
-
 
         // Get backup of each player avatars movement
         originalMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
-        originalMovement[p1] = player_1.getCalibrations();
-        originalMovement[p2] = player_2.getCalibrations();
-
         // Initialise broken movement of each Avatar
         brokenMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
-
-        // create the first random set of calibrations
-        generate_random_calibrations();
-
-        // apply broken movements to each avatar
-        apply_random_calibrations();
     }
 
     void Update()
     {
-        
+        if (!m_bPlayer1Calibrated) {
+            m_bPlayer1Calibrated = P1.IsCalibrated();
+            return;
+        }
+        if (!m_bPlayer2Calibrated) {
+            m_bPlayer2Calibrated = P2.IsCalibrated();
+            return;
+        }
+        if (!m_bIsBroken) {
+            m_bIsBroken = true;
+            originalMovement[p1] = P1.getCalibrations();
+            originalMovement[p2] = P2.getCalibrations();
+            brokenMovement[p1] = P1.getCalibrations();
+            brokenMovement[p2] = P2.getCalibrations();
+            breakMovements();
+            return;
+        }
+    }
+
+    public void breakMovements() {
+        generate_random_calibrations();
+        apply_random_calibrations();
     }
 
     void generate_random_calibrations() {
@@ -86,13 +106,8 @@ public class MovementBreaker : MonoBehaviour
     void apply_random_calibrations() {
         logger.LogMsg("Applying Random Movement");
 
-        player_1.change_calibrations(brokenMovement[p1]);
-        player_2.change_calibrations(brokenMovement[p2]);
-
-    }
-
-    private IEnumerator wait() {
-        yield return new WaitForSeconds(2);
+        P1.change_calibrations(brokenMovement[p1]);
+        P2.change_calibrations(brokenMovement[p2]);
     }
 
     private HumanBodyBones[] getRandomLandmarks(int number) {
@@ -101,7 +116,8 @@ public class MovementBreaker : MonoBehaviour
 
         for (int i = 0; i < number; i++) {
             // Get Random Landmark
-            landmarks[i] = (HumanBodyBones) random.Next(Enum.GetNames(typeof(Landmark)).Length);
+            landmarks[i] = P1.parentCalibrationData.ElementAt(
+                random.Next(0, P1.parentCalibrationData.Count())).Value.parentBone;
         }
 
         return landmarks;

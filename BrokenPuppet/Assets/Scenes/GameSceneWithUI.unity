@@ -2192,7 +2192,6 @@ MonoBehaviour:
   maxRotations: []
   nextLevel: {fileID: 1135677857}
   gameLevel: {fileID: 1610064299}
-  difficulty: {fileID: 0}
   level: {fileID: 0}
   bShouldDebug: 0
 --- !u!95 &1004043734 stripped
@@ -2552,6 +2551,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1113793021}
+  - component: {fileID: 1113793022}
   m_Layer: 0
   m_Name: MovementBreaker
   m_TagString: Untagged
@@ -2574,6 +2574,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1113793022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113793020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1aff619cd601204ab0accaf8e093a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MIN: 1
+  MAX: 5
+  Player1: {fileID: 1416549457}
+  Player2: {fileID: 1578104198}
+  shouldDebug: 1
 --- !u!1 &1135677857
 GameObject:
   m_ObjectHideFlags: 0
@@ -2606,7 +2623,6 @@ MonoBehaviour:
   shadow: {fileID: 1004043733}
   Player1: {fileID: 1416549457}
   Player2: {fileID: 1578104198}
-  level: 0
 --- !u!4 &1135677859
 Transform:
   m_ObjectHideFlags: 0

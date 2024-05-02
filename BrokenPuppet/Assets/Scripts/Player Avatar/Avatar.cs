@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using static Landmarks;
 
 /* Controls the movement of the character */
 public class Avatar : MonoBehaviour
@@ -41,6 +43,8 @@ public class Avatar : MonoBehaviour
     // Flags if script should output debugging info
     public bool shouldDebug = false;
 
+    private Quaternion[] initialRotations;
+
     // Used to display debugging info
     Logger logger;
 
@@ -60,6 +64,19 @@ public class Avatar : MonoBehaviour
         // Sets the initial rotation and position of the Avatar
         initialRotation = transform.rotation;
         initialPosition = transform.position;
+    }
+
+    private void Start()
+    {
+        initialRotations = new Quaternion[(int)HumanBodyBones.LastBone];
+        for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) {
+            if (animator.GetBoneTransform((HumanBodyBones)i) != null) {
+                initialRotations[i] = animator.GetBoneTransform((HumanBodyBones)i).localRotation;
+            }
+            else {
+                initialRotations[i] = Quaternion.identity;
+            }
+        }
     }
 
     public Transform getBoneTransform(HumanBodyBones bone) {
@@ -167,14 +184,16 @@ public class Avatar : MonoBehaviour
     /* returns the avatar to the base pose */
     public void resetAvatar()
     {
+        logger.LogMsg("Avatar::resetAvatar | resetting avatar");
+        transform.rotation = initialRotation;
+        hipsTwist.reset(ref animator);
+        spineUpDown.reset(ref animator);
+        chest.reset(ref animator);
+        head.reset(ref animator);
         foreach (var i in parentCalibrationData)
         {
-            i.Value.reset();
+            i.Value.reset(ref animator);
         }
-        hipsTwist.reset();
-        spineUpDown.reset();
-        chest.reset();
-        head.reset();
     }
 
     /* Sets up Mappings between Unity Bones and The Landmarks */
