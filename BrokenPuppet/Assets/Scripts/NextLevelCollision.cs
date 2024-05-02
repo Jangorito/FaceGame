@@ -26,8 +26,10 @@ public class NextLevelCollision : MonoBehaviour
 
 
         Debug.Log("AFTER: " + NextLevelTest.level);
-        SceneManager.LoadScene("GameSceneWithUI");
-
+        if (CollisionObject.gameObject.name == "NextLevelBox")
+            SceneManager.LoadScene("GameSceneWithUI");
+        else if (CollisionObject.gameObject.name == "HomeScreenBox")
+            SceneManager.LoadScene("MainMenu");
 
     }
 }
