@@ -48,7 +48,7 @@ public class DifficultyCollision : MonoBehaviour
             // Set the ClosePort property using the movement script instance
             if (movementScript != null)
             {
-                movementScript.ClosePort = 1; // Example value
+                Movement.closePort = 1; // Example value
                 Debug.Log("ClosePort set to 1\n");
             }
         }
