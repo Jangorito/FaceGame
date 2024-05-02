@@ -224,6 +224,7 @@ class BodyThread(threading.Thread):
                     self.CollateRightHandLandmarks(results)
                     if self.data:
                         s = self.data.encode('utf-8')
+                        print("SENDING\n")
                         self.client.send_message("/PythonData", s)   # Send OSC message
                     if global_vars.DEBUG:
                         print("Data is empty. Skipping sending OSC message.")
