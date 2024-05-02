@@ -22,7 +22,6 @@ public class ShadowAvatar : MonoBehaviour
 
     public GameObject nextLevel;
     public GameObject gameLevel;
-    public DifficultyCollision difficulty;
     public NextLevelTest level;
     int levelCount;
     int gameDifficulty;
@@ -71,9 +70,8 @@ public class ShadowAvatar : MonoBehaviour
         // Flag that there are players
         m_bHasPlayers = true;
 
-        // Get Difficulty
-        difficulty = gameLevel.GetComponent<DifficultyCollision>();
-        gameDifficulty = difficulty.getDifficulty();
+        gameDifficulty = DifficultyCollision.difficultyLevel;
+        Debug.Log("DIFFICULTY: " + gameDifficulty);
         level = nextLevel.GetComponent<NextLevelTest>();
         levelCount = level.getLevel();
     }

@@ -2185,7 +2185,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shadowBody: {fileID: 1004043734}
-  Player1Object: {fileID: 428426961}
+  PlayerOne: {fileID: 1416549457}
+  PlayerTwo: {fileID: 1578104198}
   boneTransforms: []
   minRotations: []
   maxRotations: []
