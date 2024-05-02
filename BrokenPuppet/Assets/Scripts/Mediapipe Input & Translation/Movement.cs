@@ -14,13 +14,14 @@ public class Movement : MonoBehaviour
     public float cursorSpeed = 5f; // Adjust cursor speed as needed
     private Vector2 wristCoords;
     private OSCReceiver receiver;
+    public int port;
     public static int closePort = 0;
     void Start()
     {
         rectangleTransform = GetComponent<RectTransform>();
 
         receiver = gameObject.AddComponent<OSCReceiver>();
-        receiver.LocalPort = 5005;
+        receiver.LocalPort = port;
         receiver.Bind("/PythonData", ReceivedLMData);
     }
       private void ReceivedLMData(OSCMessage message)
