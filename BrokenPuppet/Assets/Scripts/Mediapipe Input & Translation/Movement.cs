@@ -16,13 +16,13 @@ public class Movement : MonoBehaviour
     private OSCReceiver receiver;
     private int closePort = 0;
     public int ClosePort { get => closePort; set => closePort = value; }
-
+    public int port;
     void Start()
     {
         rectangleTransform = GetComponent<RectTransform>();
 
         receiver = gameObject.AddComponent<OSCReceiver>();
-        receiver.LocalPort = 5005;
+        receiver.LocalPort = port;
         receiver.Bind("/PythonData", ReceivedLMData);
     }
       private void ReceivedLMData(OSCMessage message)

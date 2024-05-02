@@ -215,6 +215,8 @@ class BodyThread(threading.Thread):
                     ip = "127.0.0.1"
                     port = 5005
                     self.client = SimpleUDPClient(ip, port)  # Create client
+                    client2 = SimpleUDPClient(ip,5006)
+                    client3 = SimpleUDPClient(ip,5007)
                 if self.client is not None or global_vars.PIPE_LINE_DEBUG:
                     # Set up data for OSC messaging
                     self.data = ""
@@ -225,6 +227,8 @@ class BodyThread(threading.Thread):
                     if self.data:
                         s = self.data.encode('utf-8')
                         self.client.send_message("/PythonData", s)   # Send OSC message
+                        client2.send_message("/PythonData", s) 
+                        client3.send_message("/PythonData", s) 
                     if global_vars.DEBUG:
                         print("Data is empty. Skipping sending OSC message.")
             # Close the named pipe and destroy OpenCV windows
