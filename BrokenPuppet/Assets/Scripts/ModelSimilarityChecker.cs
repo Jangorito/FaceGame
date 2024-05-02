@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using TMPro;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class ModelSimilarityChecker : MonoBehaviour
 {
@@ -76,6 +77,29 @@ public class ModelSimilarityChecker : MonoBehaviour
         initialTimer.Start();
     }
 
+    private void NextLevelTimer()
+    {
+        Timer initialTimer = new()
+        {
+            Interval = 30000,
+            AutoReset = false,
+        };
+        initialTimer.Elapsed += (sender, args) =>
+        {
+            // Call CheckModels after 8 seconds
+            //CheckModels();
+
+            // Dispose of the timer after it's used
+            initialTimer.Stop();
+            initialTimer.Dispose();
+            SceneManager.LoadScene("NextLevelMenu");
+        };
+
+        logger.LogMsg("ModelSimilarityChecker::StartTimer | Initial 8 seconds started");
+        initialTimer.Start();
+    }
+
+
     private void Update()
     {
 
@@ -121,6 +145,7 @@ public class ModelSimilarityChecker : MonoBehaviour
 
             logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + instance + ": " + percentageMatch + "%");
             BrokenPuppet.StopAvatarMoving = true;
+            NextLevelTimer(); // Starts timer for next level
             return;
         }
     }

@@ -7,7 +7,7 @@ using TMPro;
 
 
 
-public class Collision : MonoBehaviour
+public class NextLevelCollision : MonoBehaviour
 {
 
     private void Start()
@@ -18,9 +18,15 @@ public class Collision : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D CollisionObject)
     {
+        Debug.Log("BEFORE: " + NextLevelTest.level);
         Debug.Log("Collision detected!");
-        NextLevelTest.level = 0;
-        SceneManager.LoadScene("SettingsMenu");
+
+        NextLevelTest.level++;
+        //RESET OTHER THINGS HERE;
+
+
+        Debug.Log("AFTER: " + NextLevelTest.level);
+        SceneManager.LoadScene("GameSceneWithUI");
 
 
     }

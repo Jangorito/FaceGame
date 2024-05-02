@@ -7,7 +7,7 @@ public class NextLevelTest : MonoBehaviour
     public ShadowAvatar shadow;
     public GameObject Player1;
     public GameObject Player2;
-    public int level = 1;
+    public static int level = 0;
 
     Avatar player1;
     Avatar player2;
@@ -26,7 +26,7 @@ public class NextLevelTest : MonoBehaviour
 
     }
 
-    void nextLevel()
+    public void nextLevel()
     {
         newShadow();
         resetBreaking();
@@ -36,6 +36,11 @@ public class NextLevelTest : MonoBehaviour
     public int getLevel()
     {
         return level;
+    }
+
+    public static void incrementLevel()
+    {
+        level = level++;
     }
 
     void newShadow()
