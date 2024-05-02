@@ -14,9 +14,7 @@ public class Movement : MonoBehaviour
     public float cursorSpeed = 5f; // Adjust cursor speed as needed
     private Vector2 wristCoords;
     private OSCReceiver receiver;
-    private int closePort = 0;
-    public int ClosePort { get => closePort; set => closePort = value; }
-
+    public static int closePort = 0;
     void Start()
     {
         rectangleTransform = GetComponent<RectTransform>();
@@ -51,6 +49,7 @@ public class Movement : MonoBehaviour
         else
         {
             receiver.Close();
+            receiver.LocalPort = 0;
             Debug.Log("CLOSING\n");
         }
 
