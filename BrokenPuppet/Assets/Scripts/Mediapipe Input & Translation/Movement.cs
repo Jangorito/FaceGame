@@ -18,6 +18,7 @@ public class Movement : MonoBehaviour
     public static int closePort = 0;
     void Start()
     {
+        closePort = 0; ;
         rectangleTransform = GetComponent<RectTransform>();
 
         receiver = gameObject.AddComponent<OSCReceiver>();
