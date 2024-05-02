@@ -14,6 +14,7 @@ public class Movement : MonoBehaviour
     public float cursorSpeed = 5f; // Adjust cursor speed as needed
     private Vector2 wristCoords;
     private OSCReceiver receiver;
+    public int port;
     public static int closePort = 0;
     void Start()
     {
