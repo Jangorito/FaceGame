@@ -56,29 +56,41 @@ public class Movement : MonoBehaviour
         }
 
     }
-    private void processInput(string input) { 
-               // Get each part of input
-        string[] parts = input.Split('|');
-        if(parts[0] =="LH")
+   private void processInput(string input) { 
+    // Get each part of input
+    string[] parts = input.Split('|');
+    if(parts[0] =="LH")
+    {
+        if(int.Parse(parts[1])==15)
         {
-            //Debug.Log("hello");
-             if(int.Parse(parts[1])==15)
-                {
-                        wristCoords.x = float.Parse(parts[2]);
-                        wristCoords.y = float.Parse(parts[3]);
-                                wristCoords.y = -wristCoords.y; // Invert y-axis if needed
+            // Set wristCoords directly from the input
+            wristCoords.x = float.Parse(parts[2]);
+            wristCoords.y = float.Parse(parts[3]);
+            wristCoords.y = -wristCoords.y; // Invert y-axis if needed
+            Debug.Log($"Wrist Coordinates: x: {wristCoords.x}, y: {wristCoords.y}");
+            // Get the RectTransform component attached to the canvas
+            RectTransform canvasRectTransform = GetComponent<RectTransform>();
 
-                        Vector2 updatedPosition = new Vector2(
-                            wristCoords.x * Screen.width,
-                            wristCoords.y * Screen.height);
+            // Get the width and height of the canvas
+            float canvasWidth = canvasRectTransform.sizeDelta.x;
+            float canvasHeight = canvasRectTransform.sizeDelta.y;
 
-                        // Smoothly move the cursor towards the updated position
-                        Vector2 newPosition = Vector2.Lerp(rectangleTransform.anchoredPosition, updatedPosition, Time.deltaTime * cursorSpeed);
-                        rectangleTransform.anchoredPosition = newPosition;
-                }
+            // Map the wrist coordinates to canvas coordinates
+            Vector2 updatedPosition = new Vector2(
+                (wristCoords.x * Screen.width)-1200,
+                (wristCoords.y * Screen.height)+500);
+             Debug.Log($"Before clamp: x: {updatedPosition.x}, y: {updatedPosition.y}");
+
+            // Clamp the updated position to canvas boundaries
+            updatedPosition.x = Mathf.Clamp(updatedPosition.x, -500, 500);
+            updatedPosition.y = Mathf.Clamp(updatedPosition.y, -270, 270);
+            Debug.Log($"after clamp: x: {updatedPosition.x}, y: {updatedPosition.y}");
+            // Smoothly move the cursor towards the updated position
+            Vector2 newPosition = Vector2.Lerp(rectangleTransform.anchoredPosition, updatedPosition, Time.deltaTime * cursorSpeed);
+            rectangleTransform.anchoredPosition = newPosition;
         }
-       
     }
+}
 
     void Update()
     {
