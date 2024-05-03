@@ -67,7 +67,7 @@ public class Movement : MonoBehaviour
             wristCoords.x = float.Parse(parts[2]);
             wristCoords.y = float.Parse(parts[3]);
             wristCoords.y = -wristCoords.y; // Invert y-axis if needed
-            Debug.Log($"Wrist Coordinates: x: {wristCoords.x}, y: {wristCoords.y}");
+            //Debug.Log($"Wrist Coordinates: x: {wristCoords.x}, y: {wristCoords.y}");
             // Get the RectTransform component attached to the canvas
             RectTransform canvasRectTransform = GetComponent<RectTransform>();
 
@@ -79,12 +79,12 @@ public class Movement : MonoBehaviour
             Vector2 updatedPosition = new Vector2(
                 (wristCoords.x * Screen.width)-1200,
                 (wristCoords.y * Screen.height)+500);
-             Debug.Log($"Before clamp: x: {updatedPosition.x}, y: {updatedPosition.y}");
+             //Debug.Log($"Before clamp: x: {updatedPosition.x}, y: {updatedPosition.y}");
 
             // Clamp the updated position to canvas boundaries
             updatedPosition.x = Mathf.Clamp(updatedPosition.x, -500, 500);
             updatedPosition.y = Mathf.Clamp(updatedPosition.y, -270, 270);
-            Debug.Log($"after clamp: x: {updatedPosition.x}, y: {updatedPosition.y}");
+            //Debug.Log($"after clamp: x: {updatedPosition.x}, y: {updatedPosition.y}");
             // Smoothly move the cursor towards the updated position
             Vector2 newPosition = Vector2.Lerp(rectangleTransform.anchoredPosition, updatedPosition, Time.deltaTime * cursorSpeed);
             rectangleTransform.anchoredPosition = newPosition;
