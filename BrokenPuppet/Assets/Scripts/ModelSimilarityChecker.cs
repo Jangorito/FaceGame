@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
 using System.Timers;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.UIElements;
 using TMPro;
-using System.Linq;
 using UnityEngine.SceneManagement;
 
 public class ModelSimilarityChecker : MonoBehaviour
@@ -212,11 +207,11 @@ public class ModelSimilarityChecker : MonoBehaviour
             float distance = Vector3.Distance(adjustedPuppetPosition, adjustedGhostPosition);
 
             // Checks if every bone is <0.1 units away from the corresponding ghost one
-            if (distance > 0.1)
+            if (distance > 2.6)
                 return false;
         }
         points += 5;
-        pointsText.text = $"Points: {points}";
+        pointsText.text = $"Points: {(int)points}";
         return true;
     }
 }

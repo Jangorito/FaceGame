@@ -83,7 +83,7 @@ public class ShadowAvatar : MonoBehaviour
         if (!m_bHasPlayers)
             return;
 
-        if (P1.IsCalibrated() && P2.IsCalibrated()) 
+        if (P1.IsCalibrated() && P2.IsCalibrated())
             if (!m_bIsInPose)
                 assumePose();
 

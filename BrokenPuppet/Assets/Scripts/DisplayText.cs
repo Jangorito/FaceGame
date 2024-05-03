@@ -41,9 +41,6 @@ public class DisplayText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!m_bIsCalibrated)
-            return;
-
         timeTracker++;
 
         if (timeTracker > timeToChange)

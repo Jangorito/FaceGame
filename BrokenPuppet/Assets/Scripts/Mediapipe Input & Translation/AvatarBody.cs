@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using extOSC;
 using System.Text;
-using UnityEditor.PackageManager;
 
 public class AvatarBody
 {

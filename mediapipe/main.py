@@ -4,7 +4,7 @@ from body import BodyThread
 import time
 import global_vars
 import threading
-#import Reciever
+import Reciever
 from sys import exit
 #GLOBALVARS
 
