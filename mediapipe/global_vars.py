@@ -7,7 +7,7 @@ DEBUG = False
 # Settings do not universally apply, not all WebCams support all frame rates and resolutions
 CAM_INDEX = 0
  # OpenCV2 webcam index, try changing for using another (ex: external) webcam.
-USE_CUSTOM_CAM_SETTINGS = False
+USE_CUSTOM_CAM_SETTINGS = True
 FPS = 60
 WIDTH = 320
 HEIGHT = 240
