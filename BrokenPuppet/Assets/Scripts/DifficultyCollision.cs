@@ -6,59 +6,71 @@ using TMPro;
 public class DifficultyCollision : MonoBehaviour
 {
     public static int difficultyLevel;
+    bool isColliding = false; // Flag to track if collision is ongoing
     public TextMeshProUGUI counterText;
     Coroutine countdownCoroutine;
 
-    private void OnCollisionEnter2D(Collision2D CollisionObject)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Collision detected!");
-
-        if (CollisionObject.gameObject.name == "Easy")
-            difficultyLevel = 0;
-        else if (CollisionObject.gameObject.name == "Medium")
-            difficultyLevel = 1;
-        else if (CollisionObject.gameObject.name == "Hard")
-            difficultyLevel = 2;
-        Debug.Log(CollisionObject.gameObject.name);
-        GameObject movementObject = GameObject.Find("Cursor");
-
-        if (movementObject != null)
+        // Only start countdown if not already colliding
+        if (!isColliding)
         {
-            // Get the movement script component
-            Movement movementScript = movementObject.GetComponent<Movement>();
+            isColliding = true;
 
-            // Set the ClosePort property using the movement script instance
-            if (movementScript != null)
-            {
-                Movement.closePort = 1; // Example value
-                Debug.Log("ClosePort set to 1\n");
-            }
+            // Start the countdown coroutine
+            Debug.Log(collision.gameObject.name);
+            countdownCoroutine = StartCoroutine(CountdownAndLoadScene(3.0f, collision.gameObject.name));
         }
-
-        // Start the countdown coroutine to load scene after 3 seconds
-        countdownCoroutine = StartCoroutine(CountdownAndLoadScene(3.0f, CollisionObject.gameObject.name));
     }
 
-    private IEnumerator CountdownAndLoadScene(float countdownDuration, string name)
+    private IEnumerator CountdownAndLoadScene(float countdownDuration, string buttonName)
     {
         float timeElapsed = 0f;
-        while (timeElapsed < countdownDuration)
+
+        while (timeElapsed < countdownDuration && isColliding)
         {
             float remainingTime = countdownDuration - timeElapsed;
-            counterText.text = "Loading in " + name + ": " + Mathf.CeilToInt(remainingTime) + " seconds";
+            counterText.text = "Loading in: " + Mathf.CeilToInt(remainingTime) + " seconds";
             yield return null;
             timeElapsed += Time.deltaTime;
         }
 
-        // Load the scene after the countdown
-        SceneManager.LoadScene("GameSceneWithUI");
+        // If countdown completes and still colliding, load scene
+        if (isColliding)
+        {
+            SetDifficultyLevel(buttonName);
+            SceneManager.LoadScene("GameSceneWithUI");
+        }
+
+        // Reset flags and UI
+        isColliding = false;
+        counterText.text = "";
+    }
+
+    private void SetDifficultyLevel(string buttonName)
+    {
+        switch (buttonName)
+        {
+            case "Easy":
+                difficultyLevel = 0;
+                break;
+            case "Medium":
+                difficultyLevel = 1;
+                break;
+            case "Hard":
+                difficultyLevel = 2;
+                break;
+        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        Debug.Log("COLLISION EXITED\n");
-        if (countdownCoroutine != null)
-            StopCoroutine(countdownCoroutine); // Stop the countdown if collision ends prematurely
-        counterText.text = ""; // Clear counter text
+        // If colliding, stop the countdown coroutine
+        if (isColliding)
+        {
+            StopCoroutine(countdownCoroutine);
+            isColliding = false;
+            counterText.text = ""; // Clear counter text
+        }
     }
 }
