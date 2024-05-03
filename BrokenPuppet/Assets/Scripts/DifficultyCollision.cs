@@ -1,31 +1,13 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using TMPro;
-
-
 
 public class DifficultyCollision : MonoBehaviour
 {
-
     public static int difficultyLevel;
-
-    public int getDifficulty()
-    {
-        return difficultyLevel;
-    }
-
-    private void Start()
-    {
-    }
-
-    private IEnumerator LoadSceneAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene("GameSceneWithUI");
-    }
+    public TextMeshProUGUI counterText;
+    Coroutine countdownCoroutine;
 
     private void OnCollisionEnter2D(Collision2D CollisionObject)
     {
@@ -53,6 +35,30 @@ public class DifficultyCollision : MonoBehaviour
             }
         }
 
-        StartCoroutine(LoadSceneAfterDelay(1.0f)); // Load scene after 1 second
+        // Start the countdown coroutine to load scene after 3 seconds
+        countdownCoroutine = StartCoroutine(CountdownAndLoadScene(3.0f, CollisionObject.gameObject.name));
+    }
+
+    private IEnumerator CountdownAndLoadScene(float countdownDuration, string name)
+    {
+        float timeElapsed = 0f;
+        while (timeElapsed < countdownDuration)
+        {
+            float remainingTime = countdownDuration - timeElapsed;
+            counterText.text = "Loading in " + name + ": " + Mathf.CeilToInt(remainingTime) + " seconds";
+            yield return null;
+            timeElapsed += Time.deltaTime;
+        }
+
+        // Load the scene after the countdown
+        SceneManager.LoadScene("GameSceneWithUI");
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        Debug.Log("COLLISION EXITED\n");
+        if (countdownCoroutine != null)
+            StopCoroutine(countdownCoroutine); // Stop the countdown if collision ends prematurely
+        counterText.text = ""; // Clear counter text
     }
 }
