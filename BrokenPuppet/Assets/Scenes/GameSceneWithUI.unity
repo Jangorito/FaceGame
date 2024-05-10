@@ -3551,6 +3551,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iClientID: 0
   animator: {fileID: 1416549460}
+  Receiver: {fileID: 1740593559}
   shouldDebug: 1
   shadow: {fileID: 1004043733}
   StopAvatarMoving: 0
@@ -3940,6 +3941,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iClientID: 1
   animator: {fileID: 1578104201}
+  Receiver: {fileID: 1740593559}
   shouldDebug: 0
   shadow: {fileID: 1004043733}
   StopAvatarMoving: 0
@@ -4496,7 +4498,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1740593561}
-  - component: {fileID: 1740593560}
+  - component: {fileID: 1740593562}
   m_Layer: 0
   m_Name: PipeServer
   m_TagString: Untagged
@@ -4504,21 +4506,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1740593560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740593559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: caa66bb028920d243b5121da568756b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Player1: {fileID: 1416549457}
-  Player2: {fileID: 1578104198}
-  m_bShouldDebug: 1
 --- !u!4 &1740593561
 Transform:
   m_ObjectHideFlags: 0
@@ -4535,6 +4522,18 @@ Transform:
   - {fileID: 1896538856}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1740593562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740593559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 187415ca023c9894dbc4bc8c1dca6e49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1757760665
 GameObject:
   m_ObjectHideFlags: 0

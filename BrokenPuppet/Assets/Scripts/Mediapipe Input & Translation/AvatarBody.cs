@@ -23,15 +23,15 @@ public class AvatarBody
     Logger logger;
     private const bool m_bShouldDebug = false;
     
-    public AvatarBody(int iClientID) {
+    public AvatarBody(int iClientID, GameObject body, GameObject vneck, GameObject vhip) {
         logger = new Logger(m_bShouldDebug);
 
         m_iClientID = iClientID;
 
-        m_Body = new Body(new GameObject("I see you reading this").transform);
+        m_Body = new Body(body.transform);
 
-        m_VirtualNeck = new GameObject("VirtualNeck"+getClientID()).transform;
-        m_VirtualHip = new GameObject("VirtualHip"+getClientID()).transform;
+        m_VirtualNeck = vneck.transform;
+        m_VirtualHip = vhip.transform;
     }
 
     public Transform GetLandmark(Landmark mark) {
