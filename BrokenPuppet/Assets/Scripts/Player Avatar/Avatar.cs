@@ -63,13 +63,7 @@ public class Avatar : MonoBehaviour
             enabled = false;
             return;
         }
-        m_AvatarBody = receiver.GetBody(iClientID);
 
-        if (m_AvatarBody == null) {
-            logger.LogError("Avatar::Awake | Invalid AvatarBody received from receiver");
-            enabled = false;
-            return;
-        }
 
         // Initialises all of the joint limitations
         Limitations.initializeXArray();
@@ -82,6 +76,14 @@ public class Avatar : MonoBehaviour
 
     private void Start()
     {
+
+        m_AvatarBody = receiver.GetBody(iClientID);
+        if (m_AvatarBody == null) {
+            logger.LogError("Avatar::Awake | Invalid AvatarBody received from receiver");
+            enabled = false;
+            return;
+        }
+
         initialRotations = new Quaternion[(int)HumanBodyBones.LastBone];
         for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) {
             if (animator.GetBoneTransform((HumanBodyBones)i) != null) {

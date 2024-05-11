@@ -25,22 +25,19 @@ public class Receiver : MonoBehaviour
 
     private void Awake()
     {
-
-
-        if (bInitialised) {
-            p1Input = new(0, p1_body, p1_vneck, p1_vhip);
-            p2Input = new(1, p2_body, p2_vneck, p2_vhip);
-            p1Receiver.Bind("/PythonData", p1Input.ReceivedMessage);
-            p2Receiver.Bind("/PythonData", p2Input.ReceivedMessage);
-            return;
-        }
-
-        p1Input = new(0, p1_body, p1_vneck, p1_vhip);
-        p2Input = new(1, p2_body, p2_vneck, p2_vhip);
-
         // Make empty gameobjects
         p1_body = new GameObject("P1-Body");
         p1_vneck = new GameObject("P1-VNeck");
+        p1_vhip = new GameObject("P1-VHip");
+        p2_body = new GameObject("P1-Body");
+        p2_vneck = new GameObject("P1-VNeck");
+        p2_vhip = new GameObject("P1-VHip");
+        p1Input = p1Input = new(0, p1_body, p1_vneck, p1_vhip);
+        p2Input = new(1, p2_body, p2_vneck, p2_vhip);
+
+        if (bInitialised) {
+            return;
+        }
 
         p1Receiver = gameObject.AddComponent<OSCReceiver>();
         p2Receiver = gameObject.AddComponent<OSCReceiver>();
@@ -69,6 +66,8 @@ public class Receiver : MonoBehaviour
 
     private void Start()
     {
+        p1Receiver.Bind("/PythonData", p1Input.ReceivedMessage);
+        p2Receiver.Bind("/PythonData", p2Input.ReceivedMessage);
     }
 
     private void Update()
