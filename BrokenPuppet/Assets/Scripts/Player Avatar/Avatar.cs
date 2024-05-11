@@ -14,11 +14,13 @@ public class Avatar : MonoBehaviour
     // The reference to the animator controlling the Avatar transforms
     public Animator animator;
 
-    /** mappings for Bones and its the landmarks it is following */
-    public Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
-    
+    // The reference to the input data
+    public GameObject Receiver;
+    private Receiver receiver;
     private AvatarBody m_AvatarBody;
 
+    /** mappings for Bones and its the landmarks it is following */
+    public Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
 
 
     // The Avatar's initial rotation
@@ -55,7 +57,13 @@ public class Avatar : MonoBehaviour
     {
         logger = new(shouldDebug);
 
-        m_AvatarBody = new AvatarBody(getClient());
+        receiver = Receiver.GetComponent<Receiver>();
+        if (receiver == null) {
+            logger.LogError("Avatar::Awake | Invalid Receiver GameObject found");
+            enabled = false;
+            return;
+        }
+
 
         // Initialises all of the joint limitations
         Limitations.initializeXArray();
@@ -68,6 +76,14 @@ public class Avatar : MonoBehaviour
 
     private void Start()
     {
+
+        m_AvatarBody = receiver.GetBody(iClientID);
+        if (m_AvatarBody == null) {
+            logger.LogError("Avatar::Awake | Invalid AvatarBody received from receiver");
+            enabled = false;
+            return;
+        }
+
         initialRotations = new Quaternion[(int)HumanBodyBones.LastBone];
         for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) {
             if (animator.GetBoneTransform((HumanBodyBones)i) != null) {
@@ -116,8 +132,6 @@ public class Avatar : MonoBehaviour
 
     void Update()
     {
-        m_AvatarBody.updateBody();
-
         // Do nothing if not connected
         if (!getAvatarBody().IsConnected())
             return;
