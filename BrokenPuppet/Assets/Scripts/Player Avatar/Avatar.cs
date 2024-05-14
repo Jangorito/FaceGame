@@ -40,6 +40,9 @@ public class Avatar : MonoBehaviour
     // Flags if the avatar is calibrated
     private bool bIsCalibrating = false;
 
+    // Is the Movement broken
+    private bool m_bIsBroken = false;
+
     // frequency at which the avatar checks for data on the server
     private const float WAIT_FOR = 2.0f;
 
@@ -47,6 +50,8 @@ public class Avatar : MonoBehaviour
     private bool shouldDebug = true;
 
     private Quaternion[] initialRotations;
+
+    public bool bShouldMove = true;
 
     // Used to display debugging info
     Logger logger;
@@ -102,6 +107,7 @@ public class Avatar : MonoBehaviour
 
     public void change_calibrations(Dictionary<HumanBodyBones, CalibrationData> movement) {
         parentCalibrationData = movement;
+        SetIsBroken(false);
     }
 
     public Dictionary<HumanBodyBones, CalibrationData> getCalibrations() {
@@ -127,14 +133,13 @@ public class Avatar : MonoBehaviour
 
     public AvatarBody getAvatarBody() { return m_AvatarBody; }
 
-    public Boolean StopAvatarMoving = false;
+    public void SetShouldMove(bool val) { bShouldMove = val; }
 
     void Update()
     {
         // Do nothing if not connected
         if (!getAvatarBody().IsConnected())
             return;
-
         // Do nothing if currently calibrating
         if (IsCalibrating())
             return;
@@ -154,55 +159,12 @@ public class Avatar : MonoBehaviour
                 mother.resetPlayerTwo();
         }
 
+        if (!bShouldMove)
+            return;
         // Moves each joint in the Calibration Data
         foreach (var i in parentCalibrationData)
         {
            updateBoneTransform(i.Key, i.Value);
-        }
-
-        // Moves the head, hips, and spine to match movement in body
-
-        /* calculate new rotations */
-        Quaternion headr = Quaternion.FromToRotation(head.initialDirection, head.getCurrentDirection());
-        Quaternion twist = Quaternion.FromToRotation(hipsTwist.initialDirection,
-            Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f));
-        Quaternion updown = Quaternion.FromToRotation(spineUpDown.initialDirection,
-            Vector3.Slerp(spineUpDown.initialDirection, spineUpDown.getCurrentDirection(), .25f));
-
-        // Compute the final rotations.
-        Quaternion h = updown * updown * updown * twist * twist;
-        Quaternion s = h * twist * updown;
-        Quaternion c = s * twist * twist;
-        float speed = 15f;
-        hipsTwist.Tick(h * hipsTwist.initialRotation, speed);
-        spineUpDown.Tick(s * spineUpDown.initialRotation, speed);
-        chest.Tick(c * chest.initialRotation, speed);
-        head.Tick(updown * twist * headr * head.initialRotation, speed);
-
-        // For additional responsiveness, we rotate the entire transform slightly based on the hips.
-        Vector3 d = Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f);
-        d.y *= 0.5f;
-        Quaternion deltaRotTracked = Quaternion.FromToRotation(hipsTwist.initialDirection, d);
-        targetRot = deltaRotTracked * initialRotation;
-        //transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
-        if (StopAvatarMoving)
-        {
-            return;
-        }
-    }
-
-    /* returns the avatar to the base pose */
-    public void resetAvatar()
-    {
-        logger.LogMsg("Avatar::resetAvatar | resetting avatar");
-        transform.rotation = initialRotation;
-        hipsTwist.reset(ref animator);
-        spineUpDown.reset(ref animator);
-        chest.reset(ref animator);
-        head.reset(ref animator);
-        foreach (var i in parentCalibrationData)
-        {
-            i.Value.reset(ref animator);
         }
     }
 
@@ -228,10 +190,7 @@ public class Avatar : MonoBehaviour
 
         // ==== CALIBRATIONS ====
 
-        AddPoseCalibrations();
-        //AddLeftHandCalibrations();
-        //AddRightHandCalibrations();
-        
+        AddPoseCalibrations();       
 
         /* Manually define neck and hip connections */
         spineUpDown = new CalibrationData(
@@ -253,11 +212,18 @@ public class Avatar : MonoBehaviour
         SetIsCalibrating(false);
     }
 
+    public AvatarFactory getAvatarFactory() {
+        return mother;
+    }
+
     private void SetIsCalibrated(bool val) { bIsCalibrated = val; }
     public bool IsCalibrated() { return bIsCalibrated; }
 
     private void SetIsCalibrating(bool val) { bIsCalibrating = val; }
     private bool IsCalibrating() { return bIsCalibrating; } 
+
+    public bool GetIsBroken() { return m_bIsBroken; }
+    public void SetIsBroken(bool val) { m_bIsBroken = val; }
 
     private void AddCalibration(HumanBodyBones parent, HumanBodyBones child,
         Landmark trackParent, Landmark trackChild)

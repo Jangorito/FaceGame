@@ -25,17 +25,17 @@ public class ModelSimilarityChecker : MonoBehaviour
     Logger logger;
 
     // Flags if should output debugging info
-    public bool bShouldDebug = false;
+    public bool bShouldDebug = true;
 
     // Start is called before the first frame update
     private void Start()
     {
-        logger = new Logger(bShouldDebug);
+        pointsText = BrokenPuppet.getAvatarFactory().getPoints(BrokenPuppet.getClientID());
+        PercentageMatchText = BrokenPuppet.getAvatarFactory().getMatch(BrokenPuppet.getClientID());
 
-        BrokenPuppet = getPuppetAvatar();
+        logger = new Logger(bShouldDebug);
         GhostAvatar = getShadowAvatar();
         Successful = false;
-        //StartCoroutine(Coroutine());
         StartTimer();
         logger.LogMsg("ModelSimilarityChecker::Start | Is Successful + " + Successful.ToString());
 
@@ -95,11 +95,14 @@ public class ModelSimilarityChecker : MonoBehaviour
             return;
         }
 
+        // Will stop the Avatar from checking before it is calibrated
+        if (!BrokenPuppet.IsCalibrated())
+            return;
+
         if (!Successful) // Only check models if the round is not successful
         {
             Vector3 puppetPosition = BrokenPuppet.transform.position;
             Vector3 ghostPosition = GhostAvatar.transform.position;
-            //Debug.Log("********" + puppetPosition + " " + ghostPosition);
 
             //Gets the puppets bones
             BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
@@ -131,7 +134,7 @@ public class ModelSimilarityChecker : MonoBehaviour
             PercentageMatchText.text = percentageMatch.ToString("0.00") + "% Match\n";
 
             logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + BrokenPuppet.getClientID() + ": " + percentageMatch + "%");
-            BrokenPuppet.StopAvatarMoving = true;
+            BrokenPuppet.SetShouldMove(false);
             NextLevelTimer(); // Starts timer for next level
             return;
         }
@@ -168,15 +171,6 @@ public class ModelSimilarityChecker : MonoBehaviour
         ShadowAvatar avatar = FindObjectOfType<ShadowAvatar>();
         if (avatar == null)
             logger.LogError("ModelSimilarityChecker::getShadowAvatar | Could not find an Avatar in the scene");
-        return avatar;
-    }
-
-    //Gets the puppet avatar the user is manipulating
-    private Avatar getPuppetAvatar()
-    {
-        Avatar avatar = FindObjectOfType<Avatar>();
-        if (avatar == null)
-            logger.LogError("ModelSimilarityChecker::getPuppetAvatar | Could not find an Avatar in the scene");
         return avatar;
     }
 

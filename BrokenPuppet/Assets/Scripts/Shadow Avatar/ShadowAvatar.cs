@@ -58,7 +58,7 @@ public class ShadowAvatar : MonoBehaviour
         }
 
         // Find valid Player 2 Avatar script
-        P2 = avatarFactory.getPlayerTwo().GetComponent<Avatar>();
+        P2 = avatarFactory.getPlayerOne().GetComponent<Avatar>();
         if (P2 == null) {
             logger.LogMsg("ShadowAvatar::Start | PlayerTwo Object does not contain Avatar Component");
             return;
@@ -76,19 +76,19 @@ public class ShadowAvatar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SetShadowAvatarStatus(true);
 
         // Do nothing if no players
         if (!m_bHasPlayers)
             return;
 
-        if (P1.IsCalibrated() && P2.IsCalibrated())
+        if (P1.GetIsBroken() && P2.GetIsBroken())
             if (!m_bIsInPose)
                 assumePose();
 
     }
 
     void assumePose() {
+        Debug.Log("ShadowAvatar::assumePose");
         m_bIsInPose = true;
         UpdateShadow();
     }
@@ -261,7 +261,7 @@ public class ShadowAvatar : MonoBehaviour
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();
-        //MoveModel();
+        MoveModel();
         
         // Will flag that the shadow avatar is ready to be matched again
         SetShadowAvatarStatus(true);

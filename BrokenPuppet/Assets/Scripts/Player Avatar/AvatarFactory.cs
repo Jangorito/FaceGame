@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class AvatarFactory : MonoBehaviour
@@ -13,7 +14,19 @@ public class AvatarFactory : MonoBehaviour
     private Vector3 p1_Position = new(-1.5f, 0.03f, 0f);
     private Vector3 p2_Position = new(1.5f, 0.03f, 0f);
 
+    public TextMeshProUGUI p1_points;
+    public TextMeshProUGUI p1_match;
 
+    public TextMeshProUGUI p2_points;
+    public TextMeshProUGUI p2_match;
+
+    public TextMeshProUGUI getPoints(int iClientID) {
+        return (iClientID == 0) ? p1_points : p2_points; 
+    }
+
+    public TextMeshProUGUI getMatch(int iClientID) {
+        return (iClientID == 0) ? p1_match : p2_match;
+    }
 
     // Start is called before the first frame update
     void Start()

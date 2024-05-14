@@ -44,16 +44,12 @@ public class MovementBreaker : MonoBehaviour
     void Start()
     {
         P1 = avatarManager.getPlayerOne().GetComponent<Avatar>();
-        P2 = avatarManager.getPlayerTwo().GetComponent<Avatar>();
+        P2 = avatarManager.getPlayerOne().GetComponent<Avatar>();
+        originalMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
+        brokenMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
 
         logger = new(shouldDebug);
-        logger.LogMsg("MovementBreaker::Start");
         random = new();
-
-        // Get backup of each player avatars movement
-        originalMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
-        // Initialise broken movement of each Avatar
-        brokenMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
     }
 
     void Update()
@@ -68,12 +64,17 @@ public class MovementBreaker : MonoBehaviour
         }
         if (!m_bIsBroken) {
             m_bIsBroken = true;
-            originalMovement[p1] = P1.getCalibrations();
-            originalMovement[p2] = P2.getCalibrations();
-            brokenMovement[p1] = P1.getCalibrations();
-            brokenMovement[p2] = P2.getCalibrations();
+            originalMovement[p1] = new Dictionary<HumanBodyBones, CalibrationData>(P1.getCalibrations());
+            originalMovement[p2] = new Dictionary<HumanBodyBones, CalibrationData>(P2.getCalibrations());
+            brokenMovement[p1] = new Dictionary<HumanBodyBones, CalibrationData>(P1.getCalibrations());
+            brokenMovement[p2] = new Dictionary<HumanBodyBones, CalibrationData>(P2.getCalibrations());
             breakMovements();
             return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+           breakMovements();
         }
     }
 
@@ -88,19 +89,29 @@ public class MovementBreaker : MonoBehaviour
         // Generate a random number of joints to change
         int iJointsToChange = UnityEngine.Random.Range(MIN, MAX);
 
-        // Choose a set of landmarks
-        HumanBodyBones[] iFromLandmarks = getRandomLandmarks(iJointsToChange);
-
-        // Choose another set of landmarks
-        HumanBodyBones[] iToLandmarks = getRandomLandmarks(iJointsToChange);
-
         // Swap those landmarks 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < iJointsToChange; j++) {
-                Transform newParent = originalMovement[i][iToLandmarks[j]].tparent;
-                Transform newChild = originalMovement[i][iToLandmarks[j]].tchild;
 
-                brokenMovement[i][iFromLandmarks[j]].change_calibrations(newParent, newChild);
+                // Get Two random joints
+                HumanBodyBones joint1 = P1.parentCalibrationData.ElementAt(
+                    random.Next(0, P1.parentCalibrationData.Count())).Value.parentBone;
+                HumanBodyBones joint2 = P1.parentCalibrationData.ElementAt(
+                    random.Next(0, P1.parentCalibrationData.Count())).Value.parentBone;
+
+                // allow same joint choice to add hidden way of easier breaking
+                if (joint1 == joint2)
+                    continue;
+
+                // Get the transforms at each joint
+                Transform j1_parent = originalMovement[i][joint1].tparent;
+                Transform j1_child = originalMovement[i][joint1].tchild;
+                Transform j2_parent = originalMovement[i][joint2].tparent;
+                Transform j2_child = originalMovement[i][joint2].tchild;
+
+                // Swap transforms
+                brokenMovement[i][joint1].change_calibrations(j2_parent, j2_child);
+                brokenMovement[i][joint2].change_calibrations(j1_parent, j1_child);
             }
         }
     }
@@ -110,18 +121,5 @@ public class MovementBreaker : MonoBehaviour
 
         P1.change_calibrations(brokenMovement[p1]);
         P2.change_calibrations(brokenMovement[p2]);
-    }
-
-    private HumanBodyBones[] getRandomLandmarks(int number) {
-
-        HumanBodyBones[] landmarks = new HumanBodyBones[number];
-
-        for (int i = 0; i < number; i++) {
-            // Get Random Landmark
-            landmarks[i] = P1.parentCalibrationData.ElementAt(
-                random.Next(0, P1.parentCalibrationData.Count())).Value.parentBone;
-        }
-
-        return landmarks;
     }
 }

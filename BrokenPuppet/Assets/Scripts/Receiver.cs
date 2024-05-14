@@ -57,10 +57,6 @@ public class Receiver : MonoBehaviour
         DontDestroyOnLoad(p2_vneck);
         DontDestroyOnLoad(p2_vhip);
 
-        // Bind the received message function
-        p1Receiver.Bind("/PythonData", p1Input.ReceivedMessage);
-        p2Receiver.Bind("/PythonData", p2Input.ReceivedMessage);
-
         bInitialised = true;
     }
 
