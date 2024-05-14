@@ -5,19 +5,16 @@ using UnityEngine;
 public class NextLevelTest : MonoBehaviour
 {
     public ShadowAvatar shadow;
-    public GameObject Player1;
-    public GameObject Player2;
-    public static int level = 0;
 
-    Avatar player1;
-    Avatar player2;
+    public GameObject AvatarFactory;
+    private AvatarFactory AvatarManager;
+
+    public static int level = 0;
 
     // Start is called before the first frame update
     void Start()
     {
-        player1 = Player1.GetComponent<Avatar>();
-
-        player2 = Player2.GetComponent<Avatar>();
+        AvatarManager = AvatarFactory.GetComponent<AvatarFactory>();
     }
 
     // Update is called once per frame
@@ -50,7 +47,7 @@ public class NextLevelTest : MonoBehaviour
 
     void resetBreaking()
     {
-        player1.resetAvatar();
-        player2.resetAvatar();
+        AvatarManager.resetPlayerOne();
+        AvatarManager.resetPlayerTwo();
     }
 }

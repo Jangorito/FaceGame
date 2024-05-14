@@ -10,11 +10,17 @@ public class AvatarFactory : MonoBehaviour
     private GameObject p1;
     private GameObject p2;
 
+    private Vector3 p1_Position = new(-1.5f, 0.03f, 0f);
+    private Vector3 p2_Position = new(1.5f, 0.03f, 0f);
+
+
+
     // Start is called before the first frame update
     void Start()
     {
-        p1 = Instantiate(PlayerOne);
-        p2 = Instantiate(PlayerTwo);
+
+        p1 = Instantiate(PlayerOne, p1_Position, transform.rotation);
+        p2 = Instantiate(PlayerTwo, p2_Position, transform.rotation);
     }
 
     public void resetPlayerOne() {
