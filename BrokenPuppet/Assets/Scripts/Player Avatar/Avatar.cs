@@ -9,6 +9,8 @@ using static Landmarks;
 public class Avatar : MonoBehaviour
 {
 
+    public AvatarFactory mother;
+
     public int iClientID;
 
     // The reference to the animator controlling the Avatar transforms
@@ -135,13 +137,10 @@ public class Avatar : MonoBehaviour
         // Allows player to re-calibrate the avatar
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // Move Avatar back into T-pose
-            resetAvatar();
-
-            SetIsCalibrated(false);
-
-            // Calibrate the Avatar
-            StartCoroutine(Calibrate());
+           if (iClientID == 0)
+                mother.resetPlayerOne();
+           else
+                mother.resetPlayerTwo();
         }
 
         // Moves each joint in the Calibration Data

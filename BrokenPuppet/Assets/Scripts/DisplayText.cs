@@ -22,10 +22,10 @@ public class DisplayText : MonoBehaviour
         "Congradulations, if you were trying to disappoint me"
         };
 
-    int timeToChange = 10000;
+    int iInitialWaitTime = 30000;
+    int iWaitTime = 10000;
+    int iTimeToChange = 10000;
     int timeTracker =0;
-
-    bool m_bIsCalibrated = false;
 
     private void Awake()
     {
@@ -36,6 +36,7 @@ public class DisplayText : MonoBehaviour
     void Start()
     {
         mText.text = calibrating;
+        iTimeToChange = iInitialWaitTime;
     }
 
     // Update is called once per frame
@@ -43,18 +44,14 @@ public class DisplayText : MonoBehaviour
     {
         timeTracker++;
 
-        if (timeTracker > timeToChange)
+        if (timeTracker > iTimeToChange)
         {
             int index = UnityEngine .Random.Range(0, insults.Length);
             mText.text = insults[index];
             timeTracker = 0;
+            iTimeToChange = iWaitTime;
         }
 
-    }
-
-    public void setIsCalibrated(bool val)
-    {
-        m_bIsCalibrated = val;
     }
 
     public void setText(string text)

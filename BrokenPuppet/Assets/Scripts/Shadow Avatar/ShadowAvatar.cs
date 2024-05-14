@@ -264,7 +264,7 @@ public class ShadowAvatar : MonoBehaviour
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();
-        MoveModel();
+        //MoveModel();
         
         // Will flag that the shadow avatar is ready to be matched again
         SetShadowAvatarStatus(true);
