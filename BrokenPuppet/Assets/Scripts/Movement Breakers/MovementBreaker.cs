@@ -44,7 +44,7 @@ public class MovementBreaker : MonoBehaviour
     void Start()
     {
         P1 = avatarManager.getPlayerOne().GetComponent<Avatar>();
-        P2 = avatarManager.getPlayerOne().GetComponent<Avatar>();
+        P2 = avatarManager.getPlayerTwo().GetComponent<Avatar>();
         originalMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
         brokenMovement = new Dictionary<HumanBodyBones, CalibrationData>[2];
 

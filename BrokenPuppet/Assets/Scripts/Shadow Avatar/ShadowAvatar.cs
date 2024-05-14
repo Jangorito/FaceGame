@@ -58,7 +58,7 @@ public class ShadowAvatar : MonoBehaviour
         }
 
         // Find valid Player 2 Avatar script
-        P2 = avatarFactory.getPlayerOne().GetComponent<Avatar>();
+        P2 = avatarFactory.getPlayerTwo().GetComponent<Avatar>();
         if (P2 == null) {
             logger.LogMsg("ShadowAvatar::Start | PlayerTwo Object does not contain Avatar Component");
             return;
