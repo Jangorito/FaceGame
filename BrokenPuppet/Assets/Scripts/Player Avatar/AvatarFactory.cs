@@ -25,12 +25,21 @@ public class AvatarFactory : MonoBehaviour
 
     public void resetPlayerOne() {
         Destroy(p1);
-        p1 = Instantiate(PlayerOne);
+        p1 = Instantiate(PlayerOne, p1_Position, transform.rotation);
     }
 
     public void resetPlayerTwo() {
         Destroy(p2);
-        p2 = Instantiate(PlayerTwo);
+        p2 = Instantiate(PlayerTwo, p2_Position, transform.rotation);
+    }
+
+    public GameObject getPlayerOne()
+    {
+        return p1;
+    }
+    public GameObject getPlayerTwo()
+    {
+        return p2;
     }
 }
 

@@ -16,8 +16,8 @@ public class MovementBreaker : MonoBehaviour
     // The Maximum number of joints that can be changed
     public int MAX = 5;
 
-    public GameObject Player1;
-    public GameObject Player2;
+    public GameObject PlayerAvatars;
+    private AvatarFactory avatarManager;
 
     private Avatar P1;
     private Avatar P2;
@@ -38,12 +38,14 @@ public class MovementBreaker : MonoBehaviour
 
     private void Awake()
     {
-        P1 = Player1.GetComponent<Avatar>();
-        P2 = Player2.GetComponent<Avatar>();
+        avatarManager = PlayerAvatars.GetComponent<AvatarFactory>();
     }
 
     void Start()
     {
+        P1 = avatarManager.getPlayerOne().GetComponent<Avatar>();
+        P2 = avatarManager.getPlayerTwo().GetComponent<Avatar>();
+
         logger = new(shouldDebug);
         logger.LogMsg("MovementBreaker::Start");
         random = new();

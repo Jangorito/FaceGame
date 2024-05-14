@@ -9,18 +9,19 @@ using static Landmarks;
 public class Avatar : MonoBehaviour
 {
 
-    public AvatarFactory mother;
+    private AvatarFactory mother;
 
     public int iClientID;
 
     // The reference to the animator controlling the Avatar transforms
     public Animator animator;
 
-    /** mappings for Bones and its the landmarks it is following */
-    public Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
-    
+    // The reference to the input data
+    private Receiver receiver;
     private AvatarBody m_AvatarBody;
 
+    /** mappings for Bones and its the landmarks it is following */
+    public Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
 
 
     // The Avatar's initial rotation
@@ -43,7 +44,7 @@ public class Avatar : MonoBehaviour
     private const float WAIT_FOR = 2.0f;
 
     // Flags if script should output debugging info
-    public bool shouldDebug = false;
+    private bool shouldDebug = true;
 
     private Quaternion[] initialRotations;
 
@@ -55,9 +56,16 @@ public class Avatar : MonoBehaviour
 
     private void Awake()
     {
-        logger = new(shouldDebug);
+        mother = FindObjectOfType<AvatarFactory>();
 
-        m_AvatarBody = new AvatarBody(getClient());
+        logger = new(shouldDebug);
+        receiver = FindObjectOfType<Receiver>();
+        if (receiver == null) {
+            logger.LogError("Avatar::Awake | Invalid Receiver GameObject found");
+            enabled = false;
+            return;
+        }
+
 
         // Initialises all of the joint limitations
         Limitations.initializeXArray();
@@ -70,6 +78,14 @@ public class Avatar : MonoBehaviour
 
     private void Start()
     {
+
+        m_AvatarBody = receiver.GetBody(iClientID);
+        if (m_AvatarBody == null) {
+            logger.LogError("Avatar::Awake | Invalid AvatarBody received from receiver");
+            enabled = false;
+            return;
+        }
+
         initialRotations = new Quaternion[(int)HumanBodyBones.LastBone];
         for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) {
             if (animator.GetBoneTransform((HumanBodyBones)i) != null) {
@@ -118,8 +134,6 @@ public class Avatar : MonoBehaviour
 
     void Update()
     {
-        m_AvatarBody.updateBody();
-
         // Do nothing if not connected
         if (!getAvatarBody().IsConnected())
             return;
@@ -173,7 +187,7 @@ public class Avatar : MonoBehaviour
         d.y *= 0.5f;
         Quaternion deltaRotTracked = Quaternion.FromToRotation(hipsTwist.initialDirection, d);
         targetRot = deltaRotTracked * initialRotation;
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
+        //transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
         if (StopAvatarMoving)
         {
             return;
