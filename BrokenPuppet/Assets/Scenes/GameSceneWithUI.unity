@@ -656,8 +656,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shadowBody: {fileID: 224485944}
-  PlayerOne: {fileID: 8720999363975567936, guid: 57a0acfbfbe25924cb1b627a9aa0a25e, type: 3}
-  PlayerTwo: {fileID: 6872806707728992515, guid: 41d1e2fa2c5db684abb2512ff4019862, type: 3}
+  avatarFactory: {fileID: 215625623}
   boneTransforms: []
   minRotations: []
   maxRotations: []

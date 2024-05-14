@@ -12,16 +12,11 @@ public class ModelSimilarityChecker : MonoBehaviour
     private Transform[] BrokenPuppetBones;
     private Vector3[] PuppetVectors = new Vector3[65];
     private Vector3[] GhostVectors = new Vector3[65];
-    private static bool GameEnd = false;
     bool Successful;
     public static PlayModeStateChange state;
     public TextMeshProUGUI pointsText;
     public TextMeshProUGUI PercentageMatchText;
     public int points = 0;
-
-    // Int to tell what Model that instance is
-    private static int instances = 0;
-    private int instance;
 
     // The Offset between the unmoved BrokenPuppet and the GhostAvatar
     Vector3 modelOffset;
@@ -30,15 +25,12 @@ public class ModelSimilarityChecker : MonoBehaviour
     Logger logger;
 
     // Flags if should output debugging info
-    public bool bShouldDebug;
+    public bool bShouldDebug = false;
 
     // Start is called before the first frame update
     private void Start()
     {
         logger = new Logger(bShouldDebug);
-
-        // Player Number
-        instance = ++instances;
 
         BrokenPuppet = getPuppetAvatar();
         GhostAvatar = getShadowAvatar();
@@ -136,9 +128,9 @@ public class ModelSimilarityChecker : MonoBehaviour
             // Calculate percentage match
             float percentageMatch = Mathf.Clamp01(1f - normalizedDifference) * 100f;
 
-            PercentageMatchText.text = percentageMatch.ToString() + "Player " + instance + ": " + percentageMatch + "% Match\n";
+            PercentageMatchText.text = percentageMatch.ToString("0.00") + "% Match\n";
 
-            logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + instance + ": " + percentageMatch + "%");
+            logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + BrokenPuppet.getClientID() + ": " + percentageMatch + "%");
             BrokenPuppet.StopAvatarMoving = true;
             NextLevelTimer(); // Starts timer for next level
             return;
@@ -205,13 +197,13 @@ public class ModelSimilarityChecker : MonoBehaviour
 
             // Takes the distance between the puppet and ghost in terms of vectors
             float distance = Vector3.Distance(adjustedPuppetPosition, adjustedGhostPosition);
-
             // Checks if every bone is <0.1 units away from the corresponding ghost one
             if (distance > 2.6)
-                return false;
+                continue;
+               // return false;
         }
         points += 5;
-        pointsText.text = $"Points: {(int)points}";
+        pointsText.text = "Points: " + points;
         return true;
     }
 }

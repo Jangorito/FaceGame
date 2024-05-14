@@ -910,10 +910,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75409c1b03f1094fbb2ab70f7a740c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mother: {fileID: 0}
   iClientID: 0
   animator: {fileID: 2642710072436087424}
-  shouldDebug: 0
   shadow: {fileID: 0}
   StopAvatarMoving: 0
 --- !u!114 &3052018851561768318

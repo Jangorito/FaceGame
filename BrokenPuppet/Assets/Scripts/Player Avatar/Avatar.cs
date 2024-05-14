@@ -51,9 +51,6 @@ public class Avatar : MonoBehaviour
     // Used to display debugging info
     Logger logger;
 
-    // TODO: separate the shadow implementation from Avatar
-    public ShadowAvatar shadow;
-
     private void Awake()
     {
         mother = FindObjectOfType<AvatarFactory>();
@@ -101,7 +98,7 @@ public class Avatar : MonoBehaviour
         return animator.GetBoneTransform(bone);
     }
 
-    private int getClient() { return iClientID; }
+    public int getClientID() { return iClientID; }
 
     public void change_calibrations(Dictionary<HumanBodyBones, CalibrationData> movement) {
         parentCalibrationData = movement;
