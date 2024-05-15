@@ -8,6 +8,7 @@ public class NextLevelTest : MonoBehaviour
 
     public GameObject AvatarFactory;
     private AvatarFactory AvatarManager;
+    public MovementBreaker movementBreaker;
 
     public static int level = 0;
 
@@ -49,5 +50,6 @@ public class NextLevelTest : MonoBehaviour
     {
         AvatarManager.resetPlayerOne();
         AvatarManager.resetPlayerTwo();
+        movementBreaker.breakMovements();
     }
 }

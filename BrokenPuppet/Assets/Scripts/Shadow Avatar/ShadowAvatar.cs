@@ -249,7 +249,6 @@ public class ShadowAvatar : MonoBehaviour
     }
 
     public void SetShadowAvatarStatus(bool val) {
-        logger.LogMsg("ShadowAvatar::setShadowAvatarStatus | Shadow now ready");
         isShadowReady = val;
     }
 
@@ -257,7 +256,6 @@ public class ShadowAvatar : MonoBehaviour
 
     public void UpdateShadow()
     {
-        logger.LogMsg("ShadowAvatar::UpdateShadow");
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();

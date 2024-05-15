@@ -121,5 +121,7 @@ public class MovementBreaker : MonoBehaviour
 
         P1.change_calibrations(brokenMovement[p1]);
         P2.change_calibrations(brokenMovement[p2]);
+        P1.SetIsBroken(true);
+        P1.SetIsBroken(true);
     }
 }

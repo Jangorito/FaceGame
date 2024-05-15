@@ -619,6 +619,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shadow: {fileID: 224485945}
   AvatarFactory: {fileID: 215625622}
+  movementBreaker: {fileID: 1452418003}
 --- !u!4 &240102626
 Transform:
   m_ObjectHideFlags: 0

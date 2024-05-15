@@ -107,7 +107,6 @@ public class Avatar : MonoBehaviour
 
     public void change_calibrations(Dictionary<HumanBodyBones, CalibrationData> movement) {
         parentCalibrationData = movement;
-        SetIsBroken(false);
     }
 
     public Dictionary<HumanBodyBones, CalibrationData> getCalibrations() {
