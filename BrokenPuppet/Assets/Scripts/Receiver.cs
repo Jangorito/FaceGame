@@ -32,7 +32,7 @@ public class Receiver : MonoBehaviour
         p2_body = new GameObject("P1-Body");
         p2_vneck = new GameObject("P1-VNeck");
         p2_vhip = new GameObject("P1-VHip");
-        p1Input = p1Input = new(0, p1_body, p1_vneck, p1_vhip);
+        p1Input = new(0, p1_body, p1_vneck, p1_vhip);
         p2Input = new(1, p2_body, p2_vneck, p2_vhip);
 
         if (bInitialised) {
@@ -70,6 +70,11 @@ public class Receiver : MonoBehaviour
     {
         p1Input.updateBody();
         p2Input.updateBody();
+    }
+
+    void OnApplicationQuit()
+    {
+        bInitialised = false;
     }
 
     public AvatarBody GetBody(int iClientID) {

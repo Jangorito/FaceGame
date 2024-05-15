@@ -53,6 +53,7 @@ public class AvatarBody
     public void SetIsConnected(bool val) { m_bIsConnected = val; }
 
     public void ReceivedMessage(OSCMessage message) {
+        Debug.Log("Received message");
         SetIsConnected(true);
 
         // Read Data from long byte[]

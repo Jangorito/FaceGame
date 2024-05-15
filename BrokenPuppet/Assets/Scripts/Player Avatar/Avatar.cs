@@ -18,7 +18,6 @@ public class Avatar : MonoBehaviour
 
     // The reference to the input data
     private Receiver receiver;
-    private AvatarBody m_AvatarBody;
 
     /** mappings for Bones and its the landmarks it is following */
     public Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
@@ -78,15 +77,13 @@ public class Avatar : MonoBehaviour
         initialPosition = transform.position;
     }
 
+    private AvatarBody GetBody()
+    {
+        return receiver.GetBody(iClientID);
+    }
+
     private void Start()
     {
-
-        m_AvatarBody = receiver.GetBody(iClientID);
-        if (m_AvatarBody == null) {
-            logger.LogError("Avatar::Awake | Invalid AvatarBody received from receiver");
-            enabled = false;
-            return;
-        }
 
         initialRotations = new Quaternion[(int)HumanBodyBones.LastBone];
         for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) {
@@ -130,15 +127,14 @@ public class Avatar : MonoBehaviour
         animator.GetBoneTransform(bone).rotation = deltaRotation;
     }
 
-    public AvatarBody getAvatarBody() { return m_AvatarBody; }
-
     public void SetShouldMove(bool val) { bShouldMove = val; }
 
     void Update()
     {
         // Do nothing if not connected
-        if (!getAvatarBody().IsConnected())
+        if (!GetBody().IsConnected())
             return;
+        Debug.Log("Connected");
         // Do nothing if currently calibrating
         if (IsCalibrating())
             return;
@@ -189,22 +185,23 @@ public class Avatar : MonoBehaviour
 
         // ==== CALIBRATIONS ====
 
-        AddPoseCalibrations();       
+        AddPoseCalibrations();
 
         /* Manually define neck and hip connections */
+        AvatarBody body = GetBody();
         spineUpDown = new CalibrationData(
             HumanBodyBones.Spine, HumanBodyBones.Neck,
-            m_AvatarBody.GetVirtualHip(), m_AvatarBody.GetVirtualNeck()
-          , ref animator, ref m_AvatarBody);
+            body.GetVirtualHip(), body.GetVirtualNeck()
+          , ref animator, ref body);
         hipsTwist = new CalibrationData( 
             HumanBodyBones.Hips, HumanBodyBones.Hips,
-            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref m_AvatarBody);
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref body);
         chest = new CalibrationData(
             HumanBodyBones.Chest, HumanBodyBones.Chest,
-            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref m_AvatarBody);
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref body);
         head = new CalibrationData(
             HumanBodyBones.Neck, HumanBodyBones.Head,
-            m_AvatarBody.GetVirtualNeck(), m_AvatarBody.GetVirtualHip(), ref animator, ref m_AvatarBody);
+            body.GetVirtualNeck(), body.GetVirtualHip(), ref animator, ref body);
 
         logger.LogMsg("Avatar::Calibrate | Finished Calibration");
         SetIsCalibrated(true);
@@ -227,8 +224,9 @@ public class Avatar : MonoBehaviour
     private void AddCalibration(HumanBodyBones parent, HumanBodyBones child,
         Landmark trackParent, Landmark trackChild)
     {
+        AvatarBody body = GetBody();
         CalibrationData data = new(parent, child,
-                trackParent, trackChild, ref animator, ref m_AvatarBody);
+                trackParent, trackChild, ref animator, ref body);
         parentCalibrationData.Add(parent, data);
     }
 
