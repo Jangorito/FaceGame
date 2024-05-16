@@ -12,16 +12,11 @@ public class ModelSimilarityChecker : MonoBehaviour
     private Transform[] BrokenPuppetBones;
     private Vector3[] PuppetVectors = new Vector3[65];
     private Vector3[] GhostVectors = new Vector3[65];
-    private static bool GameEnd = false;
     bool Successful;
     public static PlayModeStateChange state;
     public TextMeshProUGUI pointsText;
     public TextMeshProUGUI PercentageMatchText;
     public int points = 0;
-
-    // Int to tell what Model that instance is
-    private static int instances = 0;
-    private int instance;
 
     // The Offset between the unmoved BrokenPuppet and the GhostAvatar
     Vector3 modelOffset;
@@ -30,20 +25,17 @@ public class ModelSimilarityChecker : MonoBehaviour
     Logger logger;
 
     // Flags if should output debugging info
-    public bool bShouldDebug;
+    public bool bShouldDebug = true;
 
     // Start is called before the first frame update
     private void Start()
     {
+        pointsText = BrokenPuppet.getAvatarFactory().getPoints(BrokenPuppet.getClientID());
+        PercentageMatchText = BrokenPuppet.getAvatarFactory().getMatch(BrokenPuppet.getClientID());
+
         logger = new Logger(bShouldDebug);
-
-        // Player Number
-        instance = ++instances;
-
-        BrokenPuppet = getPuppetAvatar();
         GhostAvatar = getShadowAvatar();
         Successful = false;
-        //StartCoroutine(Coroutine());
         StartTimer();
         logger.LogMsg("ModelSimilarityChecker::Start | Is Successful + " + Successful.ToString());
 
@@ -103,11 +95,14 @@ public class ModelSimilarityChecker : MonoBehaviour
             return;
         }
 
+        // Will stop the Avatar from checking before it is calibrated
+        if (!BrokenPuppet.IsCalibrated())
+            return;
+
         if (!Successful) // Only check models if the round is not successful
         {
             Vector3 puppetPosition = BrokenPuppet.transform.position;
             Vector3 ghostPosition = GhostAvatar.transform.position;
-            //Debug.Log("********" + puppetPosition + " " + ghostPosition);
 
             //Gets the puppets bones
             BrokenPuppetBones = BrokenPuppet.GetComponentInChildren<SkinnedMeshRenderer>().bones;
@@ -136,10 +131,10 @@ public class ModelSimilarityChecker : MonoBehaviour
             // Calculate percentage match
             float percentageMatch = Mathf.Clamp01(1f - normalizedDifference) * 100f;
 
-            PercentageMatchText.text = percentageMatch.ToString() + "Player " + instance + ": " + percentageMatch + "% Match\n";
+            PercentageMatchText.text = percentageMatch.ToString("0.00") + "% Match\n";
 
-            logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + instance + ": " + percentageMatch + "%");
-            BrokenPuppet.StopAvatarMoving = true;
+            logger.LogMsg("ModelSimilarityChecker::Update | Percentage Match for " + BrokenPuppet.getClientID() + ": " + percentageMatch + "%");
+            BrokenPuppet.SetShouldMove(false);
             NextLevelTimer(); // Starts timer for next level
             return;
         }
@@ -179,15 +174,6 @@ public class ModelSimilarityChecker : MonoBehaviour
         return avatar;
     }
 
-    //Gets the puppet avatar the user is manipulating
-    private Avatar getPuppetAvatar()
-    {
-        Avatar avatar = FindObjectOfType<Avatar>();
-        if (avatar == null)
-            logger.LogError("ModelSimilarityChecker::getPuppetAvatar | Could not find an Avatar in the scene");
-        return avatar;
-    }
-
     Vector3 getOffset(Vector3 from, Vector3 to) {
         return to - from;
     }
@@ -205,13 +191,13 @@ public class ModelSimilarityChecker : MonoBehaviour
 
             // Takes the distance between the puppet and ghost in terms of vectors
             float distance = Vector3.Distance(adjustedPuppetPosition, adjustedGhostPosition);
-
             // Checks if every bone is <0.1 units away from the corresponding ghost one
             if (distance > 2.6)
-                return false;
+                continue;
+               // return false;
         }
         points += 5;
-        pointsText.text = $"Points: {(int)points}";
+        pointsText.text = "Points: " + points;
         return true;
     }
 }

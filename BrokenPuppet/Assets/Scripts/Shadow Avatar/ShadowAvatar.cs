@@ -8,8 +8,7 @@ public class ShadowAvatar : MonoBehaviour
 
     public Animator shadowBody;
 
-    public GameObject PlayerOne;
-    public GameObject PlayerTwo;
+    public AvatarFactory avatarFactory;
 
     private Avatar P1;
     private Avatar P2;
@@ -17,8 +16,6 @@ public class ShadowAvatar : MonoBehaviour
     public Transform[] boneTransforms;
     public Quaternion[] minRotations;
     public Quaternion[] maxRotations;
-
-    
 
     public GameObject nextLevel;
     public GameObject gameLevel;
@@ -54,14 +51,14 @@ public class ShadowAvatar : MonoBehaviour
         logger.LogMsg("ShadowAvatar::Start");
 
         // Find Valid Player 1 Avatar Script
-        P1 = PlayerOne.GetComponent<Avatar>();
+        P1 = avatarFactory.getPlayerOne().GetComponent<Avatar>();
         if (P1 == null) {
             logger.LogMsg("ShadowAvatar::Start | PlayerOne Object Does not contain Avatar Component");
             return;
         }
 
         // Find valid Player 2 Avatar script
-        P2 = PlayerTwo.GetComponent<Avatar>();
+        P2 = avatarFactory.getPlayerTwo().GetComponent<Avatar>();
         if (P2 == null) {
             logger.LogMsg("ShadowAvatar::Start | PlayerTwo Object does not contain Avatar Component");
             return;
@@ -79,17 +76,19 @@ public class ShadowAvatar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // Do nothing if no players
         if (!m_bHasPlayers)
             return;
 
-        if (P1.IsCalibrated() && P2.IsCalibrated())
+        if (P1.GetIsBroken() && P2.GetIsBroken())
             if (!m_bIsInPose)
                 assumePose();
 
     }
 
     void assumePose() {
+        Debug.Log("ShadowAvatar::assumePose");
         m_bIsInPose = true;
         UpdateShadow();
     }
@@ -218,8 +217,6 @@ public class ShadowAvatar : MonoBehaviour
         }
     }
 
-
-
     void GenerateRandomPose()
     {
         // Loop through all bones
@@ -252,7 +249,6 @@ public class ShadowAvatar : MonoBehaviour
     }
 
     public void SetShadowAvatarStatus(bool val) {
-        logger.LogMsg("ShadowAvatar::setShadowAvatarStatus | Shadow now ready");
         isShadowReady = val;
     }
 
@@ -260,7 +256,6 @@ public class ShadowAvatar : MonoBehaviour
 
     public void UpdateShadow()
     {
-        logger.LogMsg("ShadowAvatar::UpdateShadow");
         SelectRandomBones();
         InitializeRotationLimits();
         GenerateRandomPose();

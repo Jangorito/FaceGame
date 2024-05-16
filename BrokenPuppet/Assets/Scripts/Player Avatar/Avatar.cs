@@ -9,15 +9,15 @@ using static Landmarks;
 public class Avatar : MonoBehaviour
 {
 
+    private AvatarFactory mother;
+
     public int iClientID;
 
     // The reference to the animator controlling the Avatar transforms
     public Animator animator;
 
     // The reference to the input data
-    public GameObject Receiver;
     private Receiver receiver;
-    private AvatarBody m_AvatarBody;
 
     /** mappings for Bones and its the landmarks it is following */
     public Dictionary<HumanBodyBones, CalibrationData> parentCalibrationData =  new();
@@ -39,25 +39,28 @@ public class Avatar : MonoBehaviour
     // Flags if the avatar is calibrated
     private bool bIsCalibrating = false;
 
+    // Is the Movement broken
+    private bool m_bIsBroken = false;
+
     // frequency at which the avatar checks for data on the server
     private const float WAIT_FOR = 2.0f;
 
     // Flags if script should output debugging info
-    public bool shouldDebug = false;
+    private bool shouldDebug = true;
 
     private Quaternion[] initialRotations;
+
+    public bool bShouldMove = true;
 
     // Used to display debugging info
     Logger logger;
 
-    // TODO: separate the shadow implementation from Avatar
-    public ShadowAvatar shadow;
-
     private void Awake()
     {
-        logger = new(shouldDebug);
+        mother = FindObjectOfType<AvatarFactory>();
 
-        receiver = Receiver.GetComponent<Receiver>();
+        logger = new(shouldDebug);
+        receiver = FindObjectOfType<Receiver>();
         if (receiver == null) {
             logger.LogError("Avatar::Awake | Invalid Receiver GameObject found");
             enabled = false;
@@ -74,15 +77,13 @@ public class Avatar : MonoBehaviour
         initialPosition = transform.position;
     }
 
+    private AvatarBody GetBody()
+    {
+        return receiver.GetBody(iClientID);
+    }
+
     private void Start()
     {
-
-        m_AvatarBody = receiver.GetBody(iClientID);
-        if (m_AvatarBody == null) {
-            logger.LogError("Avatar::Awake | Invalid AvatarBody received from receiver");
-            enabled = false;
-            return;
-        }
 
         initialRotations = new Quaternion[(int)HumanBodyBones.LastBone];
         for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) {
@@ -99,7 +100,7 @@ public class Avatar : MonoBehaviour
         return animator.GetBoneTransform(bone);
     }
 
-    private int getClient() { return iClientID; }
+    public int getClientID() { return iClientID; }
 
     public void change_calibrations(Dictionary<HumanBodyBones, CalibrationData> movement) {
         parentCalibrationData = movement;
@@ -126,16 +127,14 @@ public class Avatar : MonoBehaviour
         animator.GetBoneTransform(bone).rotation = deltaRotation;
     }
 
-    public AvatarBody getAvatarBody() { return m_AvatarBody; }
-
-    public Boolean StopAvatarMoving = false;
+    public void SetShouldMove(bool val) { bShouldMove = val; }
 
     void Update()
     {
         // Do nothing if not connected
-        if (!getAvatarBody().IsConnected())
+        if (!GetBody().IsConnected())
             return;
-
+        Debug.Log("Connected");
         // Do nothing if currently calibrating
         if (IsCalibrating())
             return;
@@ -149,64 +148,18 @@ public class Avatar : MonoBehaviour
         // Allows player to re-calibrate the avatar
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // Move Avatar back into T-pose
-            resetAvatar();
-
-            SetIsCalibrated(false);
-
-            // Calibrate the Avatar
-            StartCoroutine(Calibrate());
+           if (iClientID == 0)
+                mother.resetPlayerOne();
+           else
+                mother.resetPlayerTwo();
         }
 
+        if (!bShouldMove)
+            return;
         // Moves each joint in the Calibration Data
         foreach (var i in parentCalibrationData)
         {
            updateBoneTransform(i.Key, i.Value);
-        }
-
-        // Moves the head, hips, and spine to match movement in body
-
-        /* calculate new rotations */
-        Quaternion headr = Quaternion.FromToRotation(head.initialDirection, head.getCurrentDirection());
-        Quaternion twist = Quaternion.FromToRotation(hipsTwist.initialDirection,
-            Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f));
-        Quaternion updown = Quaternion.FromToRotation(spineUpDown.initialDirection,
-            Vector3.Slerp(spineUpDown.initialDirection, spineUpDown.getCurrentDirection(), .25f));
-
-        // Compute the final rotations.
-        Quaternion h = updown * updown * updown * twist * twist;
-        Quaternion s = h * twist * updown;
-        Quaternion c = s * twist * twist;
-        float speed = 15f;
-        hipsTwist.Tick(h * hipsTwist.initialRotation, speed);
-        spineUpDown.Tick(s * spineUpDown.initialRotation, speed);
-        chest.Tick(c * chest.initialRotation, speed);
-        head.Tick(updown * twist * headr * head.initialRotation, speed);
-
-        // For additional responsiveness, we rotate the entire transform slightly based on the hips.
-        Vector3 d = Vector3.Slerp(hipsTwist.initialDirection, hipsTwist.getCurrentDirection(), .25f);
-        d.y *= 0.5f;
-        Quaternion deltaRotTracked = Quaternion.FromToRotation(hipsTwist.initialDirection, d);
-        targetRot = deltaRotTracked * initialRotation;
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * speed);
-        if (StopAvatarMoving)
-        {
-            return;
-        }
-    }
-
-    /* returns the avatar to the base pose */
-    public void resetAvatar()
-    {
-        logger.LogMsg("Avatar::resetAvatar | resetting avatar");
-        transform.rotation = initialRotation;
-        hipsTwist.reset(ref animator);
-        spineUpDown.reset(ref animator);
-        chest.reset(ref animator);
-        head.reset(ref animator);
-        foreach (var i in parentCalibrationData)
-        {
-            i.Value.reset(ref animator);
         }
     }
 
@@ -233,28 +186,30 @@ public class Avatar : MonoBehaviour
         // ==== CALIBRATIONS ====
 
         AddPoseCalibrations();
-        //AddLeftHandCalibrations();
-        //AddRightHandCalibrations();
-        
 
         /* Manually define neck and hip connections */
+        AvatarBody body = GetBody();
         spineUpDown = new CalibrationData(
             HumanBodyBones.Spine, HumanBodyBones.Neck,
-            m_AvatarBody.GetVirtualHip(), m_AvatarBody.GetVirtualNeck()
-          , ref animator, ref m_AvatarBody);
+            body.GetVirtualHip(), body.GetVirtualNeck()
+          , ref animator, ref body);
         hipsTwist = new CalibrationData( 
             HumanBodyBones.Hips, HumanBodyBones.Hips,
-            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref m_AvatarBody);
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref body);
         chest = new CalibrationData(
             HumanBodyBones.Chest, HumanBodyBones.Chest,
-            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref m_AvatarBody);
+            Landmark.RIGHT_HIP, Landmark.LEFT_HIP, ref animator, ref body);
         head = new CalibrationData(
             HumanBodyBones.Neck, HumanBodyBones.Head,
-            m_AvatarBody.GetVirtualNeck(), m_AvatarBody.GetVirtualHip(), ref animator, ref m_AvatarBody);
+            body.GetVirtualNeck(), body.GetVirtualHip(), ref animator, ref body);
 
         logger.LogMsg("Avatar::Calibrate | Finished Calibration");
         SetIsCalibrated(true);
         SetIsCalibrating(false);
+    }
+
+    public AvatarFactory getAvatarFactory() {
+        return mother;
     }
 
     private void SetIsCalibrated(bool val) { bIsCalibrated = val; }
@@ -263,11 +218,15 @@ public class Avatar : MonoBehaviour
     private void SetIsCalibrating(bool val) { bIsCalibrating = val; }
     private bool IsCalibrating() { return bIsCalibrating; } 
 
+    public bool GetIsBroken() { return m_bIsBroken; }
+    public void SetIsBroken(bool val) { m_bIsBroken = val; }
+
     private void AddCalibration(HumanBodyBones parent, HumanBodyBones child,
         Landmark trackParent, Landmark trackChild)
     {
+        AvatarBody body = GetBody();
         CalibrationData data = new(parent, child,
-                trackParent, trackChild, ref animator, ref m_AvatarBody);
+                trackParent, trackChild, ref animator, ref body);
         parentCalibrationData.Add(parent, data);
     }
 
