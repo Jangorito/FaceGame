@@ -17,7 +17,9 @@ public class Cursor : MonoBehaviour
 
     /* requests the position of the hand */
     public Vector3 GetCursor() {
-        return avatar.getBoneTransform(HumanBodyBones.LeftHand).position;
+        Vector3 pos = avatar.getBoneTransform(HumanBodyBones.LeftHand).position;
+        Debug.Log("Hand position: " + pos);
+        return pos;
     }
 
     public Boolean isCursorNear(Vector3 cursor) {

@@ -77,6 +77,10 @@ public class RunPythonOnPlay
                     DebugLog("Python script terminated.");
                 }
             }
+            else
+            {
+                DebugLog("Python script is not running or has already exited.");
+            }
         }
     }
 }

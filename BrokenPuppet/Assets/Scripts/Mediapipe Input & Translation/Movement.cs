@@ -5,6 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+// using System.TimeSpan;
+
+
 
 public class Movement : MonoBehaviour
 {
@@ -18,10 +21,12 @@ public class Movement : MonoBehaviour
     // The Class containing the actual mediapipe input
     private AvatarBody inputData;
 
-    private Transform targetLandmark;
+    private Transform targetLandmark; // the right wrist landmark
 
-    private RectTransform rectangleTransform;
+    private RectTransform rectangleTransform; // RectTransform of the UI element to move
     public float cursorSpeed = 5f; // Adjust cursor speed as needed
+
+    private int timeoutCounter = 0; // Counter for timeout handling
 
     public bool bShouldDebug = true;
     Logger logger;
@@ -35,7 +40,8 @@ public class Movement : MonoBehaviour
     {
 
         receiver = Receiver.GetComponent<Receiver>();
-        if (receiver == null) {
+        if (receiver == null)
+        {
             logger.LogError("Receiver GameObject does not contain Receiver script");
             enabled = false;
             return;
@@ -46,17 +52,46 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
+        timeoutCounter++;
         targetLandmark = inputData.GetLandmark(Landmark.RIGHT_WRIST);
-        Vector2 updatedPosition = new Vector2(
-            (targetLandmark.position.x * Screen.width)-1200,
-            (targetLandmark.position.y * Screen.height)+500
-            );
+        if (targetLandmark.position.x == 0){
+            // If the target landmark is not set or has no valid position, skip the update
+            logger.LogMsg("Target landmark position is invalid, skipping update.");
+            return;
+        }
 
-        updatedPosition.x = Mathf.Clamp(updatedPosition.x, -500, 500);
-        updatedPosition.y = Mathf.Clamp(updatedPosition.y, -270, 270);
+        // Vector2 updatedPosition = new Vector2(
+        //     (targetLandmark.position.x * Screen.width)-672, // 672 is the width of the screen, value used to be 1200
+        //     (targetLandmark.position.y * Screen.height)+489 // 489 is the height of the screen, value used to be 500
+        //     ); // 
 
-        Vector2 newPosition=  Vector2.Lerp(
-            rectangleTransform.anchoredPosition, updatedPosition, 
+        // updatedPosition.x = Mathf.Clamp(updatedPosition.x, -500, 500);
+        // updatedPosition.y = Mathf.Clamp(updatedPosition.y, -270, 270);
+
+
+        // Map normalized [0,1] to anchoredPosition with (0,0) at center
+        float x = (targetLandmark.position.x) * Screen.width;
+        float y = (targetLandmark.position.y) * Screen.height;
+        Vector2 updatedPosition = new Vector2(x, y);
+
+
+        // Optional: Clamp to keep cursor within visible area
+        updatedPosition.x = Mathf.Clamp(updatedPosition.x, -Screen.width / 2f, Screen.width / 2f);
+        updatedPosition.y = Mathf.Clamp(updatedPosition.y, -Screen.height / 2f, Screen.height / 2f);
+
+        // Log the updated position for debugging
+        if (timeoutCounter % 100 == 0) // Log every 50 frames
+        {
+            logger.LogMsg($"Target Landmark Position: {targetLandmark.position} (x: {x}, y: {y})\n" +
+                          $"Updated Position after Clamp: {updatedPosition}\n" +
+                          $"Screen Size: {Screen.width}x{Screen.height}");
+        } else {
+            return; 
+        }
+
+
+        Vector2 newPosition = Vector2.Lerp(
+            rectangleTransform.anchoredPosition, updatedPosition,
             Time.deltaTime * cursorSpeed
             );
         rectangleTransform.anchoredPosition = newPosition;
