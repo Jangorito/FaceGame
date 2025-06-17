@@ -8,6 +8,7 @@ public class RunPythonOnPlay
     private static Process pythonProcess;
     private static bool debugMode = false; // Set to true for debug messages, false to disable
 
+    
     static RunPythonOnPlay()
     {
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;

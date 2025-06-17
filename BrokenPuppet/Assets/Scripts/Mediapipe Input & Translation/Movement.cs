@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-// using System.TimeSpan;
 
 
 
@@ -56,7 +55,12 @@ public class Movement : MonoBehaviour
         targetLandmark = inputData.GetLandmark(Landmark.RIGHT_WRIST);
         if (targetLandmark.position.x == 0){
             // If the target landmark is not set or has no valid position, skip the update
-            logger.LogMsg("Target landmark position is invalid, skipping update.");
+            if (timeoutCounter == 1)
+            {
+                logger.LogMsg("Target landmark position is invalid, skipping update.");
+            }
+            // logger.LogMsg("Target landmark position is invalid, skipping update.");
+            // Debug.Log("Target landmark position is invalid, skipping update.");
             return;
         }
 
@@ -70,9 +74,9 @@ public class Movement : MonoBehaviour
 
 
         // Map normalized [0,1] to anchoredPosition with (0,0) at center
-        float x = (targetLandmark.position.x) * Screen.width;
-        float y = (targetLandmark.position.y) * Screen.height;
-        Vector2 updatedPosition = new Vector2(x, y);
+        float x = targetLandmark.position.x * Screen.width;
+        float y = (targetLandmark.position.y + 0.5f) * Screen.height;
+        Vector2 updatedPosition = new Vector2(x, -y);
 
 
         // Optional: Clamp to keep cursor within visible area
@@ -80,15 +84,12 @@ public class Movement : MonoBehaviour
         updatedPosition.y = Mathf.Clamp(updatedPosition.y, -Screen.height / 2f, Screen.height / 2f);
 
         // Log the updated position for debugging
-        if (timeoutCounter % 100 == 0) // Log every 50 frames
+        if (timeoutCounter % 333 == 0) // Log every 333 frames
         {
             logger.LogMsg($"Target Landmark Position: {targetLandmark.position} (x: {x}, y: {y})\n" +
                           $"Updated Position after Clamp: {updatedPosition}\n" +
                           $"Screen Size: {Screen.width}x{Screen.height}");
-        } else {
-            return; 
-        }
-
+        } 
 
         Vector2 newPosition = Vector2.Lerp(
             rectangleTransform.anchoredPosition, updatedPosition,

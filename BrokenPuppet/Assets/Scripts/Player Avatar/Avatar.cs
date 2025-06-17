@@ -86,14 +86,14 @@ public class Avatar : MonoBehaviour
     {
 
         initialRotations = new Quaternion[(int)HumanBodyBones.LastBone];
-        for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) {
+        for (int i = 0; i < (int)HumanBodyBones.LastBone; i++) { 
             if (animator.GetBoneTransform((HumanBodyBones)i) != null) {
                 initialRotations[i] = animator.GetBoneTransform((HumanBodyBones)i).localRotation;
             }
             else {
                 initialRotations[i] = Quaternion.identity;
             }
-        }
+        } // Store initial rotations of all bones
     }
 
     public Transform getBoneTransform(HumanBodyBones bone) {
