@@ -163,6 +163,7 @@ class CaptureThread(threading.Thread):
             self.cap.set(cv2.CAP_PROP_FPS, global_vars.FPS)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, global_vars.WIDTH)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, global_vars.HEIGHT)
+
 #Thread for the processing of landmarks
 class BodyThread(threading.Thread):
     data = ""
@@ -170,20 +171,28 @@ class BodyThread(threading.Thread):
     timeSinceCheckedConnection = 0
     #Function that handeles run procedure (main function equivelant)
     def run(self):
+        
+        
         # Import necessary modules from the Mediapipe library
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
-        mp_holistic = mp.solutions.holistic
+        mp_holistic = mp.solutions.holistic # Holistic model for body landmarks 
         self.CustomLandmarksAndConnections(mp_drawing_styles)
+        
+        
         # Start the CaptureThread to capture video frames
         capture = CaptureThread()
         capture.start()
+        
+        
         # Create a Mediapipe Holistic instance for processing body landmarks
         with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.5, refine_face_landmarks = False) as holistic:
+            
             # Wait until the camera is running before starting body landmark processing
             self.WaitForCamera(capture)
             if global_vars.DEBUG:
                 print("Beginning capture")
+            
             # Process body landmarks while the camera is open
             while not global_vars.KILL_THREADS and capture.cap.isOpened():
                 image = capture.frame
@@ -194,20 +203,28 @@ class BodyThread(threading.Thread):
                 self.RemoveHandLandmarks(mp_holistic, results)
                 self.RemovePoseFaceLandmarks(mp_holistic, results)
                 image.flags.writeable = True
+                
+                
                 # Draw landmarks on the image
                 self.DrawFaceLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawPoseLandmarks(mp_drawing, mp_drawing_styles, image, results)
                 self.DrawCustomPoseLandmarks(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawLeftHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
                 self.DrawRightHandLandmarksAndConnections(mp_drawing, mp_drawing_styles, mp_holistic, image, results)
+                
+                
                 # Display the annotated image
                 if global_vars.SPOUT_ON == True:
                     self.send(image)
                 if global_vars.SPOUT_ONLY == False:
                     cv2.imshow('MediaPipe Holistic', image)
+                
+                
                 # Break the loop if the 'Esc' key is pressed
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
+                
+                
                 # Debugging and communication with Unity project
                 if global_vars.DEBUG:
                     print(time.time() - self.timeSinceCheckedConnection)
@@ -237,6 +254,8 @@ class BodyThread(threading.Thread):
         # Release the video capture when done
         capture.cap.release()
         cv2.destroyAllWindows()
+    
+    
     #Function for removing the hand landmarks not in the subset
     def RemoveHandLandmarks(self, mp_holistic, results):
         if results.pose_landmarks:
@@ -246,6 +265,8 @@ class BodyThread(threading.Thread):
             results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_PINKY].visibility = 0.0
             results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_THUMB].visibility = 0.0
             results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].visibility = 0.0
+   
+   
     #Function for removing face hand landmarks not in the subset
     def RemovePoseFaceLandmarks(self, mp_holistic, results):
         if results.pose_landmarks:
@@ -260,6 +281,8 @@ class BodyThread(threading.Thread):
             results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EAR].visibility = 0.0
             results.pose_landmarks.landmark[mp_holistic.PoseLandmark.MOUTH_LEFT].visibility = 0.0
             results.pose_landmarks.landmark[mp_holistic.PoseLandmark.MOUTH_RIGHT].visibility = 0.0
+    
+    
     #Function for setting the custom landmarks to be displayed in webcam raw image data
     def CustomLandmarksAndConnections(self, mp_drawing_styles):
         hand_landmarks = mp_drawing_styles.get_default_hand_landmarks_style()
@@ -268,11 +291,15 @@ class BodyThread(threading.Thread):
         hand_landmark_indices = [landmark.value for landmark in hand_landmarks]
         # Remove hand landmarks from custom style
         custom_style = {landmark: style for landmark, style in custom_style.items() if landmark not in hand_landmark_indices}
+    
+    
     #Function for waiting for the camera to initialise
     def WaitForCamera(self, capture):
         while not global_vars.KILL_THREADS and capture.isRunning == False:
             print("Waiting for camera and capture thread.")
             time.sleep(0.5)
+   
+   
     #Function for collecting the right hand landmarks and adding them to data to be sent 
     def CollateRightHandLandmarks(self, results):
         if results.right_hand_landmarks:
@@ -282,6 +309,8 @@ class BodyThread(threading.Thread):
                                 "RH", i, right_hand_landmarks.landmark[i].x,
                                 right_hand_landmarks.landmark[i].y,
                                 right_hand_landmarks.landmark[i].z))
+    
+    
     #Function for collecting the left hand landmarks and adding them to data to be sent 
     def CollateLeftHandLandmarks(self, results):
         if results.left_hand_landmarks:
@@ -291,6 +320,8 @@ class BodyThread(threading.Thread):
                                 "LH", i, left_hand_landmarks.landmark[i].x,
                                 left_hand_landmarks.landmark[i].y,
                                 left_hand_landmarks.landmark[i].z))
+    
+    
     #Function for collecting the facial landmarks and adding them to data to be sent 
     def CollateFaceLandmarks(self, results):
         if  results.face_landmarks:
@@ -300,6 +331,8 @@ class BodyThread(threading.Thread):
                     continue
                  self.data +=("{}|{}|{}|{}|{}\n".format("FL", i, face_landmarks.landmark[i].x, face_landmarks.landmark[i].y, face_landmarks.landmark[i].z))
                                     # FL = Face Landmarks
+    
+    
     #Function for collecting the pose (body) landmarks and adding them to data to be sent 
     def CollatePoseLandmarks(self, results):
         if results.pose_world_landmarks:
@@ -310,6 +343,8 @@ class BodyThread(threading.Thread):
                self.data +=("{}|{}|{}|{}|{}\n".format("PL", i, hand_world_landmarks.landmark[i].x, # PL = Pose Landmarks
                                                                     hand_world_landmarks.landmark[i].y,
                                                                     hand_world_landmarks.landmark[i].z))
+    
+    
     #Function for drawing the right hand on the mediapipe image 
     def DrawRightHandLandmarksAndConnections(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
         mp_drawing.draw_landmarks(
@@ -318,6 +353,8 @@ class BodyThread(threading.Thread):
                     mp_holistic.HAND_CONNECTIONS,
                     landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
                     connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
+   
+    
     #Function for drawing the left hand on the mediapipe image 
     def DrawLeftHandLandmarksAndConnections(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
         mp_drawing.draw_landmarks(
@@ -326,6 +363,8 @@ class BodyThread(threading.Thread):
                     mp_holistic.HAND_CONNECTIONS,
                     landmark_drawing_spec=mp_drawing_styles.get_default_hand_landmarks_style(),
                     connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
+    
+    
     #Function for drawing the pose (body) on the mediapipe image
     def DrawPoseLandmarks(self, mp_drawing, mp_drawing_styles, image, results):
         mp_drawing.draw_landmarks(
@@ -333,6 +372,8 @@ class BodyThread(threading.Thread):
                     results.pose_landmarks,
                     connections = custom_connections,
                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())  
+    
+    
     #Function for drawing the custom pose (body) on the mediapipe image
     def DrawCustomPoseLandmarks(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
         custom_connections2 = [
@@ -344,6 +385,8 @@ class BodyThread(threading.Thread):
                         results.pose_landmarks,
                         connections = custom_connections2,
                         connection_drawing_spec=mp_drawing_styles.get_default_hand_connections_style())
+    
+    
     #Function for drawing the custom face on the mediapipe image
     def DrawFaceLandmarks(self, mp_drawing, mp_drawing_styles, mp_holistic, image, results):
         drawing_spec = mp_drawing.DrawingSpec(color = (0, 0, 255), thickness = 1, circle_radius = 1)
@@ -363,6 +406,8 @@ class BodyThread(threading.Thread):
                     results.face_landmarks,
                     connections = custom_face_connections,
                     landmark_drawing_spec=drawing_spec)
+    
+    
     #Function for sending the OSC data for the raw Image webcam data
     def send(self, image):
         # Set up OSC client

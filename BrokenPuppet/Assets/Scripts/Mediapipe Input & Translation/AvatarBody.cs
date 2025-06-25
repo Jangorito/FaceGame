@@ -6,7 +6,7 @@ using extOSC;
 using System.Text;
 
 public class AvatarBody
-{
+{ // 
 
     public int m_iClientID = -1;
 
@@ -34,7 +34,7 @@ public class AvatarBody
         m_VirtualHip = vhip.transform;
     }
 
-    public Transform GetLandmark(Landmark mark) {
+    public Transform GetLandmark(Landmark mark) { //
         return m_Body.instances[(int)mark].transform;
     }
 
