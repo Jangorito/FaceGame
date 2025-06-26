@@ -9,6 +9,7 @@ from pythonosc import udp_client
 
 # --- Part 1: OSC and MediaPipe Setup ---
 
+print("Starting MediaPipe FaceLandmarker with OSC...")
 # Lock and a global variable to store the latest result
 lock = Lock()
 latest_result = None
@@ -92,6 +93,7 @@ def draw_landmarks_on_frame(frame, detection_result):
     return annotated_image
 
 def wait_for_camera(cap, timeout=10):
+    print("Waiting for camera to open...")
     """Waits until the camera is opened or until timeout (in seconds) is reached."""
     start_time = time.time()
     while not cap.isOpened():
@@ -102,7 +104,13 @@ def wait_for_camera(cap, timeout=10):
     print("Camera is open and ready.")
 
 # MediaPipe FaceLandmarker setup
+
+print("Setting up MediaPipe FaceLandmarker...")
+
 model_path = "face_landmarker.task"
+
+print (f"Using model at: {model_path}, if blank model_path is broken")
+
 BaseOptions = mp.tasks.python.BaseOptions
 FaceLandmarker = mp.tasks.vision.FaceLandmarker
 FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
@@ -118,46 +126,49 @@ options = FaceLandmarkerOptions(
 )
 
 # --- Part 2: Main Loop ---
+print("Before creating landmarker")
+try:
+    with FaceLandmarker.create_from_options(options) as landmarker:
+        print("FaceLandmarker initialized successfully.")
+        cap = cv2.VideoCapture(0)
+        wait_for_camera(cap)
+        frame_timestamp_ms = 0
 
-# The landmarker is created within a 'with' block to ensure resources are managed
-with FaceLandmarker.create_from_options(options) as landmarker:
-    cap = cv2.VideoCapture(0)
-    wait_for_camera(cap)
-    frame_timestamp_ms = 0
+        try:
+            while cap.isOpened():
+                ret, frame = cap.read()
+                if not ret:
+                    break
 
-    try:
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
+                # Flip the frame horizontally for a mirror effect
+                image = cv2.flip(image, 1)
 
-            # Flip the frame horizontally for a mirror effect
-            image = cv2.flip(image, 1)
+                # Convert the frame to a MediaPipe Image object.
+                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                
+                # Calculate the timestamp for the current frame
+                frame_timestamp_ms = int(time.time() * 1000)
 
-            # Convert the frame to a MediaPipe Image object.
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            
-            # Calculate the timestamp for the current frame
-            frame_timestamp_ms = int(time.time() * 1000)
-
-            # Call detect_async to process the frame. The result will be sent to our 'process_result' function.
-            landmarker.detect_async(mp_image, frame_timestamp_ms)
+                # Call detect_async to process the frame. The result will be sent to our 'process_result' function.
+                landmarker.detect_async(mp_image, frame_timestamp_ms)
 
 
-            # Create a local copy of the frame to draw on
-            annotated_frame = frame.copy()
-            
-            # Get the latest result from the callback
-            with lock:
-                if latest_result is not None:
-                    # Draw the landmarks on the frame
-                    annotated_frame = draw_landmarks_on_frame(annotated_frame, latest_result)
+                # Create a local copy of the frame to draw on
+                annotated_frame = frame.copy()
+                
+                # Get the latest result from the callback
+                with lock:
+                    if latest_result is not None:
+                        # Draw the landmarks on the frame
+                        annotated_frame = draw_landmarks_on_frame(annotated_frame, latest_result)
 
-            # Display the frame for debugging
-            cv2.imshow("FaceLandmarker", annotated_frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                # Display the frame for debugging
+                cv2.imshow("FaceLandmarker", annotated_frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
-    finally:
-        cap.release()
-        cv2.destroyAllWindows()
+        finally:
+            cap.release()
+            cv2.destroyAllWindows()
+except Exception as e:
+    print("Failed to initialize FaceLandmarker:", e)
