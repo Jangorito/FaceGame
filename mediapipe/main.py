@@ -41,9 +41,11 @@ receiver_thread.start()
 # Create and start broadcast thread
 broadcast_thread = threading.Thread(target=run_broadcast)
 broadcast_thread.start()
+
 # Start body thread (mediapipe camera thread)
 thread = BodyThread()
 thread.start()
+
 #exit code
 # Wait for input to exit
 i = input("Press Enter to exit...\n")
