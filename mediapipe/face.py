@@ -111,10 +111,15 @@ model_path = "face_landmarker.task"
 
 print (f"Using model at: {model_path}, if blank model_path is broken")
 
-BaseOptions = mp.tasks.python.BaseOptions
-FaceLandmarker = mp.tasks.vision.FaceLandmarker
-FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
-VisionRunningMode = mp.tasks.vision.RunningMode
+try:
+    BaseOptions = mp.tasks.BaseOptions
+    FaceLandmarker = mp.tasks.vision.FaceLandmarker
+    FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
+    VisionRunningMode = mp.tasks.vision.RunningMode
+except Exception as e:
+    print("FAILED DURING IMPORT:", e)
+    import sys
+    sys.exit(1)
 
 options = FaceLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=model_path),
@@ -141,7 +146,7 @@ try:
                     break
 
                 # Flip the frame horizontally for a mirror effect
-                image = cv2.flip(image, 1)
+                frame = cv2.flip(frame, 1)
 
                 # Convert the frame to a MediaPipe Image object.
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
