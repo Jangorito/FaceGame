@@ -157,7 +157,6 @@ try:
                 # Call detect_async to process the frame. The result will be sent to our 'process_result' function.
                 landmarker.detect_async(mp_image, frame_timestamp_ms)
 
-
                 # Create a local copy of the frame to draw on
                 annotated_frame = frame.copy()
                 
