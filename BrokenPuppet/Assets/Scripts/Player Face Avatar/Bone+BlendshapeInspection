@@ -1,0 +1,234 @@
+--- Model Inspection Results ---
+Model Name: Neutral_M
+--------------------------------
+Found SkinnedMeshRenderer: CC_Base_Body
+Number of Blendshapes: 148
+  [0] V_Open
+  [1] V_Explosive
+  [2] V_Dental_Lip
+  [3] V_Tight_O
+  [4] V_Tight
+  [5] V_Wide
+  [6] V_Affricate
+  [7] V_Lip_Open
+  [8] Brow_Raise_Inner_L
+  [9] Brow_Raise_Inner_R
+  [10] Brow_Raise_Outer_L
+  [11] Brow_Raise_Outer_R
+  [12] Brow_Drop_L
+  [13] Brow_Drop_R
+  [14] Brow_Compress_L
+  [15] Brow_Compress_R
+  [16] Eye_Blink_L
+  [17] Eye_Blink_R
+  [18] Eye_Squint_L
+  [19] Eye_Squint_R
+  [20] Eye_Wide_L
+  [21] Eye_Wide_R
+  [22] Eye_L_Look_L
+  [23] Eye_R_Look_L
+  [24] Eye_L_Look_R
+  [25] Eye_R_Look_R
+  [26] Eye_L_Look_Up
+  [27] Eye_R_Look_Up
+  [28] Eye_L_Look_Down
+  [29] Eye_R_Look_Down
+  [30] Eyelash_Upper_Up_L
+  [31] Eyelash_Upper_Down_L
+  [32] Eyelash_Upper_Up_R
+  [33] Eyelash_Upper_Down_R
+  [34] Eyelash_Lower_Up_L
+  [35] Eyelash_Lower_Down_L
+  [36] Eyelash_Lower_Up_R
+  [37] Eyelash_Lower_Down_R
+  [38] Ear_Up_L
+  [39] Ear_Up_R
+  [40] Ear_Down_L
+  [41] Ear_Down_R
+  [42] Ear_Out_L
+  [43] Ear_Out_R
+  [44] Nose_Sneer_L
+  [45] Nose_Sneer_R
+  [46] Nose_Nostril_Raise_L
+  [47] Nose_Nostril_Raise_R
+  [48] Nose_Nostril_Dilate_L
+  [49] Nose_Nostril_Dilate_R
+  [50] Nose_Crease_L
+  [51] Nose_Crease_R
+  [52] Nose_Nostril_Down_L
+  [53] Nose_Nostril_Down_R
+  [54] Nose_Nostril_In_L
+  [55] Nose_Nostril_In_R
+  [56] Nose_Tip_L
+  [57] Nose_Tip_R
+  [58] Nose_Tip_Up
+  [59] Nose_Tip_Down
+  [60] Cheek_Raise_L
+  [61] Cheek_Raise_R
+  [62] Cheek_Suck_L
+  [63] Cheek_Suck_R
+  [64] Cheek_Puff_L
+  [65] Cheek_Puff_R
+  [66] Mouth_Smile_L
+  [67] Mouth_Smile_R
+  [68] Mouth_Smile_Sharp_L
+  [69] Mouth_Smile_Sharp_R
+  [70] Mouth_Frown_L
+  [71] Mouth_Frown_R
+  [72] Mouth_Stretch_L
+  [73] Mouth_Stretch_R
+  [74] Mouth_Dimple_L
+  [75] Mouth_Dimple_R
+  [76] Mouth_Press_L
+  [77] Mouth_Press_R
+  [78] Mouth_Tighten_L
+  [79] Mouth_Tighten_R
+  [80] Mouth_Blow_L
+  [81] Mouth_Blow_R
+  [82] Mouth_Pucker_Up_L
+  [83] Mouth_Pucker_Up_R
+  [84] Mouth_Pucker_Down_L
+  [85] Mouth_Pucker_Down_R
+  [86] Mouth_Funnel_Up_L
+  [87] Mouth_Funnel_Up_R
+  [88] Mouth_Funnel_Down_L
+  [89] Mouth_Funnel_Down_R
+  [90] Mouth_Roll_In_Upper_L
+  [91] Mouth_Roll_In_Upper_R
+  [92] Mouth_Roll_In_Lower_L
+  [93] Mouth_Roll_In_Lower_R
+  [94] Mouth_Roll_Out_Upper_L
+  [95] Mouth_Roll_Out_Upper_R
+  [96] Mouth_Roll_Out_Lower_L
+  [97] Mouth_Roll_Out_Lower_R
+  [98] Mouth_Push_Upper_L
+  [99] Mouth_Push_Upper_R
+  [100] Mouth_Push_Lower_L
+  [101] Mouth_Push_Lower_R
+  [102] Mouth_Pull_Upper_L
+  [103] Mouth_Pull_Upper_R
+  [104] Mouth_Pull_Lower_L
+  [105] Mouth_Pull_Lower_R
+  [106] Mouth_Up
+  [107] Mouth_Down
+  [108] Mouth_L
+  [109] Mouth_R
+  [110] Mouth_Upper_L
+  [111] Mouth_Upper_R
+  [112] Mouth_Lower_L
+  [113] Mouth_Lower_R
+  [114] Mouth_Shrug_Upper
+  [115] Mouth_Shrug_Lower
+  [116] Mouth_Drop_Upper
+  [117] Mouth_Drop_Lower
+  [118] Mouth_Up_Upper_L
+  [119] Mouth_Up_Upper_R
+  [120] Mouth_Down_Lower_L
+  [121] Mouth_Down_Lower_R
+  [122] Mouth_Chin_Up
+  [123] Mouth_Close
+  [124] Mouth_Contract
+  [125] Tongue_Bulge_L
+  [126] Tongue_Bulge_R
+  [127] Jaw_Open
+  [128] Jaw_Forward
+  [129] Jaw_Backward
+  [130] Jaw_L
+  [131] Jaw_R
+  [132] Jaw_Up
+  [133] Jaw_Down
+  [134] Neck_Swallow_Up
+  [135] Neck_Swallow_Down
+  [136] Neck_Tighten_L
+  [137] Neck_Tighten_R
+  [138] Head_Turn_Up
+  [139] Head_Turn_Down
+  [140] Head_Turn_L
+  [141] Head_Turn_R
+  [142] Head_Tilt_L
+  [143] Head_Tilt_R
+  [144] Head_L
+  [145] Head_R
+  [146] Head_Forward
+  [147] Head_Backward
+--------------------------------
+Bones (Rig) Information:
+  No Animator component found on this GameObject.
+
+  --- Hierarchy Traversal for all Child Transforms ---
+  (These are all GameObjects that could potentially be bones or other mesh parts)
+    - Neutral_M (Path: Neutral_M)
+    - CC_Base_Body (Path: Neutral_M/CC_Base_Body)
+    - CC_Base_BoneRoot (Path: Neutral_M/CC_Base_BoneRoot)
+    - CC_Base_Hip (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip)
+    - CC_Base_Pelvis (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis)
+    - CC_Base_L_Thigh (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh)
+    - CC_Base_L_Calf (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf)
+    - CC_Base_L_CalfTwist01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_CalfTwist01)
+    - CC_Base_L_CalfTwist02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_CalfTwist01/CC_Base_L_CalfTwist02)
+    - CC_Base_L_Foot (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot)
+    - CC_Base_L_ToeBase (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot/CC_Base_L_ToeBase)
+    - CC_Base_L_BigToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot/CC_Base_L_ToeBase/CC_Base_L_BigToe1)
+    - CC_Base_L_IndexToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot/CC_Base_L_ToeBase/CC_Base_L_IndexToe1)
+    - CC_Base_L_MidToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot/CC_Base_L_ToeBase/CC_Base_L_MidToe1)
+    - CC_Base_L_PinkyToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot/CC_Base_L_ToeBase/CC_Base_L_PinkyToe1)
+    - CC_Base_L_RingToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot/CC_Base_L_ToeBase/CC_Base_L_RingToe1)
+    - CC_Base_L_ToeBaseShareBone (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_Foot/CC_Base_L_ToeBaseShareBone)
+    - CC_Base_L_KneeShareBone (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_Calf/CC_Base_L_KneeShareBone)
+    - CC_Base_L_ThighTwist01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_ThighTwist01)
+    - CC_Base_L_ThighTwist02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_L_Thigh/CC_Base_L_ThighTwist01/CC_Base_L_ThighTwist02)
+    - CC_Base_R_Thigh (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh)
+    - CC_Base_R_Calf (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf)
+    - CC_Base_R_CalfTwist01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_CalfTwist01)
+    - CC_Base_R_CalfTwist02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_CalfTwist01/CC_Base_R_CalfTwist02)
+    - CC_Base_R_Foot (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot)
+    - CC_Base_R_ToeBase (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot/CC_Base_R_ToeBase)
+    - CC_Base_R_BigToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot/CC_Base_R_ToeBase/CC_Base_R_BigToe1)
+    - CC_Base_R_IndexToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot/CC_Base_R_ToeBase/CC_Base_R_IndexToe1)
+    - CC_Base_R_MidToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot/CC_Base_R_ToeBase/CC_Base_R_MidToe1)
+    - CC_Base_R_PinkyToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot/CC_Base_R_ToeBase/CC_Base_R_PinkyToe1)
+    - CC_Base_R_RingToe1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot/CC_Base_R_ToeBase/CC_Base_R_RingToe1)
+    - CC_Base_R_ToeBaseShareBone (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_Foot/CC_Base_R_ToeBaseShareBone)
+    - CC_Base_R_KneeShareBone (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_Calf/CC_Base_R_KneeShareBone)
+    - CC_Base_R_ThighTwist01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_ThighTwist01)
+    - CC_Base_R_ThighTwist02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Pelvis/CC_Base_R_Thigh/CC_Base_R_ThighTwist01/CC_Base_R_ThighTwist02)
+    - CC_Base_Waist (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist)
+    - CC_Base_Spine01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01)
+    - CC_Base_Spine02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02)
+    - CC_Base_L_Clavicle (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle)
+    - CC_Base_L_Upperarm (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm)
+    - CC_Base_L_Forearm (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm)
+    - CC_Base_L_ElbowShareBone (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_ElbowShareBone)
+    - CC_Base_L_ForearmTwist01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_ForearmTwist01)
+    - CC_Base_L_ForearmTwist02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_ForearmTwist01/CC_Base_L_ForearmTwist02)
+    - CC_Base_L_Hand (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand)
+    - CC_Base_L_Index1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Index1)
+    - CC_Base_L_Index2 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Index1/CC_Base_L_Index2)
+    - CC_Base_L_Index3 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Index1/CC_Base_L_Index2/CC_Base_L_Index3)
+    - CC_Base_L_Mid1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Mid1)
+    - CC_Base_L_Mid2 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Mid1/CC_Base_L_Mid2)
+    - CC_Base_L_Mid3 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Mid1/CC_Base_L_Mid2/CC_Base_L_Mid3)
+    - CC_Base_L_Pinky1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Pinky1)
+    - CC_Base_L_Pinky2 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Pinky1/CC_Base_L_Pinky2)
+    - CC_Base_L_Pinky3 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Pinky1/CC_Base_L_Pinky2/CC_Base_L_Pinky3)
+    - CC_Base_L_Ring1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Ring1)
+    - CC_Base_L_Ring2 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Ring1/CC_Base_L_Ring2)
+    - CC_Base_L_Ring3 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Ring1/CC_Base_L_Ring2/CC_Base_L_Ring3)
+    - CC_Base_L_Thumb1 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Thumb1)
+    - CC_Base_L_Thumb2 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Thumb1/CC_Base_L_Thumb2)
+    - CC_Base_L_Thumb3 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_Forearm/CC_Base_L_Hand/CC_Base_L_Thumb1/CC_Base_L_Thumb2/CC_Base_L_Thumb3)
+    - CC_Base_L_UpperarmTwist01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_UpperarmTwist01)
+    - CC_Base_L_UpperarmTwist02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_Clavicle/CC_Base_L_Upperarm/CC_Base_L_UpperarmTwist01/CC_Base_L_UpperarmTwist02)
+    - CC_Base_L_RibsTwist (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_RibsTwist)
+    - CC_Base_L_Breast (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_L_RibsTwist/CC_Base_L_Breast)
+    - CC_Base_NeckTwist01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01)
+    - CC_Base_NeckTwist02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02)
+    - CC_Base_Head (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head)
+    - CC_Base_FacialBone (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head/CC_Base_FacialBone)
+    - CC_Base_JawRoot (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head/CC_Base_FacialBone/CC_Base_JawRoot)
+    - CC_Base_Teeth02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head/CC_Base_FacialBone/CC_Base_JawRoot/CC_Base_Teeth02)
+    - CC_Base_Tongue01 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head/CC_Base_FacialBone/CC_Base_JawRoot/CC_Base_Tongue01)
+    - CC_Base_Tongue02 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head/CC_Base_FacialBone/CC_Base_JawRoot/CC_Base_Tongue01/CC_Base_Tongue02)
+    - CC_Base_Tongue03 (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head/CC_Base_FacialBone/CC_Base_JawRoot/CC_Base_Tongue01/CC_Base_Tongue02/CC_Base_Tongue03)
+    - CC_Base_L_Eye (Path: Neutral_M/CC_Base_BoneRoot/CC_Base_Hip/CC_Base_Waist/CC_Base_Spine01/CC_Base_Spine02/CC_Base_NeckTwist01/CC_Base_NeckTwist02/CC_Base_Head/CC_Base_FacialBone/CC_Base_L_Eye)
+    - CC_Ba<message truncated>
