@@ -21,30 +21,56 @@ OSC_ADDRESS = "/FaceData"
 OSC_BLEND_ADDRESS = "/FaceBlendshapes"
 client = udp_client.SimpleUDPClient(OSC_IP, OSC_PORT)
 
+# Flags to control printing of landmarks and blendshapes
+printed_landmarks = False
+printed_blendshapes = False
+
 # "callback" function that stores and handles results from MediaPipe
 def process_result(result, output_image: mp.Image, timestamp_ms: int):
-
     # store the result in a global variable that is thread-safe due to the lock
-    global latest_result
+    global latest_result, printed_landmarks, printed_blendshapes
+
     with lock:
         latest_result = result
 
 
     # If face landmarks are found, send them via OSC
-    if result.face_landmarks:
-        # Send landmarks
+    if result.face_landmarks:#
+        # Set landmarks var to the first detected face's landmarks
         landmarks = result.face_landmarks[0]
+
+        # Printing landmarks and their indices
+        try:
+            if not printed_landmarks:
+                print("---- Face Landmarks ----")
+                for i, lm in enumerate(landmarks):
+                    print(f"[{i}] x={lm.x:.5f}, y={lm.y:.5f}, z={lm.z:.5f}")
+                printed_landmarks = True
+        except Exception as e:
+            print(f"Error printing landmarks: {e}")
+        
+
+        # send landmarks via OSC
         landmark_strs = [f"{i},{lm.x:.5f},{lm.y:.5f},{lm.z:.5f}" for i, lm in enumerate(landmarks)]
         data = "|".join(landmark_strs)
         client.send_message(OSC_ADDRESS, data)
 
         # Send blendshapes
         if result.face_blendshapes:
+            # set blendshapes var to the first detected face's blendshapes
             blendshapes = result.face_blendshapes[0]
+
+            # Printing blendshapes and their scores
+            if not printed_blendshapes:
+                print("---- Face Blendshapes ----")
+                for b in blendshapes:
+                    print(f"{b.category_name}: {b.score:.5f}")
+                printed_blendshapes = True
+
             blendshape_strs = [f"{b.category_name},{b.score:.5f}" for b in blendshapes]
             blend_data = "|".join(blendshape_strs)
             client.send_message(OSC_BLEND_ADDRESS, blend_data)
-
+        
 # Draw landmarks on the output image
 def draw_landmarks_on_frame(frame, detection_result):
     """function that takes a cv2 frame and a detection result, and draws the landmarks on the frame."""
@@ -172,7 +198,9 @@ try:
                     break
 
         finally:
+            print("Released camera and destroyed all windows.")
             cap.release()
             cv2.destroyAllWindows()
+            
 except Exception as e:
     print("Failed to initialize FaceLandmarker:", e)
