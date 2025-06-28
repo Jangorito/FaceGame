@@ -22,11 +22,15 @@ OSC_ADDRESS = "/FaceData"
 OSC_BLEND_ADDRESS = "/FaceBlendshapes"
 client = udp_client.SimpleUDPClient(OSC_IP, OSC_PORT)
 
+# Flags to control printing of landmarks and blendshapes
+printed_landmarks = False
+printed_blendshapes = False
+
 # "callback" function that stores and handles results from MediaPipe
 def process_result(result, output_image: mp.Image, timestamp_ms: int):
-
     # store the result in a global variable that is thread-safe due to the lock
-    global latest_result
+    global latest_result, printed_landmarks, printed_blendshapes
+
     with lock:
         latest_result = result
 
@@ -277,7 +281,9 @@ try:
                     break
 
         finally:
+            print("Released camera and destroyed all windows.")
             cap.release()
             cv2.destroyAllWindows()
+            
 except Exception as e:
     print("Failed to initialize FaceLandmarker:", e)
