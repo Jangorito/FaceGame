@@ -84,12 +84,12 @@ public class Movement : MonoBehaviour
         updatedPosition.y = Mathf.Clamp(updatedPosition.y, -Screen.height / 2f, Screen.height / 2f);
 
         // Log the updated position for debugging
-        if (timeoutCounter % 333 == 0) // Log every 333 frames
-        {
-            logger.LogMsg($"Target Landmark Position: {targetLandmark.position} (x: {x}, y: {y})\n" +
-                          $"Updated Position after Clamp: {updatedPosition}\n" +
-                          $"Screen Size: {Screen.width}x{Screen.height}");
-        } 
+        // if (timeoutCounter % 333 == 0) // Log every 333 frames
+        // {
+            // logger.LogMsg($"Target Landmark Position: {targetLandmark.position} (x: {x}, y: {y})\n" +
+                        //   $"Updated Position after Clamp: {updatedPosition}\n" +
+                        //   $"Screen Size: {Screen.width}x{Screen.height}");
+        // } 
 
         Vector2 newPosition = Vector2.Lerp(
             rectangleTransform.anchoredPosition, updatedPosition,

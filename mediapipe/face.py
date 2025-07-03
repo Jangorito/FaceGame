@@ -6,6 +6,7 @@ from threading import Lock
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 from pythonosc import udp_client
+import os
 
 # --- OSC and MediaPipe Setup ---
 
@@ -163,8 +164,13 @@ def map_mediapipe_to_avatar(mediapipe_result, scale_factor=100.0):
 # MediaPipe FaceLandmarker setup
 
 print("Setting up MediaPipe FaceLandmarker...")
-model_path = "face_landmarker.task"
-print (f"Using model at: {model_path}, if blank model_path is broken")
+
+# Get the directory where face.py is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Build the absolute path to the model file
+model_path = os.path.join(script_dir, "face_landmarker.task")
+print(f"Using model at: {model_path}")
 
 # Import MediaPipe tasks
 try:

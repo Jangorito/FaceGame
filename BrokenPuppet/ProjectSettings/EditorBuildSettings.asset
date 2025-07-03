@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/NextLevel.unity
     guid: f3113c566ebfb4046b5a94808a6465d1
+  - enabled: 1
+    path: Assets/Scenes/EmotionMatchGame.unity
+    guid: adb30a950cf3b974b9de5e9a311500af
   m_configObjects: {}
