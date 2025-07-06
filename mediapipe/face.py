@@ -44,20 +44,13 @@ def process_result(result, output_image: mp.Image, timestamp_ms: int):
         blend_data = "|".join(blendshape_strs)
         client.send_message(OSC_BLEND_ADDRESS, blend_data)
 
-    # # If face landmarks are found, send them via OSC
-    # if result.face_landmarks:
-    #     # Send landmarks
-    #     landmarks = result.face_landmarks[0]
-    #     landmark_strs = [f"{i},{lm.x:.5f},{lm.y:.5f},{lm.z:.5f}" for i, lm in enumerate(landmarks)]
-    #     data = "|".join(landmark_strs)
-    #     client.send_message(OSC_ADDRESS, data)
-
-    #     # Send blendshapes
-    #     if result.face_blendshapes:
-    #         blendshapes = result.face_blendshapes[0]
-    #         blendshape_strs = [f"{b.category_name},{b.score:.5f}" for b in blendshapes]
-    #         blend_data = "|".join(blendshape_strs)
-    #         client.send_message(OSC_BLEND_ADDRESS, blend_data)
+    # If face landmarks are found, send them via OSC
+        # Send blendshapes
+        if result.face_blendshapes:
+            blendshapes = result.face_blendshapes[0]
+            blendshape_strs = [f"{b.category_name},{b.score:.5f}" for b in blendshapes]
+            blend_data = "|".join(blendshape_strs)
+            client.send_message("/FaceBlendshapesRaw", blend_data)
 
 # Function to draw landmarks on the output image
 def draw_landmarks_on_frame(frame, detection_result):
@@ -195,12 +188,66 @@ options = FaceLandmarkerOptions(
 # --- Blendshape Mapping ---
 # Keys are MediaPipe blendshape names.
 # Values are a list of corresponding Avatar blendshape names.
+# MEDIAPIPE_TO_AVATAR_MAPPING = {
+    # 'browInnerUp': ['Brow_Raise_Inner_L', 'Brow_Raise_Inner_R'],
+    # 'browDownLeft': ['Brow_Drop_L'],
+    # 'browDownRight': ['Brow_Drop_R'],
+    # 'browOuterUpLeft': ['Brow_Raise_Outer_L'],
+    # 'browOuterUpRight': ['Brow_Raise_Outer_R'],
+    # 'eyeBlinkLeft': ['Eye_Blink_L'],
+    # 'eyeBlinkRight': ['Eye_Blink_R'],
+    # 'eyeSquintLeft': ['Eye_Squint_L'],
+    # 'eyeSquintRight': ['Eye_Squint_R'],
+    # 'eyeWideLeft': ['Eye_Wide_L'],
+    # 'eyeWideRight': ['Eye_Wide_R'],
+    # 'eyeLookOutLeft': ['Eye_L_Look_L'],
+    # 'eyeLookInLeft': ['Eye_L_Look_R'],
+    # 'eyeLookOutRight': ['Eye_R_Look_R'],
+    # 'eyeLookInRight': ['Eye_R_Look_L'],
+    # 'eyeLookUpLeft': ['Eye_L_Look_Up'],
+    # 'eyeLookUpRight': ['Eye_R_Look_Up'],
+    # 'eyeLookDownLeft': ['Eye_L_Look_Down'],
+    # 'eyeLookDownRight': ['Eye_R_Look_Down'],
+    # 'cheekPuff': ['Cheek_Puff_L', 'Cheek_Puff_R'],
+    # 'cheekSquintLeft': ['Cheek_Raise_L'],
+    # 'cheekSquintRight': ['Cheek_Raise_R'],
+    # 'noseSneerLeft': ['Nose_Sneer_L', 'Nose_Nostril_Raise_L'],
+    # 'noseSneerRight': ['Nose_Sneer_R', 'Nose_Nostril_Raise_R'],
+    # 'jawOpen': ['Jaw_Open'],
+    # 'jawForward': ['Jaw_Forward'],
+    # 'jawLeft': ['Jaw_L'],
+    # 'jawRight': ['Jaw_R'],
+    # 'mouthSmileLeft': ['Mouth_Smile_L'],
+    # 'mouthSmileRight': ['Mouth_Smile_R'],
+    # 'mouthFrownLeft': ['Mouth_Frown_L'],
+    # 'mouthFrownRight': ['Mouth_Frown_R'],
+    # 'mouthDimpleLeft': ['Mouth_Dimple_L'],
+    # 'mouthDimpleRight': ['Mouth_Dimple_R'],
+    # 'mouthStretchLeft': ['Mouth_Stretch_L'],
+    # 'mouthStretchRight': ['Mouth_Stretch_R'],
+    # 'mouthPucker': ['Mouth_Pucker_Up_L', 'Mouth_Pucker_Up_R', 'Mouth_Pucker_Down_L', 'Mouth_Pucker_Down_R'],
+    # 'mouthFunnel': ['Mouth_Funnel_Up_L', 'Mouth_Funnel_Up_R', 'Mouth_Funnel_Down_L', 'Mouth_Funnel_Down_R'],
+    # 'mouthRollUpper': ['Mouth_Roll_In_Upper_L', 'Mouth_Roll_In_Upper_R'],
+    # 'mouthRollLower': ['Mouth_Roll_In_Lower_L', 'Mouth_Roll_In_Lower_R'],
+    # 'mouthShrugUpper': ['Mouth_Shrug_Upper'],
+    # 'mouthShrugLower': ['Mouth_Shrug_Lower'],
+    # 'mouthClose': ['Mouth_Close'],
+    # 'mouthUpperUpLeft': ['Mouth_Up_Upper_L'],
+    # 'mouthUpperUpRight': ['Mouth_Up_Upper_R'],
+    # 'mouthLowerDownLeft': ['Mouth_Down_Lower_L'],
+    # 'mouthLowerDownRight': ['Mouth_Down_Lower_R'],
+# }
+
+# New mapping for the "CC_Base_Body" model.
 MEDIAPIPE_TO_AVATAR_MAPPING = {
+    # Brows
     'browInnerUp': ['Brow_Raise_Inner_L', 'Brow_Raise_Inner_R'],
     'browDownLeft': ['Brow_Drop_L'],
     'browDownRight': ['Brow_Drop_R'],
     'browOuterUpLeft': ['Brow_Raise_Outer_L'],
     'browOuterUpRight': ['Brow_Raise_Outer_R'],
+    
+    # Eyes
     'eyeBlinkLeft': ['Eye_Blink_L'],
     'eyeBlinkRight': ['Eye_Blink_R'],
     'eyeSquintLeft': ['Eye_Squint_L'],
@@ -215,15 +262,23 @@ MEDIAPIPE_TO_AVATAR_MAPPING = {
     'eyeLookUpRight': ['Eye_R_Look_Up'],
     'eyeLookDownLeft': ['Eye_L_Look_Down'],
     'eyeLookDownRight': ['Eye_R_Look_Down'],
+    
+    # Cheeks
     'cheekPuff': ['Cheek_Puff_L', 'Cheek_Puff_R'],
     'cheekSquintLeft': ['Cheek_Raise_L'],
     'cheekSquintRight': ['Cheek_Raise_R'],
+    
+    # Nose
     'noseSneerLeft': ['Nose_Sneer_L', 'Nose_Nostril_Raise_L'],
     'noseSneerRight': ['Nose_Sneer_R', 'Nose_Nostril_Raise_R'],
+    
+    # Jaw
     'jawOpen': ['Jaw_Open'],
     'jawForward': ['Jaw_Forward'],
     'jawLeft': ['Jaw_L'],
     'jawRight': ['Jaw_R'],
+    
+    # Mouth
     'mouthSmileLeft': ['Mouth_Smile_L'],
     'mouthSmileRight': ['Mouth_Smile_R'],
     'mouthFrownLeft': ['Mouth_Frown_L'],
@@ -243,6 +298,8 @@ MEDIAPIPE_TO_AVATAR_MAPPING = {
     'mouthUpperUpRight': ['Mouth_Up_Upper_R'],
     'mouthLowerDownLeft': ['Mouth_Down_Lower_L'],
     'mouthLowerDownRight': ['Mouth_Down_Lower_R'],
+    'mouthPressLeft': ['Mouth_Press_L'],
+    'mouthPressRight': ['Mouth_Press_R'],
 }
 
 

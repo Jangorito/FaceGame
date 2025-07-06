@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.iam1337.extosc": "https://github.com/iam1337/extOSC.git#upm",
+    "com.soupday.cc3_unity_tools": "file:C:/Users/Jango/Downloads/Character_Creator_and_iClone_Auto_Setup_1.4.6_for_Unity_HDRP12/Character_Creator_and_iClone_Auto_Setup_1.4.6_for_Unity_HDRP12",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.navigation": "1.1.5",
     "com.unity.collab-proxy": "2.2.0",
@@ -12,6 +13,8 @@
     "com.unity.textmeshpro": "3.0.8",
     "com.unity.timeline": "1.7.6",
     "com.unity.ugui": "1.0.0",
+    "com.unity.xr.legacyinputhelpers": "2.1.12",
+    "com.unity.xr.management": "4.5.1",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
