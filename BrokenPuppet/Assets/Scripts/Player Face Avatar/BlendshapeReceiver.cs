@@ -20,24 +20,74 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private Dictionary<string, float> neutralBlendshapes = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
     // This will be used to determine the neutral position of each blendshape
     private bool isCalibrated = false;
+    private bool isDebugMode = false; // Toggle for debug mode, can be set in Inspector
     private Dictionary<string, float> lastRawBlendshapes = new Dictionary<string, float>();
     private Dictionary<string, float> lastRawMPBlendshapes = new Dictionary<string, float>();
 
     
     var mediapipeToAvatarMapping = new SortedList<string, List<string>>
-        {
-            // Brows
-            { "browInnerUp", new List<string> { "Brow_Raise_Inner_L", "Brow_Raise_Inner_R" } },
-            { "browDownLeft", new List<string> { "Brow_Drop_L" } },
-            { "browDownRight", new List<string> { "Brow_Drop_R" } },
-            { "browOuterUpLeft", new List<string> { "Brow_Raise_Outer_L" } },
-            { "browOuterUpRight", new List<string> { "Brow_Raise_Outer_R" } },
+    {
+        // Brows
+        { "browInnerUp", new List<string> { "Brow_Raise_Inner_L", "Brow_Raise_Inner_R" } },
+        { "browDownLeft", new List<string> { "Brow_Drop_L" } },
+        { "browDownRight", new List<string> { "Brow_Drop_R" } },
+        { "browOuterUpLeft", new List<string> { "Brow_Raise_Outer_L" } },
+        { "browOuterUpRight", new List<string> { "Brow_Raise_Outer_R" } },
 
-            // Eyes
-            { "eyeBlinkLeft", new List<string> { "Eye_Blink_L" } },
-            { "eyeBlinkRight", new List<string> { "Eye_Blink_R" } },
-            
-        };
+        // Eyes
+        { "eyeBlinkLeft", new List<string> { "Eye_Blink_L" } },
+        { "eyeBlinkRight", new List<string> { "Eye_Blink_R" } },
+        { "eyeSquintLeft", new List<string> {"Eye_Squint_L"} },
+        { "eyeSquintRight", new List<string> {"Eye_Squint_R"} },
+        { "eyeWideLeft", new List<string> {"Eye_Wide_L"} },
+        { "eyeWideRight", new List<string> {"Eye_Wide_R"} },
+        { "eyeLookOutLeft", new List<string> {"Eye_L_Look_L"} },
+        { "eyeLookInLeft", new List<string> {"Eye_L_Look_R"} },
+        { "eyeLookOutRight", new List<string> {"Eye_R_Look_R"} },
+        { "eyeLookInRight", new List<string> {"Eye_R_Look_L"} },
+        { "eyeLookUpLeft", new List<string> {"Eye_L_Look_Up"} },
+        { "eyeLookUpRight", new List<string> {"Eye_R_Look_Up"} },
+        { "eyeLookDownLeft", new List<string> {"Eye_L_Look_Down"} },
+        { "eyeLookDownRight", new List<string> {"Eye_R_Look_Down"} },
+
+        // Cheeks
+        { "cheekPuff", new List<string> {"Cheek_Puff_L", "Cheek_Puff_R"} },
+        { "cheekSquintLeft", new List<string> {"Cheek_Raise_L"} },
+        { "cheekSquintRight", new List<string> {"Cheek_Raise_R"} },
+
+        // Nose
+        { "noseSneerLeft", new List<string> {"Nose_Sneer_L", "Nose_Nostril_Raise_L"} },
+        { "noseSneerRight", new List<string> {"Nose_Sneer_R", "Nose_Nostril_Raise_R"} },
+
+        // Jaw
+        { "jawOpen", new List<string> {"Jaw_Open"} },
+        { "jawForward", new List<string> {"Jaw_Forward"} },
+        { "jawLeft", new List<string> {"Jaw_L"} },
+        { "jawRight", new List<string> {"Jaw_R"} },
+
+        // Mouth
+        { "mouthSmileLeft", new List<string> {"Mouth_Smile_L"} },
+        { "mouthSmileRight", new List<string> {"Mouth_Smile_R"} },
+        { "mouthFrownLeft", new List<string> {"Mouth_Frown_L"} },
+        { "mouthFrownRight", new List<string> {"Mouth_Frown_R"} },
+        { "mouthDimpleLeft", new List<string> {"Mouth_Dimple_L"} },
+        { "mouthDimpleRight", new List<string> {"Mouth_Dimple_R"} },
+        { "mouthStretchLeft", new List<string> {"Mouth_Stretch_L"} },
+        { "mouthStretchRight", new List<string> {"Mouth_Stretch_R"} },
+        { "mouthPucker", new List<string> {"Mouth_Pucker_Up_L", "Mouth_Pucker_Up_R", "Mouth_Pucker_Down_L", "Mouth_Pucker_Down_R"} },
+        { "mouthFunnel", new List<string> {"Mouth_Funnel_Up_L", "Mouth_Funnel_Up_R", "Mouth_Funnel_Down_L", "Mouth_Funnel_Down_R"} },
+        { "mouthRollUpper", new List<string> {"Mouth_Roll_In_Upper_L", "Mouth_Roll_In_Upper_R"} },
+        { "mouthRollLower", new List<string> {"Mouth_Roll_In_Lower_L", "Mouth_Roll_In_Lower_R"} },
+        { "mouthShrugUpper", new List<string> {"Mouth_Shrug_Upper"} },
+        { "mouthShrugLower", new List<string> {"Mouth_Shrug_Lower"} },
+        { "mouthClose", new List<string> {"Mouth_Close"} },
+        { "mouthUpperUpLeft", new List<string> {"Mouth_Up_Upper_L"} },
+        { "mouthUpperUpRight", new List<string> {"Mouth_Up_Upper_R"} },
+        { "mouthLowerDownLeft", new List<string> {"Mouth_Down_Lower_L"} },
+        { "mouthLowerDownRight", new List<string> {"Mouth_Down_Lower_R"} },
+        { "mouthPressLeft", new List<string> {"Mouth_Press_L"} },
+        { "mouthPressRight", new List<string> {"Mouth_Press_R"} },
+    };
 
 
     void Start() // called when the script is being loaded
@@ -161,17 +211,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             .OrderByDescending(kv => Mathf.Abs(kv.Value))
             .Take(8)
             .Select(kv => $"{kv.Key}: {kv.Value:F1}");
-        debugText.text = string.Join("\n", active);
-
-        // Update raw debug text
-        // if (rawDebugText != null)
-        // {
-        // var allBlendshapes = lastBlendshapes
-        // .OrderByDescending(kv => Mathf.Abs(kv.Value))
-        // .Select(kv => $"{kv.Key}: {kv.Value:F1}");
-        // rawDebugText.text = string.Join("\n", allBlendshapes);
-        // }
-    }
+        debugText.text = string.Join("\n", active);    }
 
     public void CalibrateNeutral()
     { // This method can be called to calibrate the neutral face
@@ -180,11 +220,24 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         Debug.Log("Neutral face calibrated.");
     }
 
+    public void debugMode()
+    {
+        isDebugMode = !isDebugMode;
+        if (isDebugMode)
+        {
+            Debug.Log("Debug mode enabled.");
+        }
+        else
+        {
+            Debug.Log("Debug mode disabled.");
+        }
+    }
+
     public void printRawMPs()
     {
         var output = lastRawMPBlendshapes
             .OrderByDescending(kv => Mathf.Abs(kv.Value))
-            .Select(kv => $"{kv.Key}: {kv.Value * 1000 :F1}");
+            .Select(kv => $"{kv.Key}: {kv.Value * 1000:F1}");
         Debug.Log(string.Join("\n", output));
     }
 }
