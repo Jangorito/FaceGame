@@ -23,6 +23,23 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private Dictionary<string, float> lastRawBlendshapes = new Dictionary<string, float>();
     private Dictionary<string, float> lastRawMPBlendshapes = new Dictionary<string, float>();
 
+    
+    var mediapipeToAvatarMapping = new SortedList<string, List<string>>
+        {
+            // Brows
+            { "browInnerUp", new List<string> { "Brow_Raise_Inner_L", "Brow_Raise_Inner_R" } },
+            { "browDownLeft", new List<string> { "Brow_Drop_L" } },
+            { "browDownRight", new List<string> { "Brow_Drop_R" } },
+            { "browOuterUpLeft", new List<string> { "Brow_Raise_Outer_L" } },
+            { "browOuterUpRight", new List<string> { "Brow_Raise_Outer_R" } },
+
+            // Eyes
+            { "eyeBlinkLeft", new List<string> { "Eye_Blink_L" } },
+            { "eyeBlinkRight", new List<string> { "Eye_Blink_R" } },
+            
+        };
+
+
     void Start() // called when the script is being loaded
 
     {
