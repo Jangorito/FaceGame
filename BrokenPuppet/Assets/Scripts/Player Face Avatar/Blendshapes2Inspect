@@ -1,0 +1,51 @@
+browDownLeft: Brow_Drop_L
+
+browDownRight: Brow_Drop_R
+
+cheekPuff: Cheek_Puff_L, Cheek_Puff_R
+
+cheekSquintLeft: Cheek_Raise_L
+
+cheekSquintRight: Cheek_Raise_R
+
+eyeBlinkLeft: Eye_Blink_L
+
+eyeBlinkRight: Eye_Blink_R
+
+eyeSquintLeft: Eye_Squint_L
+
+eyeSquintRight: Eye_Squint_R
+
+eyeWideLeft: Eye_Wide_L
+
+eyeWideRight: Eye_Wide_R
+
+mouthClose: Mouth_Close
+
+mouthDimpleLeft: Mouth_Dimple_L
+
+mouthDimpleRight: Mouth_Dimple_R
+
+mouthFrownLeft: Mouth_Frown_L
+
+mouthFrownRight: Mouth_Frown_R
+
+mouthPucker: Mouth_Pucker_Up_L, Mouth_Pucker_Up_R, Mouth_Pucker_Down_L, Mouth_Pucker_Down_R
+
+mouthRollLower: Mouth_Roll_In_Lower_L, Mouth_Roll_In_Lower_R
+
+mouthRollUpper: Mouth_Roll_In_Upper_L, Mouth_Roll_In_Upper_R
+
+mouthShrugLower: Mouth_Shrug_Lower
+
+mouthShrugUpper: Mouth_Shrug_Upper
+
+mouthStretchLeft: Mouth_Stretch_L
+
+mouthUpperUpLeft: Mouth_Up_Upper_L
+
+mouthUpperUpRight: Mouth_Up_Upper_R
+
+noseSneerLeft: Nose_Sneer_L, Nose_Nostril_Raise_L
+
+noseSneerRight: Nose_Sneer_R, Nose_Nostril_Raise_R
