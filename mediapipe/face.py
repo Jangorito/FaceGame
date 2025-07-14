@@ -35,6 +35,29 @@ def process_result(result, output_image: mp.Image, timestamp_ms: int):
     with lock:
         latest_result = result
 
+    # Debugging certain Blendshapes
+    if result.face_blendshapes:
+        blendshapes = result.face_blendshapes[0]
+        mp_scores = {b.category_name: b.score for b in blendshapes}
+
+        problematic_blendshapes = [
+            "cheekPuff",
+            # "cheekSquintLeft",
+            # "cheekSquintRight",
+            # "noseSneerLeft",
+            # "noseSneerRight",
+            # Add any other blendshapes you suspect are not being picked up
+        ]
+
+        for name in problematic_blendshapes:
+            score = mp_scores.get(name, 0.0)
+            if score > 0.0:  # Only print if the score is significant
+                print(f"DEBUG MP Raw - {name}: {score:.10f}")
+
+    else:
+        print("DEBUG: No face blendshapes detected by MediaPipe in this frame.")
+
+
     # Map MediaPipe blendshapes to avatar blendshapes
     avatar_blendshapes = map_mediapipe_to_avatar(result)
 
@@ -153,7 +176,8 @@ def map_mediapipe_to_avatar(mediapipe_result, scale_factor=100.0):
             
     return avatar_scores
 
-
+# def custom_sensitivity_mapping(mediapipe_result, scale_factor=100.0):
+    
 # MediaPipe FaceLandmarker setup
 
 print("Setting up MediaPipe FaceLandmarker...")
@@ -184,59 +208,6 @@ options = FaceLandmarkerOptions(
     running_mode=VisionRunningMode.LIVE_STREAM, 
     result_callback=process_result # Tell MediaPipe to call our function with the results
 )
-
-# --- Blendshape Mapping ---
-# Keys are MediaPipe blendshape names.
-# Values are a list of corresponding Avatar blendshape names.
-# MEDIAPIPE_TO_AVATAR_MAPPING = {
-    # 'browInnerUp': ['Brow_Raise_Inner_L', 'Brow_Raise_Inner_R'],
-    # 'browDownLeft': ['Brow_Drop_L'],
-    # 'browDownRight': ['Brow_Drop_R'],
-    # 'browOuterUpLeft': ['Brow_Raise_Outer_L'],
-    # 'browOuterUpRight': ['Brow_Raise_Outer_R'],
-    # 'eyeBlinkLeft': ['Eye_Blink_L'],
-    # 'eyeBlinkRight': ['Eye_Blink_R'],
-    # 'eyeSquintLeft': ['Eye_Squint_L'],
-    # 'eyeSquintRight': ['Eye_Squint_R'],
-    # 'eyeWideLeft': ['Eye_Wide_L'],
-    # 'eyeWideRight': ['Eye_Wide_R'],
-    # 'eyeLookOutLeft': ['Eye_L_Look_L'],
-    # 'eyeLookInLeft': ['Eye_L_Look_R'],
-    # 'eyeLookOutRight': ['Eye_R_Look_R'],
-    # 'eyeLookInRight': ['Eye_R_Look_L'],
-    # 'eyeLookUpLeft': ['Eye_L_Look_Up'],
-    # 'eyeLookUpRight': ['Eye_R_Look_Up'],
-    # 'eyeLookDownLeft': ['Eye_L_Look_Down'],
-    # 'eyeLookDownRight': ['Eye_R_Look_Down'],
-    # 'cheekPuff': ['Cheek_Puff_L', 'Cheek_Puff_R'],
-    # 'cheekSquintLeft': ['Cheek_Raise_L'],
-    # 'cheekSquintRight': ['Cheek_Raise_R'],
-    # 'noseSneerLeft': ['Nose_Sneer_L', 'Nose_Nostril_Raise_L'],
-    # 'noseSneerRight': ['Nose_Sneer_R', 'Nose_Nostril_Raise_R'],
-    # 'jawOpen': ['Jaw_Open'],
-    # 'jawForward': ['Jaw_Forward'],
-    # 'jawLeft': ['Jaw_L'],
-    # 'jawRight': ['Jaw_R'],
-    # 'mouthSmileLeft': ['Mouth_Smile_L'],
-    # 'mouthSmileRight': ['Mouth_Smile_R'],
-    # 'mouthFrownLeft': ['Mouth_Frown_L'],
-    # 'mouthFrownRight': ['Mouth_Frown_R'],
-    # 'mouthDimpleLeft': ['Mouth_Dimple_L'],
-    # 'mouthDimpleRight': ['Mouth_Dimple_R'],
-    # 'mouthStretchLeft': ['Mouth_Stretch_L'],
-    # 'mouthStretchRight': ['Mouth_Stretch_R'],
-    # 'mouthPucker': ['Mouth_Pucker_Up_L', 'Mouth_Pucker_Up_R', 'Mouth_Pucker_Down_L', 'Mouth_Pucker_Down_R'],
-    # 'mouthFunnel': ['Mouth_Funnel_Up_L', 'Mouth_Funnel_Up_R', 'Mouth_Funnel_Down_L', 'Mouth_Funnel_Down_R'],
-    # 'mouthRollUpper': ['Mouth_Roll_In_Upper_L', 'Mouth_Roll_In_Upper_R'],
-    # 'mouthRollLower': ['Mouth_Roll_In_Lower_L', 'Mouth_Roll_In_Lower_R'],
-    # 'mouthShrugUpper': ['Mouth_Shrug_Upper'],
-    # 'mouthShrugLower': ['Mouth_Shrug_Lower'],
-    # 'mouthClose': ['Mouth_Close'],
-    # 'mouthUpperUpLeft': ['Mouth_Up_Upper_L'],
-    # 'mouthUpperUpRight': ['Mouth_Up_Upper_R'],
-    # 'mouthLowerDownLeft': ['Mouth_Down_Lower_L'],
-    # 'mouthLowerDownRight': ['Mouth_Down_Lower_R'],
-# }
 
 # New mapping for the "CC_Base_Body" model.
 MEDIAPIPE_TO_AVATAR_MAPPING = {
