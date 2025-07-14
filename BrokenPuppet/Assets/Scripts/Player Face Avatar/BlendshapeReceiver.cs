@@ -19,7 +19,11 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private OSCReceiver receiver; // The OSCReceiver component to handle incoming OSC messages
     private Dictionary<string, float> lastBlendshapes = new Dictionary<string, float>(); // Store the last received value for each blendshape
     private Dictionary<string, float> neutralBlendshapes = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
-    // This will be used to determine the neutral position of each blendshape
+                                                                                            // This will be used to determine the neutral position of each blendshape
+    private Dictionary<string, float> minBlendshapes = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
+    private Dictionary<string, float> maxBlendshapes = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
+
+
     private bool isCalibrated = false;
     public bool isDebugMode = false; // Toggle for debug mode, can be set in Inspector
     private Dictionary<string, float> lastRawBlendshapes = new Dictionary<string, float>(); // Store the last received raw blendshape values
@@ -90,7 +94,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             // CurAvatarBlendshapeName represents the Unity blendshape name we use to render the avatar through faceRenderer
             // many --> 1
 
-            
+
             if (AvatarBlendshapeToInspect.Contains(CurAvatarBlendshapeName))
             {
                 if (!hasPrinted)
@@ -121,9 +125,9 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                     {
                         // if (hasPrinted == false)
                         // {
-                            // Debug.Log($"In Debug Mode - Only updating blendshape: {MPBlendshapeToInspect} by comparing with {CurAvatarBlendshapeName}");
-                            // Debug.Log($"Current blendshape index: {blendshapeIndex}");
-                            // hasPrinted = true; // Ensure this only prints once per message
+                        // Debug.Log($"In Debug Mode - Only updating blendshape: {MPBlendshapeToInspect} by comparing with {CurAvatarBlendshapeName}");
+                        // Debug.Log($"Current blendshape index: {blendshapeIndex}");
+                        // hasPrinted = true; // Ensure this only prints once per message
                         // }
 
                         if (AvatarBlendshapeToInspect.Contains(CurAvatarBlendshapeName))
@@ -203,6 +207,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         {
             Debug.Log("Debug mode enabled.");
             debuggingBSName.text = getBlendshapeName();
+            // minBlendshapes = new Dictionary<string, float>();
+            // maxBlendshapes = new Dictionary<string, float>();
         }
         else
         {
@@ -228,7 +234,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         }
         Debug.Log($"Blendshapes to check: {getAvatarBlendshapeName(BlendshapesToCheck)}");
     }
-// Blendshapes to check: browDownLeft, browDownRight, cheekPuff, cheekSquintLeft, cheekSquintRight, eyeBlinkLeft, eyeBlinkRight, eyeSquintLeft, eyeSquintRight, eyeWideLeft, eyeWideRight, mouthClose, mouthDimpleLeft, mouthDimpleRight, mouthFrownLeft, mouthFrownRight, mouthPucker, mouthRollLower, mouthRollUpper, mouthShrugLower, mouthShrugUpper, mouthStretchLeft, mouthUpperUpLeft, mouthUpperUpRight, noseSneerLeft, noseSneerRight,
+    // Blendshapes to check: browDownLeft, browDownRight, cheekPuff, cheekSquintLeft, cheekSquintRight, eyeBlinkLeft, eyeBlinkRight, eyeSquintLeft, eyeSquintRight, eyeWideLeft, eyeWideRight, mouthClose, mouthDimpleLeft, mouthDimpleRight, mouthFrownLeft, mouthFrownRight, mouthPucker, mouthRollLower, mouthRollUpper, mouthShrugLower, mouthShrugUpper, mouthStretchLeft, mouthUpperUpLeft, mouthUpperUpRight, noseSneerLeft, noseSneerRight,
     public bool isDebugModeEnabled()
     {
         return isDebugMode;
@@ -281,8 +287,15 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         return blendshapeIndex;
     }
     public string getAvatarBlendshapeName(List<string> AvatarBlendshapeToInspect)
-    {    
+    {
         return string.Join(", ", AvatarBlendshapeToInspect); // Joins with ", "
+    }
+    public void getDictBlendshapeName()
+    {
+        Debug.Log("Blendshape names in the dictionary:");
+        Debug.Log(string.Join(", ", neutralBlendshapes));
+        Debug.Log("Last blendshapes received:");
+        Debug.Log(string.Join(", ", lastBlendshapes)); // Returns the blendshape name as is
     }
     public void initialiseDictionary()
     {
@@ -354,5 +367,37 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     {
         return mediapipeToAvatarMapping.Keys[blendshapeIndex].ToString();
     }
+    public void RecordMin()
+    {
+        string blendshapeName = getAvatarBlendshapeName(mediapipeToAvatarMapping.Values[getCurrentBlendshapeIndex()]);
+        Debug.Log($"Recording minimum value for blendshape: {blendshapeName}");
+        if (!minBlendshapes.ContainsKey(blendshapeName))
+        {
+            // need to make sure you use one value for the key then subsequently update both values in the dictionary
+            minBlendshapes.Add(blendshapeName, lastBlendshapes[blendshapeName]);
+            Debug.Log($"Recorded minimum value for {blendshapeName}: {minBlendshapes[blendshapeName]}");
+            Debug.Log(string.Join(", ", minBlendshapes));
+
+        }
+        else
+        {
+            Debug.LogWarning($"Minimum value for {blendshapeName} already recorded.");
+        }
+    }
     
+    public void RecordMax()
+    {
+        string blendshapeName = getAvatarBlendshapeName(mediapipeToAvatarMapping.Values[getCurrentBlendshapeIndex()]);
+        if (!maxBlendshapes.ContainsKey(blendshapeName))
+        {
+            maxBlendshapes.Add(blendshapeName, lastBlendshapes[blendshapeName]);
+            Debug.Log($"Recorded maximum value for {blendshapeName}: {maxBlendshapes[blendshapeName]}");
+            Debug.Log(string.Join(", ", maxBlendshapes));
+
+        }
+        else
+        {
+            Debug.LogWarning($"Maximum value for {blendshapeName} already recorded.");
+        }
+    }
 }
