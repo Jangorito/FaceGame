@@ -19,13 +19,19 @@ latest_result = None
 # OSC setup
 OSC_IP = "127.0.0.1"
 OSC_PORT = 9000
-OSC_ADDRESS = "/FaceData"
-OSC_BLEND_ADDRESS = "/FaceBlendshapes"
+OSC_ADDRESS = "/10sfBlendshapes"
+OSC_BLEND_ADDRESS = "/FaceBlendshapesRaw"
 client = udp_client.SimpleUDPClient(OSC_IP, OSC_PORT)
 
 # Flags to control printing of landmarks and blendshapes
 printed_landmarks = False
 printed_blendshapes = False
+
+
+PROBLEM_BLENDSHAPE_REMAPPING_CONFIG = {
+    "cheekPuff": [0.000005, 0.000020], 
+
+}
 
 # "callback" function that stores and handles results from MediaPipe
 def process_result(result, output_image: mp.Image, timestamp_ms: int):
@@ -35,45 +41,46 @@ def process_result(result, output_image: mp.Image, timestamp_ms: int):
     with lock:
         latest_result = result
 
-    # Debugging certain Blendshapes
+    # Dictionary to hold raw MediaPipe blendshape scores
+    raw_mp_scores = {}
+
     if result.face_blendshapes:
         blendshapes = result.face_blendshapes[0]
-        mp_scores = {b.category_name: b.score for b in blendshapes}
+        raw_mp_scores = {b.category_name: b.score for b in blendshapes}
+
+        raw_blendshape_strs = [f"{b.category_name},{b.score:.10f}" for b in blendshapes] # Format to 10 decimal places
+        raw_blend_data = "|".join(raw_blendshape_strs)
+        client.send_message(OSC_ADDRESS, raw_blend_data)
 
         problematic_blendshapes = [
-            "cheekPuff",
-            # "cheekSquintLeft",
-            # "cheekSquintRight",
+            # "cheekPuff",
+            # "mouthClose",
+            "cheekSquintLeft",
+            "cheekSquintRight",
             # "noseSneerLeft",
             # "noseSneerRight",
             # Add any other blendshapes you suspect are not being picked up
         ]
 
         for name in problematic_blendshapes:
-            score = mp_scores.get(name, 0.0)
+            score = raw_mp_scores.get(name, 0.0)
             if score > 0.0:  # Only print if the score is significant
                 print(f"DEBUG MP Raw - {name}: {score:.10f}")
-
     else:
         print("DEBUG: No face blendshapes detected by MediaPipe in this frame.")
 
 
-    # Map MediaPipe blendshapes to avatar blendshapes
-    avatar_blendshapes = map_mediapipe_to_avatar(result)
-
-    # If avatar blendshapes are found, send them via OSC
-    if avatar_blendshapes:
-        blendshape_strs = [f"{name},{value:.2f}" for name, value in avatar_blendshapes.items()]
-        blend_data = "|".join(blendshape_strs)
-        client.send_message(OSC_BLEND_ADDRESS, blend_data)
-
     # If face landmarks are found, send them via OSC
-        # Send blendshapes
-        if result.face_blendshapes:
-            blendshapes = result.face_blendshapes[0]
-            blendshape_strs = [f"{b.category_name},{b.score:.5f}" for b in blendshapes]
+    # Send blendshapes
+    if raw_mp_scores:
+            # Get the processed scores (some remapped, some passed through raw 0-1)
+            processed_mp_values = get_processed_mediapipe_blendshapes(raw_mp_scores)
+
+            # Format and send these processed values via OSC
+            # Each item in the OSC message will be "blendshapeName,value"
+            blendshape_strs = [f"{name},{value:.10f}" for name, value in processed_mp_values.items()]
             blend_data = "|".join(blendshape_strs)
-            client.send_message("/FaceBlendshapesRaw", blend_data)
+            client.send_message(OSC_BLEND_ADDRESS, blend_data)
 
 # Function to draw landmarks on the output image
 def draw_landmarks_on_frame(frame, detection_result):
@@ -134,50 +141,47 @@ def wait_for_camera(cap, timeout=10):
             raise RuntimeError("Camera failed to open within timeout.")
     print("Camera is open and ready.")
 
-# Function to map MediaPipe blendshapes to avatar blendshapes
-def map_mediapipe_to_avatar(mediapipe_result, scale_factor=100.0):
+def get_processed_mediapipe_blendshapes(raw_mp_scores_dict):
     """
-    Takes a MediaPipe FaceLandmarker result and maps it to the avatar's blendshape values.
+    Processes raw MediaPipe blendshape scores.
+    For blendshapes listed in PROBLEM_BLENDSHAPE_REMAPPING_CONFIG, their raw values
+    are remapped to a 0.0-1.0 range. All other blendshape scores are passed through
+    as their original 0.0-1.0 MediaPipe values.
     
     Args:
-        mediapipe_result: The result object from the MediaPipe FaceLandmarker.
-        scale_factor: The value to multiply the 0-1 scores by to get the desired range for your avatar's blendshapes.
+        raw_mp_scores_dict (dict): A dictionary of raw MediaPipe blendshape names
+                                   to their 0.0-1.0 scores (e.g., {"mouthOpen": 0.5, ...}).
 
     Returns:
-        A dictionary where keys are your avatar's blendshape names and values are the mapped scores.
-        Returns None if no blendshapes are found in the result.
+        dict: A dictionary of MediaPipe blendshape names to their processed 0.0-1.0 scores.
+              (e.g., {"mouthOpen": 0.5, "cheekPuff": 0.8, ...}).
     """
-    # Check if the result contains face blendshapes
-    if not mediapipe_result or not mediapipe_result.face_blendshapes:
-        print("No face blendshapes found in the MediaPipe result.")
-        return None
+    processed_scores = {}
 
-    # Create a dictionary from the MediaPipe blendshape results for easy lookup
-    mp_scores = {shape.category_name: shape.score for shape in mediapipe_result.face_blendshapes[0]}
-    """ E.G. mp_scores = 
-    {
-        'mouthOpen': 0.73,
-        'eyeBlinkLeft': 0.02,
-        }
-    """    
+    for mp_name, raw_score in raw_mp_scores_dict.items():
+        score_to_send = raw_score # Default: pass raw score through
 
-    # Initialize a dictionary for our avatar's blendshape values, all at 0 until set
-    avatar_scores = {}
+        # Check if this MediaPipe blendshape in particular needs remapping
+        if mp_name in PROBLEM_BLENDSHAPE_REMAPPING_CONFIG:
+            min_obs, max_obs = PROBLEM_BLENDSHAPE_REMAPPING_CONFIG[mp_name]
 
-    # Loop through mapping dictionary
-    for mp_name, avatar_names in MEDIAPIPE_TO_AVATAR_MAPPING.items():
+            # Prevent division by zero if the observed range is effectively zero
+            if (max_obs - min_obs) > 1e-7: # Use a small epsilon to check for a meaningful range
+                # Use numpy's interp to remap the raw score from the observed range to 0.0-1.0
+                remapped_val = np.interp(raw_score, [min_obs, max_obs], [0.0, 1.0])
+                # Clip the result to ensure it stays within the 0.0-1.0 bounds
+                score_to_send = np.clip(remapped_val, 0.0, 1.0) 
+            else:
+                # If the observed range is negligible, treat it as binary (on/off)
+                score_to_send = 1.0 if raw_score > min_obs else 0.0
 
-        # Get the score from MediaPipe, defaulting to 0 if not found
-        score = mp_scores.get(mp_name, 0)
+            # Debug print to see raw vs. remapped values
+            # print(f"DEBUG Python Remap: {mp_name} - Raw: {raw_score:.7f}, Remapped: {score_to_send:.5f}")
         
-        # Apply this score to all corresponding avatar blendshapes
-        for avatar_name in avatar_names:
-            avatar_scores[avatar_name] = score * scale_factor
+        processed_scores[mp_name] = score_to_send
             
-    return avatar_scores
+    return processed_scores
 
-# def custom_sensitivity_mapping(mediapipe_result, scale_factor=100.0):
-    
 # MediaPipe FaceLandmarker setup
 
 print("Setting up MediaPipe FaceLandmarker...")

@@ -26,16 +26,18 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private bool isMinMaxCalibrated = false; // Flag to check if min/max calibration has been done
     private bool isNeutralCalibrated = false;
     public bool isDebugMode = false; // Toggle for debug mode, can be set in Inspector
-    private Dictionary<string, float> lastRawBlendshapes = new Dictionary<string, float>(); // Store the last received raw blendshape values
+    private Dictionary<string, float> lastLongFormRawBlendshapes = new Dictionary<string, float>(); // Store the last received raw blendshape values
     private Dictionary<string, float> lastRawMPBlendshapes = new Dictionary<string, float>(); // Store the last received raw MediaPipe blendshape values
     public SortedList<string, List<string>> mediapipeToAvatarMapping = new SortedList<string, List<string>>(); // Mapping from MediaPipe blendshape names to Unity blendshape names
     public List<string> blendshapesToDisplayInDebug = new List<string>
     {
         "cheekPuff",
+        "mouthClose",
         "cheekSquintLeft",
         "cheekSquintRight",
         "noseSneerLeft",
         "noseSneerRight",
+        
     };
     public List<string> dModeAvatarBlendshapesToInspect;
     public List<string> BlendshapesToCheck = new List<string>(); // List of Avatar blendshapes to fine tune
@@ -48,7 +50,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         initialiseDictionary(); // Initialize the mapping dictionary
         receiver = gameObject.AddComponent<OSCReceiver>(); // Add an OSCReceiver component to the GameObject this script is attached to
         receiver.LocalPort = oscPort; // Set the local port for the OSCReceiver to listen on
-        // receiver.Bind(oscAddress, OnBlendshapeMessage); // Bind Receiver to the address & set the callback method to handle incoming messages
+        receiver.Bind("/10sfBlendshapes", OnBlendshapeMessage); // Bind Receiver to the address & set the callback method to handle incoming messages
 
         // New receiver for raw MediaPipe blendshapes
         receiver.Bind("/FaceBlendshapesRaw", OnRawMPBlendshapeMessage);
@@ -170,14 +172,28 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         UpdateDebugPanel();
         UpdateRawDebugPanel();
         ShowRawCertainBlendshapes(); // Update the certain raw blendshapes debug text TODO: This is not used in the current implementation, but can be useful for debugging
-        ShowCertainBlendshapes(); // Update the certain blendshapes debug text
+        // ShowCertainBlendshapes(); // Update the certain blendshapes debug text
     }
 
-    // void OnBlendshapeMessage(OSCMessage message)
-    // {
-    //     if (message.Values.Count == 0) return;
-    //     string data = message.Values[0].StringValue;
-    //     string[] pairs = data.Split('|');
+    void OnBlendshapeMessage(OSCMessage message)
+    {
+        Debug.Log("Received OSC message on /10sfBlendshapes");
+        if (message.Values.Count == 0) return;
+        string data = message.Values[0].StringValue;
+        string[] pairs = data.Split('|');
+
+        foreach (var pair in pairs)
+        {
+            var parts = pair.Split(',');
+            if (parts.Length != 2) continue;
+            string LongFormRawMPs = parts[0];
+            
+            if (!float.TryParse(parts[1], out float LongFormrawMPValue)) continue;
+
+            lastLongFormRawBlendshapes[LongFormRawMPs] = LongFormrawMPValue;
+        }
+        // ShowCertainBlendshapes(); // Update the certain blendshapes debug text
+    }
 
     //     bool dMode = isDebugModeEnabled();
     //     if (dMode)
@@ -186,76 +202,76 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     //         dModeMPKeyToInspect = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
     //         string avatarBlendshapesString = getAvatarBlendshapeName(dModeAvatarBlendshapesToInspect);
 
-    //         if (hasPrinted == false)
-    //         {
-    //             Debug.Log($"We want to isolate '{dModeMPKeyToInspect}' with '{avatarBlendshapesString}' blendshape(s) in debug mode.");
-    //             hasPrinted = true; // Set to true to prevent further debug messages for this blendshape
-    //         }
-    //     }
+        //         if (hasPrinted == false)
+        //         {
+        //             Debug.Log($"We want to isolate '{dModeMPKeyToInspect}' with '{avatarBlendshapesString}' blendshape(s) in debug mode.");
+        //             hasPrinted = true; // Set to true to prevent further debug messages for this blendshape
+        //         }
+        //     }
 
-    //     // Store both raw & calibrated values
-    //     foreach (var pair in pairs)
-    //     {
-    //         var parts = pair.Split(',');
-    //         if (parts.Length != 2) continue;
-    //         string CurAvatarBlendshapeName = parts[0];
-    //         // CurAvatarBlendshapeName represents the Unity blendshape name we use to render the avatar through faceRenderer
-    //         // many --> 1
+        //     // Store both raw & calibrated values
+        //     foreach (var pair in pairs)
+        //     {
+        //         var parts = pair.Split(',');
+        //         if (parts.Length != 2) continue;
+        //         string CurAvatarBlendshapeName = parts[0];
+        //         // CurAvatarBlendshapeName represents the Unity blendshape name we use to render the avatar through faceRenderer
+        //         // many --> 1
 
 
-    //         if (dModeAvatarBlendshapesToInspect.Contains(CurAvatarBlendshapeName))
-    //         {
-    //             if (!hasPrinted)
-    //             {
-    //                 // Debug.Log(message.ToString());
-    //                 Debug.Log($"Debug Mode: Processing blendshape '{CurAvatarBlendshapeName}' with index {blendshapeIndex}");
-    //                 hasPrinted = false; // Reset hasPrinted to allow new debug messages
+        //         if (dModeAvatarBlendshapesToInspect.Contains(CurAvatarBlendshapeName))
+        //         {
+        //             if (!hasPrinted)
+        //             {
+        //                 // Debug.Log(message.ToString());
+        //                 Debug.Log($"Debug Mode: Processing blendshape '{CurAvatarBlendshapeName}' with index {blendshapeIndex}");
+        //                 hasPrinted = false; // Reset hasPrinted to allow new debug messages
 
-    //             }
-    //         }
+        //             }
+        //         }
 
-    //         if (float.TryParse(parts[1], out float value))
-    //         {
-    //             // Store raw MediaPipe blendshape values
-    //             lastRawBlendshapes[CurAvatarBlendshapeName] = value;
+        //         if (float.TryParse(parts[1], out float value))
+        //         {
+        //             // Store raw MediaPipe blendshape values
+        //             lastRawBlendshapes[CurAvatarBlendshapeName] = value;
 
-    //             // process calibrated values
-    //             if (isNeutralCalibrated && neutralMPValues.ContainsKey(CurAvatarBlendshapeName))
-    //                 value -= neutralMPValues[CurAvatarBlendshapeName];
+        //             // process calibrated values
+        //             if (isNeutralCalibrated && neutralMPValues.ContainsKey(CurAvatarBlendshapeName))
+        //                 value -= neutralMPValues[CurAvatarBlendshapeName];
 
-    //             value = Mathf.Max(0, value);
+        //             value = Mathf.Max(0, value);
 
-    //             // literally updating unity avatar
-    //             int index = faceRenderer.sharedMesh.GetBlendShapeIndex(CurAvatarBlendshapeName);
-    //             if (index >= 0)
-    //             {
-    //                 if (dMode) // If in debug mode, only update the blendshape specified by dModeMPKeyToInspect
-    //                 {
-    //                     // if (hasPrinted == false)
-    //                     // {
-    //                     // Debug.Log($"In Debug Mode - Only updating blendshape: {dModeMPKeyToInspect} by comparing with {CurAvatarBlendshapeName}");
-    //                     // Debug.Log($"Current blendshape index: {blendshapeIndex}");
-    //                     // hasPrinted = true; // Ensure this only prints once per message
-    //                     // }
+        //             // literally updating unity avatar
+        //             int index = faceRenderer.sharedMesh.GetBlendShapeIndex(CurAvatarBlendshapeName);
+        //             if (index >= 0)
+        //             {
+        //                 if (dMode) // If in debug mode, only update the blendshape specified by dModeMPKeyToInspect
+        //                 {
+        //                     // if (hasPrinted == false)
+        //                     // {
+        //                     // Debug.Log($"In Debug Mode - Only updating blendshape: {dModeMPKeyToInspect} by comparing with {CurAvatarBlendshapeName}");
+        //                     // Debug.Log($"Current blendshape index: {blendshapeIndex}");
+        //                     // hasPrinted = true; // Ensure this only prints once per message
+        //                     // }
 
-    //                     if (dModeAvatarBlendshapesToInspect.Contains(CurAvatarBlendshapeName))
-    //                     {
-    //                         faceRenderer.SetBlendShapeWeight(index, value);
-    //                         hasPrinted = true; // Set to true to prevent further debug messages for this blendshape
-    //                         // if (hasPrinted) Debug.Log($"Debug Mode: Setting blendshape '{CurAvatarBlendshapeName}' to {value:F1}");
-    //                     }
-    //                 }
-    //                 else // If not in debug mode, update all blendshapes
-    //                 {
-    //                     faceRenderer.SetBlendShapeWeight(index, value);
-    //                 }
-    //             }
-    //             lastBlendshapes[CurAvatarBlendshapeName] = value;
-    //         }
-    //     }
-    //     UpdateDebugPanel();
-    //     ShowCertainBlendshapes(); // Update the certain blendshapes debug text
-    // }
+        //                     if (dModeAvatarBlendshapesToInspect.Contains(CurAvatarBlendshapeName))
+        //                     {
+        //                         faceRenderer.SetBlendShapeWeight(index, value);
+        //                         hasPrinted = true; // Set to true to prevent further debug messages for this blendshape
+        //                         // if (hasPrinted) Debug.Log($"Debug Mode: Setting blendshape '{CurAvatarBlendshapeName}' to {value:F1}");
+        //                     }
+        //                 }
+        //                 else // If not in debug mode, update all blendshapes
+        //                 {
+        //                     faceRenderer.SetBlendShapeWeight(index, value);
+        //                 }
+        //             }
+        //             lastBlendshapes[CurAvatarBlendshapeName] = value;
+        //         }
+        //     }
+        //     UpdateDebugPanel();
+        //     ShowCertainBlendshapes(); // Update the certain blendshapes debug text
+        // }
 
     private void UpdateRawDebugPanel()
     {
@@ -271,7 +287,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private void ShowRawCertainBlendshapes()
     {
         if (certainRawBlendshapesDebugText == null) return;
-        var active = lastRawMPBlendshapes
+        var active = lastLongFormRawBlendshapes
             .Where(kv => kv.Key == dModeMPKeyToInspect)
             .Select(kv => $"{kv.Key}: {kv.Value:F1}");
         string output = string.Join("\n", active);
@@ -279,19 +295,19 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             output = "can't find anything?";
         certainRawBlendshapesDebugText.text = output;
     }
-    private void ShowCertainBlendshapes()
-    {
-        // This method will display only certain blendshapes in a debug panel
-        // if (certainBlendshapesDebugText == null)
-        // {
-        //     certainBlendshapesDebugText.text = "can't find anything?"; // Ensure this is assigned in the Inspector
-        // }
-        var active = lastRawMPBlendshapes
-            // .Where(kv => kv.Key == "Nose_Sneer_L" || kv.Key == "Nose_Nostril_Raise_L" || kv.Key == "Nose_Sneer_R" || kv.Key == "Nose_Nostril_Raise_R" )
-            .Where(kv => blendshapesToDisplayInDebug.Contains(kv.Key))
-            .Select(kv => $"{kv.Key}: {kv.Value:F1}");
-        certainBlendshapesDebugText.text = string.Join("\n", active);
-    }
+    // private void ShowCertainBlendshapes()
+    // {
+    //     // This method will display only certain blendshapes in a debug panel
+    //     // if (certainBlendshapesDebugText == null)
+    //     // {
+    //     //     certainBlendshapesDebugText.text = "can't find anything?"; // Ensure this is assigned in the Inspector
+    //     // }
+    //     var active = lastLongRawMPBlendshapes
+    //         // .Where(kv => kv.Key == "Nose_Sneer_L" || kv.Key == "Nose_Nostril_Raise_L" || kv.Key == "Nose_Sneer_R" || kv.Key == "Nose_Nostril_Raise_R" )
+    //         .Where(kv => blendshapesToDisplayInDebug.Contains(kv.Key))
+    //         .Select(kv => $"{kv.Key}: {kv.Value:F1}");
+    //     certainBlendshapesDebugText.text = string.Join("\n", active);
+    // }
         private void UpdateDebugPanel()
     {
         if (debugText == null) return;
@@ -668,6 +684,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         // Ensure debug panel updates to reflect live values
         UpdateDebugPanel();
         UpdateRawDebugPanel();
-        ShowCertainBlendshapes();
+        // ShowCertainBlendshapes();
     }
 }
