@@ -29,7 +29,7 @@ printed_blendshapes = False
 
 
 PROBLEM_BLENDSHAPE_REMAPPING_CONFIG = {
-    "cheekPuff": [0.000005, 0.000020], 
+    # "cheekPuff": [0.000005, 0.000020], 
 
 }
 
@@ -117,7 +117,9 @@ def draw_landmarks_on_frame(frame, detection_result):
             landmark_list=face_landmarks_proto,
             connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
             landmark_drawing_spec=None,
-            connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_contours_style())
+            # connection_drawing_spec=None,#)
+            connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_contours_style(),)
+            # is_drawing_landmarks= False)  # Don't draw landmarks, just connections
         
         # Draw the iris landmarks
         solutions.drawing_utils.draw_landmarks(
@@ -125,7 +127,7 @@ def draw_landmarks_on_frame(frame, detection_result):
             landmark_list=face_landmarks_proto,
             connections=mp.solutions.face_mesh.FACEMESH_IRISES,
             landmark_drawing_spec=None,
-            connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_iris_connections_style())
+            connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_iris_connections_style(),)
 
     return annotated_image
 

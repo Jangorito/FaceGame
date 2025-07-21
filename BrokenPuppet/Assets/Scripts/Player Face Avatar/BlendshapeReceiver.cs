@@ -5,17 +5,22 @@ using System.Linq;
 using UnityEngine.UI;
 using TMPro;
 using UnityEditor;
+using UnityEngine.Rendering;
 
 public class FaceBlendshapeReceiver : MonoBehaviour
 {
     public int oscPort = 9000;
     public string oscAddress = "/FaceBlendshapes"; // The OSC address to listen for blendshape messages
+    public float debugScrollValue;// // Value for the debug scroll bar
+    public float lastInputFieldText; // Store the last text input from the input field
+    public float n = 1;
     public SkinnedMeshRenderer faceRenderer; // The SkinnedMeshRenderer component that contains Unity's blendshapes
     public TextMeshProUGUI debugText; // Assign in Inspector
     public TextMeshProUGUI rawDebugText; // Assign in Inspector for raw values
     public TextMeshProUGUI certainBlendshapesDebugText; // Assign in Inspector for certain blendshapes
     public TextMeshProUGUI certainRawBlendshapesDebugText;
     public TextMeshProUGUI debuggingBSName; // Assign in Inspector for certain raw blendshapes
+    public Scrollbar debugScrollBar; // Assign in Inspector for scrolling the debug text
     private OSCReceiver receiver; // The OSCReceiver component to handle incoming OSC messages
     private Dictionary<string, float> lastBlendshapes = new Dictionary<string, float>(); // Store the last received value for each blendshape
     private Dictionary<string, float> neutralMPValues = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
@@ -54,6 +59,9 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
         // New receiver for raw MediaPipe blendshapes
         receiver.Bind("/FaceBlendshapesRaw", OnRawMPBlendshapeMessage);
+
+        // debugScrollBar.
+        
     }
 
     void OnRawMPBlendshapeMessage(OSCMessage message)
@@ -308,7 +316,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     //         .Select(kv => $"{kv.Key}: {kv.Value:F1}");
     //     certainBlendshapesDebugText.text = string.Join("\n", active);
     // }
-        private void UpdateDebugPanel()
+    private void UpdateDebugPanel()
     {
         if (debugText == null) return;
         // Show only blendshapes with value > 1, sorted by value descending, top 8
@@ -318,6 +326,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             .Take(8)
             .Select(kv => $"{kv.Key}: {kv.Value:F1}");
         debugText.text = string.Join("\n", active);
+        
+    
     }
     public void CalibrateNeutral()
     { // This method can be called to calibrate the neutral face
@@ -489,6 +499,46 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             { "mouthPressRight", new List<string> {"Mouth_Press_R"} },
         };
     }
+
+    public void OnInputFieldEndEdit(float finalInput)
+    {
+        if (finalInput < 0 || finalInput > 9)
+        {
+            Debug.LogWarning("Input value must be between 0 and 9.");
+            return; // Exit if the input is out of range
+        }
+
+        lastInputFieldText = finalInput; // Store the final value
+        Debug.Log($"Input Field finished editing with: {finalInput}");
+
+        setN(lastInputFieldText); // Update the n value with the input field text
+
+        // This is a good place to process the user's command/input
+        // Example: ProcessCommand(finalInput);
+
+        // You could update a debug UI element with the final input
+        // Example: CommandLogText.text += $"\n> {finalInput}";
+    }
+    public void OnDebugScrollbarValueChanged(float value)
+    {
+
+
+        debugScrollValue = value; // Store the value for inspection in Inspector
+        Debug.Log($"Debug Scrollbar Value Changed: {value:F4}");
+
+        // this is where you get the value of n and take your scrollbar's value as parameters for the calibration function:
+        // f(x) = 100^(1-n) * x^n
+        // where x is the value of the scrollbar, n is the value of the input field
+        // and f(x) is the value you want to set for the blendshape
+
+
+        // You could also update one of your TextMeshPro debug fields here
+        // For example, if you want a dedicated line for the scrollbar value
+        // if (RawDebugText != null)
+        // {
+        //     RawDebugText.text += $"\nScrollbar: {value:F4}"; // Appends to the raw debug text
+        // }
+    }
     public string getBlendshapeName()
     {
         return mediapipeToAvatarMapping.Keys[blendshapeIndex].ToString();
@@ -555,7 +605,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             }
             else
             {
-                // InverseLerp's mathematical inverse is Lerp: Lerp(a, b, t) where t is (desiredValue / 100)
+                // InverseLerp's mathematical inverse is Lerp: Lerp(a, b, t) where t is (desiredValue / 100) because Lerp scales from 0 to 1.
+                // So we can use Mathf.Lerp to find the required MediaPipe value.
                 requiredMPValue = Mathf.Lerp(min, max, desiredAvatarWeight / 100f);
             }
         }
@@ -649,6 +700,18 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
         // Optional: You might want to update your debug UI panels here if they display these values
         // UpdateDebugPanel(); // If your debug panel shows current blendshape weights
+    }
+
+    public void setN(float val)
+    {
+        n = val; // Set the value of n, which can be used for various purposes in your script
+        Debug.Log($"Set n to: {n}");
+    }
+
+    public float getN()
+    {
+        Debug.Log($"Current value of n is: {n}");
+        return n; // Return the current value of n
     }
     
     public void DeactivateManualOverride()
