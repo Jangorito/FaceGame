@@ -5,6 +5,7 @@ import numpy as np
 from threading import Lock
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
+from mediapipe.python.solutions.drawing_utils import DrawingSpec
 from pythonosc import udp_client
 import os
 
@@ -27,6 +28,7 @@ client = udp_client.SimpleUDPClient(OSC_IP, OSC_PORT)
 printed_landmarks = False
 printed_blendshapes = False
 
+printed_cv2 = False
 
 PROBLEM_BLENDSHAPE_REMAPPING_CONFIG = {
     # "cheekPuff": [0.000005, 0.000020], 
@@ -64,8 +66,8 @@ def process_result(result, output_image: mp.Image, timestamp_ms: int):
 
         for name in problematic_blendshapes:
             score = raw_mp_scores.get(name, 0.0)
-            if score > 0.0:  # Only print if the score is significant
-                print(f"DEBUG MP Raw - {name}: {score:.10f}")
+            # if score > 0.0:  # Only print if the score is significant
+                # print(f"DEBUG MP Raw - {name}: {score:.10f}")
     else:
         print("DEBUG: No face blendshapes detected by MediaPipe in this frame.")
 
@@ -83,16 +85,85 @@ def process_result(result, output_image: mp.Image, timestamp_ms: int):
             client.send_message(OSC_BLEND_ADDRESS, blend_data)
 
 # Function to draw landmarks on the output image
-def draw_landmarks_on_frame(frame, detection_result):
+
+# def draw_landmarks_on_frame(frame, detection_result):
+#     """function that takes a cv2 frame and a detection result, and draws the landmarks on the frame."""
+    
+#     if detection_result is None or not detection_result.face_landmarks:
+#         return frame
+
+#     # Create a copy of the frame to annotate
+#     annotated_image = frame.copy()
+#     # Convert the frame to RGB for MediaPipe processing
+#     face_landmarks_list = detection_result.face_landmarks
+#     nose_drawing_spec = solutions.drawing_utils.DrawingSpec(color=(0, 255, 255), thickness=2) # Yellow color
+    
+#     # Loop through the detected faces to visualize.
+#     for face_landmarks in face_landmarks_list:
+
+#         # Convert the landmarks to a list of NormalizedLandmark objects which drawing_utils can use
+#         face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
+#         face_landmarks_proto.landmark.extend([
+#             landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in face_landmarks
+#         ]) 
+
+#         # Draw the face mesh tesselation
+#         solutions.drawing_utils.draw_landmarks(
+#             image=annotated_image,
+#             landmark_list=face_landmarks_proto,
+#             connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
+#             landmark_drawing_spec=None,
+#             connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_tesselation_style())
+
+#         # Draw the face contours
+#         solutions.drawing_utils.draw_landmarks(
+#             image=annotated_image,
+#             landmark_list=face_landmarks_proto,
+#             connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
+#             landmark_drawing_spec=None,
+#             # connection_drawing_spec=None,#)
+#             connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_contours_style(),)
+#             # is_drawing_landmarks= False)  # Don't draw landmarks, just connections
+        
+#         # Draw the iris landmarks
+#         solutions.drawing_utils.draw_landmarks(
+#             image=annotated_image,
+#             landmark_list=face_landmarks_proto,
+#             connections=mp.solutions.face_mesh.FACEMESH_IRISES,
+#             landmark_drawing_spec=None,
+#             connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_iris_connections_style(),)
+        
+#         solutions.drawing_utils.draw_landmarks(
+#             image=annotated_image,
+#             landmark_list=face_landmarks_proto,
+#             connections=mp.solutions.face_mesh.FACEMESH_NOSE,
+#             landmark_drawing_spec=None,
+#             connection_drawing_spec=nose_drawing_spec)
+        
+#         # solutions.drawing_utils.draw_my_landmarks(
+#         #     image=annotated_image,
+#         #     landmark_list=face_landmarks_proto,
+#         #     connections=mp.solutions.face_mesh.FACEMESH_NOSE,
+#         #     landmark_drawing_spec=None,
+#         #     connection_drawing_spec=nose_drawing_spec)
+
+
+#     return annotated_image
+
+def draw_landmarks_on_frame(frame, detection_result, printer_bool):
     """function that takes a cv2 frame and a detection result, and draws the landmarks on the frame."""
     
     if detection_result is None or not detection_result.face_landmarks:
         return frame
 
+    if printer_bool:
+        print("Drawing landmarks on frame...")
+        
     # Create a copy of the frame to annotate
     annotated_image = frame.copy()
     # Convert the frame to RGB for MediaPipe processing
     face_landmarks_list = detection_result.face_landmarks
+    nose_drawing_spec = solutions.drawing_utils.DrawingSpec(color=(0, 255, 255), thickness=2) # Yellow color
     
     # Loop through the detected faces to visualize.
     for face_landmarks in face_landmarks_list:
@@ -103,33 +174,17 @@ def draw_landmarks_on_frame(frame, detection_result):
             landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in face_landmarks
         ]) 
 
-        # Draw the face mesh tesselation
-        solutions.drawing_utils.draw_landmarks(
-            image=annotated_image,
-            landmark_list=face_landmarks_proto,
-            connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
-            landmark_drawing_spec=None,
-            connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_tesselation_style())
 
-        # Draw the face contours
-        solutions.drawing_utils.draw_landmarks(
+        solutions.drawing_utils.draw_my_landmarks(
             image=annotated_image,
             landmark_list=face_landmarks_proto,
-            connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
-            landmark_drawing_spec=None,
-            # connection_drawing_spec=None,#)
-            connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_contours_style(),)
-            # is_drawing_landmarks= False)  # Don't draw landmarks, just connections
-        
-        # Draw the iris landmarks
-        solutions.drawing_utils.draw_landmarks(
-            image=annotated_image,
-            landmark_list=face_landmarks_proto,
-            connections=mp.solutions.face_mesh.FACEMESH_IRISES,
-            landmark_drawing_spec=None,
-            connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_iris_connections_style(),)
+            printer=printer_bool # Set to True if you want to print landmark coordinates
+            )
+            
+
 
     return annotated_image
+
 
 # Function to wait for the camera to open
 def wait_for_camera(cap, timeout=10):
@@ -313,12 +368,27 @@ try:
                 with lock:
                     if latest_result is not None:
                         # Draw the landmarks on the frame
-                        annotated_frame = draw_landmarks_on_frame(annotated_frame, latest_result)
+                        if printed_cv2:
+                            print(f"cv2 = {printed_cv2}")
+                            annotated_frame = draw_landmarks_on_frame(annotated_frame, latest_result, True)
+                            printed_cv2 = False
+                            print(f"cv2 = {printed_cv2}")
+                        else:
+                            # print(f"cv2 = {printed_cv2}")
+                            annotated_frame = draw_landmarks_on_frame(annotated_frame, latest_result, False)
+                        # if printed_cv2:
+                        #     print(f"cv2 = {printed_cv2}")
+                        #     printed_cv2 = False
+                        #     print(f"cv2 should have been disabled therefore = {printed_cv2}")
 
                 # Display the frame for debugging
                 cv2.imshow("FaceLandmarker", annotated_frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+                if cv2.waitKey(1) & 0xFF == ord('p'):
+                    printed_cv2 = True
+                    continue  # Skip the rest of the loop if 'p' is pressed
+
 
         finally:
             print("Released camera and destroyed all windows.")

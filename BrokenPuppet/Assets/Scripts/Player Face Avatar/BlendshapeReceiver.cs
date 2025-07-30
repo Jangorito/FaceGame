@@ -22,7 +22,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     public TextMeshProUGUI debuggingBSName; // Assign in Inspector for certain raw blendshapes
     public Scrollbar debugScrollBar; // Assign in Inspector for scrolling the debug text
     private OSCReceiver receiver; // The OSCReceiver component to handle incoming OSC messages
-    private Dictionary<string, float> lastBlendshapes = new Dictionary<string, float>(); // Store the last received value for each blendshape
+    public Dictionary<string, float> lastBlendshapes = new Dictionary<string, float>(); // Store the last received value for each blendshape
     private Dictionary<string, float> neutralMPValues = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
                                                                                          // This will be used to determine the neutral position of each blendshape
     private Dictionary<string, float> minMPValues = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
@@ -41,7 +41,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         "cheekSquintLeft",
         "cheekSquintRight",
         "noseSneerLeft",
-        "noseSneerRight",
+
         
     };
     public List<string> dModeAvatarBlendshapesToInspect;
@@ -107,44 +107,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
             lastRawMPBlendshapes[currentMPBlendshapeName] = rawMPValue;
             // Store the raw MediaPipe blendshape value, both for debbugging and calibration
-
-
-            // --- Calibration logic for raw MediaPipe blendshapes ---
-
-            // float calibratedValue = rawMPValue;
-            // // Start with the raw value
-
-            // // Firstly, neutral calibration check
-            // if (isNeutralCalibrated && neutralMPValues.ContainsKey(currentMPBlendshapeName))
-            // {
-            //     calibratedValue -= neutralMPValues[currentMPBlendshapeName];
-            // }
-
-            // // then, check for min/max calibration...TODO: This is not implemented yet as we still need to finalse methods for min/max calibration, namely, the many to one mapping
-
-            // if (isMinMaxCalibrated && minMPValues.ContainsKey(currentMPBlendshapeName) && maxMPValues.ContainsKey(currentMPBlendshapeName))
-            // {
-            //     float min = minMPValues[currentMPBlendshapeName];
-            //     float max = maxMPValues[currentMPBlendshapeName];
-
-            //     if (Mathf.Approximately(min, max))
-            //     {
-            //         calibratedValue = (min > 0) ? 100 : 0; // Avoid division by zero, snap to extreme
-            //     }
-            //     else
-            //     {
-            //         // Remap from [min, max] to [0, 100]
-            //         calibratedValue = Mathf.InverseLerp(min, max, calibratedValue) * 100f;
-            //     }
-            // }
-            // else
-            // {
-            //     // If no min/max calibration, simply scale to 0-100 (assuming MediaPipe is 0-1)
-            //     calibratedValue *= 100f;
-            // }
-
-            // // The final clamping to ensure the value is within 0-100
-            // calibratedValue = Mathf.Clamp(calibratedValue, 0f, 100f);
             float calibratedValue = CalibrateMPValueToAvatarWeight(currentMPBlendshapeName, rawMPValue);
 
 
@@ -185,7 +147,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
     void OnBlendshapeMessage(OSCMessage message)
     {
-        Debug.Log("Received OSC message on /10sfBlendshapes");
+        // Debug.Log("Received OSC message on /10sfBlendshapes");
         if (message.Values.Count == 0) return;
         string data = message.Values[0].StringValue;
         string[] pairs = data.Split('|');
@@ -297,8 +259,11 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         if (certainRawBlendshapesDebugText == null) return;
         var active = lastLongFormRawBlendshapes
             .Where(kv => kv.Key == dModeMPKeyToInspect)
-            .Select(kv => $"{kv.Key}: {kv.Value:F1}");
-        string output = string.Join("\n", active);
+            .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
+
+        string output = string.Join("\n", active); // 
+        // output = string.Join("\n", active); // 
+        
         if (string.IsNullOrEmpty(output))
             output = "can't find anything?";
         certainRawBlendshapesDebugText.text = output;
