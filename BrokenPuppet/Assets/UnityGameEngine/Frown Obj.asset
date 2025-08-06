@@ -10,11 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b0a8cf1023fd78c4c96bdfec60850969, type: 3}
-  m_Name: SmileTestObjective
+  m_Name: Frown Obj
   m_EditorClassIdentifier: 
-  objectiveName: Smile Test
-  blendshapesToCheckList:
-  - blendshapeName: Mouth_Smile_L
-    threshold: 80
-  - blendshapeName: Mouth_Smile_R
-    threshold: 80
+  objectiveName: 
+  blendshapesToCheckList: []

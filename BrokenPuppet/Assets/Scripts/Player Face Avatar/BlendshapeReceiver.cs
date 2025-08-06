@@ -11,7 +11,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 {
     public int oscPort = 9000;
     public string oscAddress = "/FaceBlendshapes"; // The OSC address to listen for blendshape messages
-    public float debugScrollValue;// // Value for the debug scroll bar
+    public float debugScrollValue; // Value for the debug scroll bar
     public float lastInputFieldText; // Store the last text input from the input field
     public float n = 1;
     public SkinnedMeshRenderer faceRenderer; // The SkinnedMeshRenderer component that contains Unity's blendshapes
