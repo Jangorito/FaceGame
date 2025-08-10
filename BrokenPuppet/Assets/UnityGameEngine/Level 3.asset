@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: 
   timeLimit: 30
-  objectives: []
+  objectives:
+  - {fileID: 11400000, guid: d7be997297a192646a065d5fb54f29d7, type: 2}

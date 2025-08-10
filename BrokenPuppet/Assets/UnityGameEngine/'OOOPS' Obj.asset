@@ -12,5 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0a8cf1023fd78c4c96bdfec60850969, type: 3}
   m_Name: '''OOOPS'' Obj'
   m_EditorClassIdentifier: 
-  objectiveName: 
-  blendshapesToCheckList: []
+  objectiveName: OOOOPS
+  blendshapesToCheckList:
+  - blendshapeName: Brow_Raise_Inner_L
+    threshold: 50
+  - blendshapeName: Brow_Raise_Inner_R
+    threshold: 50
+  - blendshapeName: Mouth_Down_Lower_L
+    threshold: 50
+  - blendshapeName: Mouth_Down_Lower_R
+    threshold: 50
