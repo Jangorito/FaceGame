@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization.Formatters;
 
 public class LevelManager : MonoBehaviour
 {
@@ -11,15 +12,31 @@ public class LevelManager : MonoBehaviour
     private LevelSO currentLevel;
     private float currentTime;
     private List<ObjectiveSO> activeObjectives;
+    public bool isLevelLoaded; // Track if a level is loaded
+    public UIManager uiManager;
 
+    public void Awake()
+    {
+        isLevelLoaded = false; // Initialize the flag
+    }
     public void LoadLevel(LevelSO level)
     {
+        isLevelLoaded = true; // Set the flag to true when a level is loaded
         currentLevel = level;
+        currentTime = 10;
+        Debug.Log($"Just reset the timer to: {currentTime} seconds.");
+        // Debug.Log($"UI manager boolean returns: {uiManager?}");
         currentTime = level.timeLimit;
+        Debug.Log($"Now loading Level: {level.levelName} with time limit: {currentTime} seconds.");
         activeObjectives = new List<ObjectiveSO>(level.objectives);
 
+        if (uiManager != null)
+        {
+            uiManager.SetupLevelUI(level, activeObjectives);
+        }
+
         Debug.Log($"Loading Level: {level.levelName} with {activeObjectives.Count} objectives.");
-        
+
         // --- NEW CODE START ---
         if (activeObjectives.Count > 0)
         {
@@ -56,11 +73,30 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
-        if (currentLevel == null) return; // Do nothing if no level is loaded
+        if (currentLevel == null && isLevelLoaded)
+        {
+            Debug.LogWarning("No level loaded. Please load a level before updating.");
+            return; // Do nothing if no level is loaded  
+        } 
+        
+        if (currentLevel == null)
+        {
+            return; // No level loaded, nothing to update
+        }
 
+        if (currentLevel.levelName == "Level 2")
+            {
+                Debug.Log("Level 2");
+
+            }
+
+    
         // 1. Update Timer
         currentTime -= Time.deltaTime;
-        // uiManager.UpdateTimer(currentTime);
+        if (uiManager != null)
+        {
+            uiManager.UpdateTimer(currentTime); // Update the timer display
+        }
 
         if (currentTime <= 0)
         {
@@ -80,7 +116,7 @@ public class LevelManager : MonoBehaviour
             if (IsObjectiveComplete(objective))
             {
                 Debug.Log($"Objective '{objective.objectiveName}' Complete!");
-                // uiManager.MarkObjectiveComplete(objective);
+                uiManager?.MarkObjectiveComplete(objective);   
                 activeObjectives.RemoveAt(i);
             }
         }
@@ -88,8 +124,8 @@ public class LevelManager : MonoBehaviour
         // 3. Check for Level Win
         if (!activeObjectives.Any()) // If the list is empty
         {
-            GameManager.Instance.LevelCompleted();
             currentLevel = null; // Stop processing
+            GameManager.Instance.LevelCompleted();
         }
     }
 

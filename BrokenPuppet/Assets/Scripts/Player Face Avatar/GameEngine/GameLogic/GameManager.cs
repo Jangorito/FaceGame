@@ -17,11 +17,6 @@ public class GameManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    // void Start()
-    // {
-    // StartLevel(currentLevelIndex);
-    // }
-
     public void playButtonClicked()
     {
         Debug.Log("Play Button Clicked!");

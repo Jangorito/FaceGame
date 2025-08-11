@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f8b176f79c048c4e9caee3fc997b1e5, type: 3}
   m_Name: Level 2
   m_EditorClassIdentifier: 
-  levelName: 
+  levelName: Level 2
   timeLimit: 30
   objectives:
   - {fileID: 11400000, guid: 026aec3269b89a04791acba2060de83f, type: 2}

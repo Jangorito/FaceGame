@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -8,10 +9,10 @@ public class UIManager : MonoBehaviour
     // which you will drag and drop in the Unity Inspector.
     
     // Timer
-    public Text timerText;
+    public TextMeshProUGUI timerText;
     
     // Level & Objective Display
-    public Text levelNameText;
+    public TextMeshProUGUI levelNameText;
     public Transform objectiveListParent; // The parent container for objective UI elements
     public GameObject objectiveUIPrefab; // A prefab for each objective, e.g., a panel with text
     
@@ -25,6 +26,7 @@ public class UIManager : MonoBehaviour
     /// <param name="activeObjectives">The list of objectives for the current level.</param>
     public void SetupLevelUI(LevelSO level, List<ObjectiveSO> activeObjectives)
     {
+        Debug.Log($"Setting up UI for Level: {level.levelName} with {activeObjectives.Count} objectives.");
         // Clear any previous objective UI elements
         ClearObjectiveUI();
 
@@ -48,7 +50,7 @@ public class UIManager : MonoBehaviour
                 // }
 
                 // For now, let's just set the text directly if it's a Text component
-                Text textComponent = newObjectiveUI.GetComponentInChildren<Text>();
+                TextMeshProUGUI textComponent = newObjectiveUI.GetComponentInChildren<TextMeshProUGUI>();
                 if(textComponent != null)
                 {
                     textComponent.text = obj.objectiveName;
@@ -85,7 +87,7 @@ public class UIManager : MonoBehaviour
             if(uiElement != null)
             {
                 // Example: changing text color
-                Text textComponent = uiElement.GetComponentInChildren<Text>();
+                TextMeshProUGUI textComponent = uiElement.GetComponentInChildren<TextMeshProUGUI>();
                 if (textComponent != null)
                 {
                     textComponent.color = Color.green;
