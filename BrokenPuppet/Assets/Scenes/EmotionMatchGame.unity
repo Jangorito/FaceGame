@@ -5795,6 +5795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blendshapeReader: {fileID: 1387143113}
+  isLevelLoaded: 0
   uiManager: {fileID: 267197619}
 --- !u!114 &2083938914
 MonoBehaviour:

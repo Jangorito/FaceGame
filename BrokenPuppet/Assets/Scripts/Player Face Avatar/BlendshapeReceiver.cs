@@ -34,16 +34,23 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private Dictionary<string, float> lastLongFormRawBlendshapes = new Dictionary<string, float>(); // Store the last received raw blendshape values
     private Dictionary<string, float> lastRawMPBlendshapes = new Dictionary<string, float>(); // Store the last received raw MediaPipe blendshape values
     public SortedList<string, List<string>> mediapipeToAvatarMapping = new SortedList<string, List<string>>(); // Mapping from MediaPipe blendshape names to Unity blendshape names
-    public List<string> blendshapesToDisplayInDebug = new List<string>
+    public List<string> SmileObjective = new List<string>
     {
-        "cheekPuff",
-        "mouthClose",
-        "cheekSquintLeft",
-        "cheekSquintRight",
-        "noseSneerLeft",
-
-        
+        "mouthSmileLeft",
+        "mouthSmileRight",
     };
+    public List<string> FrownObjective = new List<string>
+    {
+        "browDownLeft",
+        "browDownRight",
+    };
+    public List<string> SurpriseObjective = new List<string>
+    {
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight",
+        "browInnerUp",
+    };
+    public Dictionary<string, List<string>> ObjectiveList = new Dictionary<string, List<string>>();
     public List<string> dModeAvatarBlendshapesToInspect;
     public List<string> BlendshapesToCheck = new List<string>(); // List of Avatar blendshapes to fine tune
     public int blendshapeIndex = 0; // Index of the blendshape to be processed if in debug mode
@@ -165,84 +172,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         // ShowCertainBlendshapes(); // Update the certain blendshapes debug text
     }
 
-    //     bool dMode = isDebugModeEnabled();
-    //     if (dMode)
-    //     {
-    //         dModeAvatarBlendshapesToInspect = mediapipeToAvatarMapping.Values[getCurrentBlendshapeIndex()];
-    //         dModeMPKeyToInspect = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
-    //         string avatarBlendshapesString = getAvatarBlendshapeName(dModeAvatarBlendshapesToInspect);
-
-        //         if (hasPrinted == false)
-        //         {
-        //             Debug.Log($"We want to isolate '{dModeMPKeyToInspect}' with '{avatarBlendshapesString}' blendshape(s) in debug mode.");
-        //             hasPrinted = true; // Set to true to prevent further debug messages for this blendshape
-        //         }
-        //     }
-
-        //     // Store both raw & calibrated values
-        //     foreach (var pair in pairs)
-        //     {
-        //         var parts = pair.Split(',');
-        //         if (parts.Length != 2) continue;
-        //         string CurAvatarBlendshapeName = parts[0];
-        //         // CurAvatarBlendshapeName represents the Unity blendshape name we use to render the avatar through faceRenderer
-        //         // many --> 1
-
-
-        //         if (dModeAvatarBlendshapesToInspect.Contains(CurAvatarBlendshapeName))
-        //         {
-        //             if (!hasPrinted)
-        //             {
-        //                 // Debug.Log(message.ToString());
-        //                 Debug.Log($"Debug Mode: Processing blendshape '{CurAvatarBlendshapeName}' with index {blendshapeIndex}");
-        //                 hasPrinted = false; // Reset hasPrinted to allow new debug messages
-
-        //             }
-        //         }
-
-        //         if (float.TryParse(parts[1], out float value))
-        //         {
-        //             // Store raw MediaPipe blendshape values
-        //             lastRawBlendshapes[CurAvatarBlendshapeName] = value;
-
-        //             // process calibrated values
-        //             if (isNeutralCalibrated && neutralMPValues.ContainsKey(CurAvatarBlendshapeName))
-        //                 value -= neutralMPValues[CurAvatarBlendshapeName];
-
-        //             value = Mathf.Max(0, value);
-
-        //             // literally updating unity avatar
-        //             int index = faceRenderer.sharedMesh.GetBlendShapeIndex(CurAvatarBlendshapeName);
-        //             if (index >= 0)
-        //             {
-        //                 if (dMode) // If in debug mode, only update the blendshape specified by dModeMPKeyToInspect
-        //                 {
-        //                     // if (hasPrinted == false)
-        //                     // {
-        //                     // Debug.Log($"In Debug Mode - Only updating blendshape: {dModeMPKeyToInspect} by comparing with {CurAvatarBlendshapeName}");
-        //                     // Debug.Log($"Current blendshape index: {blendshapeIndex}");
-        //                     // hasPrinted = true; // Ensure this only prints once per message
-        //                     // }
-
-        //                     if (dModeAvatarBlendshapesToInspect.Contains(CurAvatarBlendshapeName))
-        //                     {
-        //                         faceRenderer.SetBlendShapeWeight(index, value);
-        //                         hasPrinted = true; // Set to true to prevent further debug messages for this blendshape
-        //                         // if (hasPrinted) Debug.Log($"Debug Mode: Setting blendshape '{CurAvatarBlendshapeName}' to {value:F1}");
-        //                     }
-        //                 }
-        //                 else // If not in debug mode, update all blendshapes
-        //                 {
-        //                     faceRenderer.SetBlendShapeWeight(index, value);
-        //                 }
-        //             }
-        //             lastBlendshapes[CurAvatarBlendshapeName] = value;
-        //         }
-        //     }
-        //     UpdateDebugPanel();
-        //     ShowCertainBlendshapes(); // Update the certain blendshapes debug text
-        // }
-
+ 
     private void UpdateRawDebugPanel()
     {
         if (rawDebugText == null) return;
@@ -463,51 +393,21 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             { "mouthPressLeft", new List<string> {"Mouth_Press_L"} },
             { "mouthPressRight", new List<string> {"Mouth_Press_R"} },
         };
-    }
 
-    public void OnInputFieldEndEdit(float finalInput)
-    {
-        if (finalInput < 0 || finalInput > 9)
+        // Initialize the ObjectiveList with predefined objectives
+        ObjectiveList = new Dictionary<string, List<string>>
         {
-            Debug.LogWarning("Input value must be between 0 and 9.");
-            return; // Exit if the input is out of range
-        }
-
-        lastInputFieldText = finalInput; // Store the final value
-        Debug.Log($"Input Field finished editing with: {finalInput}");
-
-        setN(lastInputFieldText); // Update the n value with the input field text
-
-        // This is a good place to process the user's command/input
-        // Example: ProcessCommand(finalInput);
-
-        // You could update a debug UI element with the final input
-        // Example: CommandLogText.text += $"\n> {finalInput}";
+            { "Smile", SmileObjective },
+            { "Frown", FrownObjective },
+            { "Surprise", SurpriseObjective }
+        };
     }
-    public void OnDebugScrollbarValueChanged(float value)
-    {
 
-
-        debugScrollValue = value; // Store the value for inspection in Inspector
-        Debug.Log($"Debug Scrollbar Value Changed: {value:F4}");
-
-        // this is where you get the value of n and take your scrollbar's value as parameters for the calibration function:
-        // f(x) = 100^(1-n) * x^n
-        // where x is the value of the scrollbar, n is the value of the input field
-        // and f(x) is the value you want to set for the blendshape
-
-
-        // You could also update one of your TextMeshPro debug fields here
-        // For example, if you want a dedicated line for the scrollbar value
-        // if (RawDebugText != null)
-        // {
-        //     RawDebugText.text += $"\nScrollbar: {value:F4}"; // Appends to the raw debug text
-        // }
-    }
     public string getBlendshapeName()
     {
         return mediapipeToAvatarMapping.Keys[blendshapeIndex].ToString();
     }
+
     // Helper method for forward calibration (MediaPipe raw value to Unity avatar blendshape weight)
     private float CalibrateMPValueToAvatarWeight(string mpBlendshapeName, float rawMPValue)
     {
