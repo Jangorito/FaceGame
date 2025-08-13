@@ -20,7 +20,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     public TextMeshProUGUI certainBlendshapesDebugText; // Assign in Inspector for certain blendshapes
     public TextMeshProUGUI certainRawBlendshapesDebugText;
     public TextMeshProUGUI debuggingBSName; // Assign in Inspector for certain raw blendshapes
-    public Scrollbar debugScrollBar; // Assign in Inspector for scrolling the debug text
     private OSCReceiver receiver; // The OSCReceiver component to handle incoming OSC messages
     public Dictionary<string, float> lastBlendshapes = new Dictionary<string, float>(); // Store the last received value for each blendshape
     private Dictionary<string, float> neutralMPValues = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
@@ -31,6 +30,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private bool isMinMaxCalibrated = false; // Flag to check if min/max calibration has been done
     private bool isNeutralCalibrated = false;
     public bool isDebugMode = false; // Toggle for debug mode, can be set in Inspector
+    public bool dModeLevels = false; // Toggle if you only want to debug/calibrate the objective blendshapes
     private Dictionary<string, float> lastLongFormRawBlendshapes = new Dictionary<string, float>(); // Store the last received raw blendshape values
     private Dictionary<string, float> lastRawMPBlendshapes = new Dictionary<string, float>(); // Store the last received raw MediaPipe blendshape values
     public SortedList<string, List<string>> mediapipeToAvatarMapping = new SortedList<string, List<string>>(); // Mapping from MediaPipe blendshape names to Unity blendshape names
@@ -176,13 +176,20 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private void UpdateRawDebugPanel()
     {
         if (rawDebugText == null) return;
-
-        var active = lastRawMPBlendshapes
-            // .Where(kv => Mathf.Abs(kv.Value) > 1f)
-            .OrderByDescending(kv => Mathf.Abs(kv.Value))
-            .Take(8)
-            .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
+        if (!dModeLevels){
+            var active = lastRawMPBlendshapes
+                // .Where(kv => Mathf.Abs(kv.Value) > 1f)
+                .OrderByDescending(kv => Mathf.Abs(kv.Value))
+                .Take(8)
+                .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
+        }
+        else{
+            var active = lastRawMPBlendshapes
+                .Where(kv => SmileObjective.contains(kv.Key) || kv => FrownObjective.contains(kv.Key) || kv => SurpriseObjective.contains(kv.Key))
+                .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
+        }
         rawDebugText.text = string.Join("\n", active);
+
     }
     private void ShowRawCertainBlendshapes()
     {
@@ -195,7 +202,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         // output = string.Join("\n", active); // 
         
         if (string.IsNullOrEmpty(output))
-            output = "can't find anything?";
+            output = "...";
         certainRawBlendshapesDebugText.text = output;
     }
     // private void ShowCertainBlendshapes()
@@ -214,16 +221,23 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private void UpdateDebugPanel()
     {
         if (debugText == null) return;
-        // Show only blendshapes with value > 1, sorted by value descending, top 8
-        var active = lastBlendshapes
-            .Where(kv => Mathf.Abs(kv.Value) > 1f)
-            .OrderByDescending(kv => Mathf.Abs(kv.Value))
-            .Take(8)
-            .Select(kv => $"{kv.Key}: {kv.Value:F1}");
-        debugText.text = string.Join("\n", active);
-        
-    
+        if (!dModeLevels){  
+            // Show only blendshapes with value > 1, sorted by value descending, top 8
+            var active = lastBlendshapes
+                .Where(kv => Mathf.Abs(kv.Value) > 1f)
+                .OrderByDescending(kv => Mathf.Abs(kv.Value))
+                .Take(8)
+                .Select(kv => $"{kv.Key}: {kv.Value:F1}");
+        }
+        else{
+            var active = lastBlendshapes
+                .Where(kv => SmileObjective.contains(kv.Key))
+                .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
+
+        }
+        debugText.text = string.Join("\n", active);    
     }
+
     public void CalibrateNeutral()
     { // This method can be called to calibrate the neutral face
         neutralMPValues = new Dictionary<string, float>(lastRawMPBlendshapes);
@@ -241,11 +255,13 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         }
         else
         {
+            dModeLevels = false;
             isMinMaxCalibrated = true;
             // assumes that once debug mode is disabled, min/max calibration is done
             Debug.Log("Debug mode disabled.");
         }
     }
+
     public void addBlendshape()
     {
         if (BlendshapesToCheck.Contains(getBlendshapeName()))
