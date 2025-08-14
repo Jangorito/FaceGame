@@ -34,6 +34,9 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private Dictionary<string, float> lastLongFormRawBlendshapes = new Dictionary<string, float>(); // Store the last received raw blendshape values
     private Dictionary<string, float> lastRawMPBlendshapes = new Dictionary<string, float>(); // Store the last received raw MediaPipe blendshape values
     public SortedList<string, List<string>> mediapipeToAvatarMapping = new SortedList<string, List<string>>(); // Mapping from MediaPipe blendshape names to Unity blendshape names
+    private List<string> objectiveNames = new List<string> { "Smile", "Frown", "Surprise" }; // List of objective names for blendshapes
+    private int currentObjectiveIndex = 0; // Index of the current objective
+    private int currentLevelBlendshapeIndex = 0; // Index of the current Levels DebugMode blendshape in debug mode
     public List<string> SmileObjective = new List<string>
     {
         "mouthSmileLeft",
@@ -84,6 +87,11 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         {
             dModeMPKeyToInspect = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
             // MediaPipe blendshape to inspect
+
+            if (isDebugModeLevelsEnabled())
+            {
+                dModeMPKeyToInspect = getCurrentObjectiveBSName();
+            }
 
             if (mediapipeToAvatarMapping.TryGetValue(dModeMPKeyToInspect, out List<string> avatarNames))
             {
@@ -175,35 +183,71 @@ public class FaceBlendshapeReceiver : MonoBehaviour
  
     private void UpdateRawDebugPanel()
     {
-        if (rawDebugText == null) return;
-        if (!dModeLevels){
+        if (rawDebugText == null)
+        {
+            rawDebugText.text = "..."; 
+            return;
+        }
+        
+        if (!dModeLevels)
+        {
             var active = lastRawMPBlendshapes
                 // .Where(kv => Mathf.Abs(kv.Value) > 1f)
                 .OrderByDescending(kv => Mathf.Abs(kv.Value))
                 .Take(8)
                 .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
+            rawDebugText.text = string.Join("\n", active);
         }
-        else{
-            var active = lastRawMPBlendshapes
-                .Where(kv => SmileObjective.contains(kv.Key) || kv => FrownObjective.contains(kv.Key) || kv => SurpriseObjective.contains(kv.Key))
-                .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
-        }
-        rawDebugText.text = string.Join("\n", active);
+        else
+        {
+            var activeObjectiveBlendshapes = GetActiveObjectiveBlendshapes().ToHashSet();
 
+            var active = lastRawMPBlendshapes
+                .Where(kv => activeObjectiveBlendshapes.Contains(kv.Key))
+                .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
+
+            rawDebugText.text = string.Join("\n", active);
+            // if (rawDebugText == null)
+            // {
+            //     rawDebugText.text = "...";
+            //     return;
+            // }
+        }
     }
     private void ShowRawCertainBlendshapes()
     {
-        if (certainRawBlendshapesDebugText == null) return;
-        var active = lastLongFormRawBlendshapes
-            .Where(kv => kv.Key == dModeMPKeyToInspect)
-            .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
+        if (isDebugModeLevelsEnabled())
+        {
 
-        string output = string.Join("\n", active); // 
-        // output = string.Join("\n", active); // 
-        
-        if (string.IsNullOrEmpty(output))
-            output = "...";
-        certainRawBlendshapesDebugText.text = output;
+            if (certainRawBlendshapesDebugText == null) return;
+            var active = lastLongFormRawBlendshapes
+                .Where(kv => kv.Key == dModeMPKeyToInspect)
+                .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
+
+            string output = string.Join("\n", active);
+            // if (string.IsNullOrEmpty(output))
+            // {
+            //     output = "...";
+            // }
+            certainRawBlendshapesDebugText.text = output;
+        }
+        else
+        {
+            if (certainRawBlendshapesDebugText == null) return;
+            var active = lastLongFormRawBlendshapes
+                .Where(kv => kv.Key == getCurrentObjectiveBSName())
+                .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
+
+            string output = string.Join("\n", active);
+            // if (string.IsNullOrEmpty(output))
+            // {
+            //     output = "...";
+            // }
+            certainRawBlendshapesDebugText.text = output;
+        }
+
+
+        // certainRawBlendshapesDebugText.text = output;
     }
     // private void ShowCertainBlendshapes()
     // {
@@ -221,21 +265,31 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private void UpdateDebugPanel()
     {
         if (debugText == null) return;
-        if (!dModeLevels){  
+
+        if (!dModeLevels)
+        {
             // Show only blendshapes with value > 1, sorted by value descending, top 8
             var active = lastBlendshapes
                 .Where(kv => Mathf.Abs(kv.Value) > 1f)
                 .OrderByDescending(kv => Mathf.Abs(kv.Value))
                 .Take(8)
                 .Select(kv => $"{kv.Key}: {kv.Value:F1}");
-        }
-        else{
-            var active = lastBlendshapes
-                .Where(kv => SmileObjective.contains(kv.Key))
-                .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
 
+            debugText.text = string.Join("\n", active);
         }
-        debugText.text = string.Join("\n", active);    
+        else
+        {
+            var activeObjectiveMPBlendshapes = GetActiveObjectiveBlendshapes();
+            var avatarBlendshapeNames = activeObjectiveMPBlendshapes
+                .SelectMany(mp => mediapipeToAvatarMapping.ContainsKey(mp) ? mediapipeToAvatarMapping[mp] : new List<string>())
+                .Distinct();
+
+            var active = avatarBlendshapeNames
+                .Where(name => lastBlendshapes.ContainsKey(name))
+                .Select(name => $"{name}: {lastBlendshapes[name] * 1000:F4}");
+
+            debugText.text = string.Join("\n", active);
+        }
     }
 
     public void CalibrateNeutral()
@@ -245,6 +299,26 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         Debug.Log("Neutral face calibrated.");
     }
 
+    public void dModeLevelsToggle()
+    {
+        if (!isDebugMode)
+        {
+            Debug.LogWarning("Debug mode must be enabled to toggle debug mode levels.");
+            return; // Exit if debug mode is not enabled
+        }
+        dModeLevels = !dModeLevels;
+        if (dModeLevels)
+        {
+            debuggingBSName.text = getCurrentBlendshapeName();
+            // certainRawBlendshapesDebugText.text = getCurrentBlendshapeName();
+            Debug.Log("Debug mode levels enabled. Only objective blendshapes will be displayed.");
+        }
+        else
+        {
+            debuggingBSName.text = getBlendshapeName();
+            Debug.Log("Debug mode levels disabled. All blendshapes will be displayed.");
+        }
+    }
     public void debugMode()
     {
         isDebugMode = !isDebugMode;
@@ -252,6 +326,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         {
             Debug.Log("Debug mode enabled.");
             debuggingBSName.text = getBlendshapeName();
+            // certainRawBlendshapesDebugText.text = getBlendshapeName();
         }
         else
         {
@@ -286,6 +361,10 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     {
         return isDebugMode;
     }
+    public bool isDebugModeLevelsEnabled()
+    {
+        return dModeLevels;
+    }
     public void printRawMPs()
     {
         var output = lastRawMPBlendshapes
@@ -307,27 +386,47 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     }
     public void incrementBlendshapeIndex()
     {
-        resetPreviousBlendshapes(); // Reset all blendshapes to 0 before incrementing
-        blendshapeIndex++;
-        if (blendshapeIndex >= 48) // Assuming there are 49 blendshapes (0-48)
+        if (isDebugModeLevelsEnabled() == false)
         {
-            blendshapeIndex = 0; // Reset to 0 if it exceeds the count
+            resetPreviousBlendshapes(); // Reset all blendshapes to 0 before incrementing
+            blendshapeIndex++;
+            if (blendshapeIndex >= 48) // Assuming there are 49 blendshapes (0-48)
+            {
+                blendshapeIndex = 0; // Reset to 0 if it exceeds the count
+            }
+            Debug.Log($"Current blendshape index: {blendshapeIndex}");
+            debuggingBSName.text = getBlendshapeName(); // Update the debug text with the current blendshape name
+            hasPrinted = false; // Reset hasPrinted to allow new debug messages
         }
-        Debug.Log($"Current blendshape index: {blendshapeIndex}");
-        debuggingBSName.text = getBlendshapeName(); // Update the debug text with the current blendshape name
-        hasPrinted = false; // Reset hasPrinted to allow new debug messages
+        else
+        {
+            resetPreviousBlendshapes(); // Reset all blendshapes to 0 before incrementing
+            NextBlendshape();
+            Debug.Log($"Current objective: {objectiveNames[currentObjectiveIndex]}");
+            debuggingBSName.text = getCurrentBlendshapeName();
+        }
     }
     public void decrementBlendshapeIndex()
     {
-        resetPreviousBlendshapes(); // Reset all blendshapes to 0 before decrementing
-        blendshapeIndex--;
-        if (blendshapeIndex < 0)
+        if (isDebugModeLevelsEnabled() == false)
         {
-            blendshapeIndex = 48; // Wrap around to the last index
+            resetPreviousBlendshapes(); // Reset all blendshapes to 0 before decrementing
+            blendshapeIndex--;
+            if (blendshapeIndex < 0)
+            {
+                blendshapeIndex = 48; // Wrap around to the last index
+            }
+            Debug.Log($"Current blendshape index: {blendshapeIndex}");
+            debuggingBSName.text = getBlendshapeName(); // Update the debug text with the current blendshape name
+            hasPrinted = false; // Reset hasPrinted to allow new debug messages
         }
-        Debug.Log($"Current blendshape index: {blendshapeIndex}");
-        debuggingBSName.text = getBlendshapeName(); // Update the debug text with the current blendshape name
-        hasPrinted = false; // Reset hasPrinted to allow new debug messages
+        else
+        {
+            resetPreviousBlendshapes(); // Reset all blendshapes to 0 before decrementing
+            PreviousBlendshape();
+            Debug.Log($"Current objective: {objectiveNames[currentObjectiveIndex]}");
+            debuggingBSName.text = getCurrentObjectiveBSName(); // Update the debug text with the current objective blendshape name 
+        }
     }
     public int getCurrentBlendshapeIndex()
     {
@@ -508,30 +607,65 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     }
     public void RecordMin()
     {
-        string mpBlendshapeKey = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
-        if (lastRawMPBlendshapes.TryGetValue(mpBlendshapeKey, out float currentValue))
+        if (!isDebugModeLevelsEnabled())
         {
-            minMPValues[mpBlendshapeKey] = currentValue; // Add or update
-            Debug.Log($"Recorded MIN value for MP blendshape '{mpBlendshapeKey}': {currentValue}");
+            string mpBlendshapeKey = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
+            if (lastRawMPBlendshapes.TryGetValue(mpBlendshapeKey, out float currentValue))
+            {
+                minMPValues[mpBlendshapeKey] = currentValue; // Add or update
+                Debug.Log($"Recorded MIN value for MP blendshape '{mpBlendshapeKey}': {currentValue}");
+            }
+            else
+            {
+                Debug.LogWarning($"Cannot record MIN: Raw MediaPipe blendshape '{mpBlendshapeKey}' not found.");
+            }
+
         }
         else
         {
-            Debug.LogWarning($"Cannot record MIN: Raw MediaPipe blendshape '{mpBlendshapeKey}' not found.");
+            string MPBblendshape = getCurrentObjectiveBSName();
+            if (lastRawMPBlendshapes.TryGetValue(MPBblendshape, out float currentValue))
+            {
+                minMPValues[MPBblendshape] = currentValue; // Add or update
+                Debug.Log($"Recorded MIN value for MP blendshape '{MPBblendshape}': {currentValue}");
+            }
+            else
+            {
+                Debug.LogWarning($"Cannot record MIN: Raw MediaPipe blendshape '{MPBblendshape}' not found.");
+            }
         }
+
     }
 
     public void RecordMax()
     {
-        string mpBlendshapeKey = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
-        if (lastRawMPBlendshapes.TryGetValue(mpBlendshapeKey, out float currentValue))
+        if (!isDebugModeLevelsEnabled())
         {
-            maxMPValues[mpBlendshapeKey] = currentValue; // Add or update
-            Debug.Log($"Recorded MAX value for MP blendshape '{mpBlendshapeKey}': {currentValue}");
+            string mpBlendshapeKey = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
+            if (lastRawMPBlendshapes.TryGetValue(mpBlendshapeKey, out float currentValue))
+            {
+                maxMPValues[mpBlendshapeKey] = currentValue; // Add or update
+                Debug.Log($"Recorded MAX value for MP blendshape '{mpBlendshapeKey}': {currentValue}");
+            }
+            else
+            {
+                Debug.LogWarning($"Cannot record MAX: Raw MediaPipe blendshape '{mpBlendshapeKey}' not found.");
+            }
         }
         else
         {
-            Debug.LogWarning($"Cannot record MAX: Raw MediaPipe blendshape '{mpBlendshapeKey}' not found.");
+            string MPBblendshape = getCurrentObjectiveBSName(); 
+            if (lastRawMPBlendshapes.TryGetValue(MPBblendshape, out float currentValue))
+            {
+                maxMPValues[MPBblendshape] = currentValue; // Add or update
+                Debug.Log($"Recorded MAX value for MP blendshape '{MPBblendshape}': {currentValue}");
+            }
+            else
+            {
+                Debug.LogWarning($"Cannot record MAX: Raw MediaPipe blendshape '{MPBblendshape}' not found.");
+            }
         }
+
     }
 
     public void ToggleBlendshapeExtremeVisually()
@@ -583,18 +717,72 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         // UpdateDebugPanel(); // If your debug panel shows current blendshape weights
     }
 
-    public void setN(float val)
+    public string getCurrentBlendshapeName()
     {
-        n = val; // Set the value of n, which can be used for various purposes in your script
-        Debug.Log($"Set n to: {n}");
+        return objectiveNames[currentObjectiveIndex];
+    }
+    public string getCurrentObjectiveBSName()
+    {
+        return ObjectiveList[getCurrentBlendshapeName()][currentLevelBlendshapeIndex];
+    }
+    private List<string> GetActiveObjectiveBlendshapes() // Returns the blendshapes for the current objective
+    {
+        string currentObjective = getCurrentBlendshapeName();
+
+        return currentObjective switch
+        {
+            "Smile" => SmileObjective,
+            "Frown" => FrownObjective,
+            "Surprise" => SurpriseObjective,
+            _ => new List<string>()
+        };
     }
 
-    public float getN()
+    public void NextBlendshape()
     {
-        Debug.Log($"Current value of n is: {n}");
-        return n; // Return the current value of n
+        var activeObjectiveBlendshapes = GetActiveObjectiveBlendshapes();
+        int listLength = activeObjectiveBlendshapes.Count;
+        currentLevelBlendshapeIndex = (currentLevelBlendshapeIndex + 1) % listLength; // Cycle through the list
     }
-    
+    public void PreviousBlendshape()
+    {
+        var activeObjectiveBlendshapes = GetActiveObjectiveBlendshapes();
+        int listLength = activeObjectiveBlendshapes.Count;
+        currentLevelBlendshapeIndex = (currentLevelBlendshapeIndex - 1 + listLength) % listLength; // Cycle through the list
+    }
+
+    public void NextObjective()
+    {
+        if (isDebugModeLevelsEnabled())
+        {
+            resetPreviousBlendshapes();
+            currentObjectiveIndex = (currentObjectiveIndex + 1) % objectiveNames.Count;
+            debuggingBSName.text = getCurrentBlendshapeName();
+            Debug.Log($"Next objective: {objectiveNames[currentObjectiveIndex]} because currentObjectiveIndex is {currentObjectiveIndex}");
+        }
+        else
+        {
+            Debug.LogWarning("NextObjective called, but not in debug mode levels. No action taken.");
+            return;
+        } // If not in debug mode levels, do nothing
+    }
+
+    public void PreviousObjective()
+    {
+        if (isDebugModeLevelsEnabled())
+        {
+            resetPreviousBlendshapes();
+            currentObjectiveIndex = (currentObjectiveIndex - 1 + objectiveNames.Count) % objectiveNames.Count;
+            debuggingBSName.text = getCurrentBlendshapeName();
+            Debug.Log($"Previous objective: {objectiveNames[currentObjectiveIndex]} because currentObjectiveIndex is {currentObjectiveIndex}");
+        }
+        else
+        {
+            Debug.LogWarning("PreviousObjective called, but not in debug mode levels. No action taken.");
+            return;
+        } // If not in debug mode levels, do nothing        
+    }
+
     public void DeactivateManualOverride()
     {
         if (!isManualOverrideActive)
