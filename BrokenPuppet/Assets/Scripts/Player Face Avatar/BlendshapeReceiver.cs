@@ -2,17 +2,12 @@ using UnityEngine;
 using extOSC;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.UI;
 using TMPro;
 using UnityEditor;
-using UnityEngine.Rendering;
 
 public class FaceBlendshapeReceiver : MonoBehaviour
 {
     public int oscPort = 9000;
-    public string oscAddress = "/FaceBlendshapes"; // The OSC address to listen for blendshape messages
-    public float debugScrollValue; // Value for the debug scroll bar
-    public float lastInputFieldText; // Store the last text input from the input field
     public SkinnedMeshRenderer faceRenderer; // The SkinnedMeshRenderer component that contains Unity's blendshapes
     public TextMeshProUGUI debugText; // Avatar Blendshapes debug text
     public TextMeshProUGUI rawDebugText; // MediaPipe Blendshapes debug text
@@ -205,29 +200,18 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     }
     private void ShowRawCertainBlendshapes()
     {
-        if (isDebugModeLevelsEnabled())
-        {
+        if (certainRawBlendshapesDebugText == null) return;
+        var active = lastLongFormRawBlendshapes
+            .Where(kv => kv.Key == dModeMPKeyToInspect)
+            .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
 
-            if (certainRawBlendshapesDebugText == null) return;
-            var active = lastLongFormRawBlendshapes
-                .Where(kv => kv.Key == dModeMPKeyToInspect)
-                .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
+        string output = string.Join("\n", active);
 
-            string output = string.Join("\n", active);
-            certainRawBlendshapesDebugText.text = output;
-        } // If in debug mode levels, show only the current objective blendshape
+        if (!isDebugModeEnabled()) {output = "";} 
 
-        else
-        {
-            if (certainRawBlendshapesDebugText == null) return;
-            var active = lastLongFormRawBlendshapes
-                .Where(kv => kv.Key == getCurrentObjectiveBSName())
-                .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
+        certainRawBlendshapesDebugText.text = output;
 
-            string output = string.Join("\n", active);
-            certainRawBlendshapesDebugText.text = output;
-        } // If not in debug mode levels, show the current blendshape
-    }
+    } // Show the raw MediaPipe blendshapes for the current blendshape in debug mode, doesn't matter if in levels debug mode or normal debug mode
     private void UpdateDebugPanel()
     {
         if (debugText == null) return;
@@ -386,7 +370,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             resetPreviousBlendshapes(); 
             PreviousBlendshape();
             Debug.Log($"Current objective: {objectiveNames[currentObjectiveIndex]}");
-            debuggingBSName.text = getCurrentObjectiveBSName();
+            debuggingBSName.text = getCurrentBlendshapeName();;
         }
     }
     public int getCurrentBlendshapeIndex()

@@ -11,6 +11,7 @@ public class LevelManager : MonoBehaviour
     private List<ObjectiveSO> activeObjectives;
     public bool isLevelLoaded; 
     public UIManager uiManager;
+    public bool isPaused = false;
 
     public void Awake()
     {
@@ -60,9 +61,14 @@ public class LevelManager : MonoBehaviour
             Debug.Log("No objectives found for this level.");
         }
     }
-
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+    }
     void Update()
     {
+        if (isPaused) return;
+        
         if (currentLevel == null && isLevelLoaded)
         {
             Debug.LogWarning("No level loaded. Please load a level before updating.");
