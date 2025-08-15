@@ -10,7 +10,7 @@
       "hash": "d1afe76ff9b6ea0091dc32fa51a2417f8cc23947"
     },
     "com.soupday.cc3_unity_tools": {
-      "version": "Packages/AutoSetupDir/Character_Creator_and_iClone_Auto_Setup_1.4.6_for_Unity_HDRP12",
+      "version": "file:AutoSetupDir/Character_Creator_and_iClone_Auto_Setup_1.4.6_for_Unity_HDRP12",
       "depth": 0,
       "source": "local",
       "dependencies": {
