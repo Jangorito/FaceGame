@@ -13,13 +13,11 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     public string oscAddress = "/FaceBlendshapes"; // The OSC address to listen for blendshape messages
     public float debugScrollValue; // Value for the debug scroll bar
     public float lastInputFieldText; // Store the last text input from the input field
-    public float n = 1;
     public SkinnedMeshRenderer faceRenderer; // The SkinnedMeshRenderer component that contains Unity's blendshapes
-    public TextMeshProUGUI debugText; // Assign in Inspector
-    public TextMeshProUGUI rawDebugText; // Assign in Inspector for raw values
-    public TextMeshProUGUI certainBlendshapesDebugText; // Assign in Inspector for certain blendshapes
-    public TextMeshProUGUI certainRawBlendshapesDebugText;
-    public TextMeshProUGUI debuggingBSName; // Assign in Inspector for certain raw blendshapes
+    public TextMeshProUGUI debugText; // Avatar Blendshapes debug text
+    public TextMeshProUGUI rawDebugText; // MediaPipe Blendshapes debug text
+    public TextMeshProUGUI certainRawBlendshapesDebugText; // Debug text for certain raw blendshapes
+    public TextMeshProUGUI debuggingBSName; // The blendshape name currently being debugged
     private OSCReceiver receiver; // The OSCReceiver component to handle incoming OSC messages
     public Dictionary<string, float> lastBlendshapes = new Dictionary<string, float>(); // Store the last received value for each blendshape
     private Dictionary<string, float> neutralMPValues = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
@@ -28,7 +26,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     private Dictionary<string, float> maxMPValues = new Dictionary<string, float>(); // Store neutral blendshape values for calibration
     private Dictionary<string, float> _toggledAvatarExtremeStates = new Dictionary<string, float>(); // Stores 0f or 100f for toggled extreme states of avatar blendshapes
     private bool isMinMaxCalibrated = false; // Flag to check if min/max calibration has been done
-    private bool isNeutralCalibrated = false;
+    private bool isNeutralCalibrated = false; // Flag to check if neutral calibration has been done
     public bool isDebugMode = false; // Toggle for debug mode, can be set in Inspector
     public bool dModeLevels = false; // Toggle if you only want to debug/calibrate the objective blendshapes
     private Dictionary<string, float> lastLongFormRawBlendshapes = new Dictionary<string, float>(); // Store the last received raw blendshape values
@@ -41,25 +39,25 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     {
         "mouthSmileLeft",
         "mouthSmileRight",
-    };
+    }; // List of blendshapes for the Smile objective
     public List<string> FrownObjective = new List<string>
     {
         "browDownLeft",
         "browDownRight",
-    };
+    }; // List of blendshapes for the Frown objective
     public List<string> SurpriseObjective = new List<string>
     {
         "mouthLowerDownLeft",
         "mouthLowerDownRight",
         "browInnerUp",
-    };
-    public Dictionary<string, List<string>> ObjectiveList = new Dictionary<string, List<string>>();
-    public List<string> dModeAvatarBlendshapesToInspect;
+    }; // List of blendshapes for the Surprise objective
+    public Dictionary<string, List<string>> ObjectiveList = new Dictionary<string, List<string>>(); // Dictionary to hold the objectives and their blendshapes
+    public List<string> dModeAvatarBlendshapesToInspect; // List of Avatar blendshapes to inspect in debug mode
     public List<string> BlendshapesToCheck = new List<string>(); // List of Avatar blendshapes to fine tune
     public int blendshapeIndex = 0; // Index of the blendshape to be processed if in debug mode
     public string dModeMPKeyToInspect = ""; // Key for debug mode, used to access the current blendshape in debug mode
     public bool hasPrinted = false;
-    private bool isManualOverrideActive = false;
+    private bool isManualOverrideActive = false; // Flag to check if manual override is active
     void Start() // called when the script is being loaded
     {
         initialiseDictionary(); // Initialize the mapping dictionary
@@ -69,8 +67,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
         // New receiver for raw MediaPipe blendshapes
         receiver.Bind("/FaceBlendshapesRaw", OnRawMPBlendshapeMessage);
-
-        // debugScrollBar.
         
     }
 
@@ -91,12 +87,12 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             if (isDebugModeLevelsEnabled())
             {
                 dModeMPKeyToInspect = getCurrentObjectiveBSName();
-            }
+            } // If in levels debug mode, use the current objective blendshape name
 
             if (mediapipeToAvatarMapping.TryGetValue(dModeMPKeyToInspect, out List<string> avatarNames))
             {
                 dModeAvatarBlendshapesToInspect = avatarNames;
-                // Avatar blendshapes to inspect
+                // Avatar blendshapes to inspect 
             }
 
             string avatarBlendshapesString = getAvatarBlendshapeName(dModeAvatarBlendshapesToInspect);
@@ -140,7 +136,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                                 if (dModeAvatarBlendshapesToInspect.Contains(avatarName))
                                 {
                                     faceRenderer.SetBlendShapeWeight(index, calibratedValue);
-                                    // Debug.Log($"DMode: Set {avatarName} to {calibratedValue:F2}");
                                 }
                             }
                             else // Not in debug mode, update all
@@ -156,8 +151,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         }
         UpdateDebugPanel();
         UpdateRawDebugPanel();
-        ShowRawCertainBlendshapes(); // Update the certain raw blendshapes debug text TODO: This is not used in the current implementation, but can be useful for debugging
-        // ShowCertainBlendshapes(); // Update the certain blendshapes debug text
+        ShowRawCertainBlendshapes();
+        // update the debug panels
     }
 
     void OnBlendshapeMessage(OSCMessage message)
@@ -177,27 +172,26 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
             lastLongFormRawBlendshapes[LongFormRawMPs] = LongFormrawMPValue;
         }
-        // ShowCertainBlendshapes(); // Update the certain blendshapes debug text
+        ShowRawCertainBlendshapes();
     }
 
- 
     private void UpdateRawDebugPanel()
     {
         if (rawDebugText == null)
         {
-            rawDebugText.text = "..."; 
+            rawDebugText.text = "...";
             return;
         }
-        
+
         if (!dModeLevels)
         {
             var active = lastRawMPBlendshapes
-                // .Where(kv => Mathf.Abs(kv.Value) > 1f)
                 .OrderByDescending(kv => Mathf.Abs(kv.Value))
                 .Take(8)
                 .Select(kv => $"{kv.Key}: {kv.Value * 100f:F1}");
             rawDebugText.text = string.Join("\n", active);
-        }
+        } // If not in debug mode levels, show the top 8 blendshapes, sorted by value descending
+
         else
         {
             var activeObjectiveBlendshapes = GetActiveObjectiveBlendshapes().ToHashSet();
@@ -207,12 +201,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                 .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
 
             rawDebugText.text = string.Join("\n", active);
-            // if (rawDebugText == null)
-            // {
-            //     rawDebugText.text = "...";
-            //     return;
-            // }
-        }
+        } // If in debug mode levels, show only the active objective blendshapes
     }
     private void ShowRawCertainBlendshapes()
     {
@@ -225,12 +214,9 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                 .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
 
             string output = string.Join("\n", active);
-            // if (string.IsNullOrEmpty(output))
-            // {
-            //     output = "...";
-            // }
             certainRawBlendshapesDebugText.text = output;
-        }
+        } // If in debug mode levels, show only the current objective blendshape
+
         else
         {
             if (certainRawBlendshapesDebugText == null) return;
@@ -239,36 +225,15 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                 .Select(kv => $"{kv.Key}: {kv.Value * 1000:F4}");
 
             string output = string.Join("\n", active);
-            // if (string.IsNullOrEmpty(output))
-            // {
-            //     output = "...";
-            // }
             certainRawBlendshapesDebugText.text = output;
-        }
-
-
-        // certainRawBlendshapesDebugText.text = output;
+        } // If not in debug mode levels, show the current blendshape
     }
-    // private void ShowCertainBlendshapes()
-    // {
-    //     // This method will display only certain blendshapes in a debug panel
-    //     // if (certainBlendshapesDebugText == null)
-    //     // {
-    //     //     certainBlendshapesDebugText.text = "can't find anything?"; // Ensure this is assigned in the Inspector
-    //     // }
-    //     var active = lastLongRawMPBlendshapes
-    //         // .Where(kv => kv.Key == "Nose_Sneer_L" || kv.Key == "Nose_Nostril_Raise_L" || kv.Key == "Nose_Sneer_R" || kv.Key == "Nose_Nostril_Raise_R" )
-    //         .Where(kv => blendshapesToDisplayInDebug.Contains(kv.Key))
-    //         .Select(kv => $"{kv.Key}: {kv.Value:F1}");
-    //     certainBlendshapesDebugText.text = string.Join("\n", active);
-    // }
     private void UpdateDebugPanel()
     {
         if (debugText == null) return;
 
         if (!dModeLevels)
         {
-            // Show only blendshapes with value > 1, sorted by value descending, top 8
             var active = lastBlendshapes
                 .Where(kv => Mathf.Abs(kv.Value) > 1f)
                 .OrderByDescending(kv => Mathf.Abs(kv.Value))
@@ -276,7 +241,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                 .Select(kv => $"{kv.Key}: {kv.Value:F1}");
 
             debugText.text = string.Join("\n", active);
-        }
+        } // If not in debug mode levels, show the top 8 blendshapes with value > 1, sorted by value descending
+
         else
         {
             var activeObjectiveMPBlendshapes = GetActiveObjectiveBlendshapes();
@@ -289,16 +255,14 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                 .Select(name => $"{name}: {lastBlendshapes[name] * 1000:F4}");
 
             debugText.text = string.Join("\n", active);
-        }
+        } // If in debug mode levels, show only the active objective blendshapes
     }
-
     public void CalibrateNeutral()
-    { // This method can be called to calibrate the neutral face
+    { 
         neutralMPValues = new Dictionary<string, float>(lastRawMPBlendshapes);
         isNeutralCalibrated = true;
         Debug.Log("Neutral face calibrated.");
-    }
-
+    } // Calibrate the neutral position of each blendshape based on the last received raw MediaPipe values
     public void dModeLevelsToggle()
     {
         if (!isDebugMode)
@@ -310,7 +274,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         if (dModeLevels)
         {
             debuggingBSName.text = getCurrentBlendshapeName();
-            // certainRawBlendshapesDebugText.text = getCurrentBlendshapeName();
             Debug.Log("Debug mode levels enabled. Only objective blendshapes will be displayed.");
         }
         else
@@ -318,7 +281,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             debuggingBSName.text = getBlendshapeName();
             Debug.Log("Debug mode levels disabled. All blendshapes will be displayed.");
         }
-    }
+    } // Toggle debug mode levels, which allows you to focus on objective blendshapes only
     public void debugMode()
     {
         isDebugMode = !isDebugMode;
@@ -326,7 +289,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         {
             Debug.Log("Debug mode enabled.");
             debuggingBSName.text = getBlendshapeName();
-            // certainRawBlendshapesDebugText.text = getBlendshapeName();
         }
         else
         {
@@ -335,10 +297,9 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             // assumes that once debug mode is disabled, min/max calibration is done
             Debug.Log("Debug mode disabled.");
         }
-    }
-
-    public void addBlendshape()
-    {
+    } // Toggle debug mode, which allows you to inspect and manipulate blendshapes in real-time
+    public void addBlendshape() // DEBUG FUNCTION
+    { 
         if (BlendshapesToCheck.Contains(getBlendshapeName()))
         {
             Debug.Log($"Blendshape '{getBlendshapeName()}' is already in the list.");
@@ -346,8 +307,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         }
         Debug.Log($"Adding blendshape '{getBlendshapeName()}' to the list.");
         BlendshapesToCheck.Add(getBlendshapeName());
-    }
-    public void printBlendshapesToCheck()
+    } // Adds the current blendshape to the list of blendshapes to check, if not already present
+    public void printBlendshapesToCheck() // DEBUG FUNCTION
     {
         if (BlendshapesToCheck.Count == 0)
         {
@@ -365,7 +326,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     {
         return dModeLevels;
     }
-    public void printRawMPs()
+    public void printRawMPs() // DEBUG FUNCTION
     {
         var output = lastRawMPBlendshapes
             .OrderByDescending(kv => Mathf.Abs(kv.Value))
@@ -376,56 +337,56 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     {
         foreach (var blendshape in lastBlendshapes)
         {
-            // Reset each blendshape to 0
             int index = faceRenderer.sharedMesh.GetBlendShapeIndex(blendshape.Key);
             if (index >= 0)
             {
                 faceRenderer.SetBlendShapeWeight(index, 0f);
             }
         }
-    }
+    } // Resets all previously set blendshapes to 0, clearing the avatar's facial expression
     public void incrementBlendshapeIndex()
     {
         if (isDebugModeLevelsEnabled() == false)
         {
             resetPreviousBlendshapes(); // Reset all blendshapes to 0 before incrementing
             blendshapeIndex++;
-            if (blendshapeIndex >= 48) // Assuming there are 49 blendshapes (0-48)
+            if (blendshapeIndex >= 48) 
             {
-                blendshapeIndex = 0; // Reset to 0 if it exceeds the count
+                blendshapeIndex = 0; // Wrap around to the first index
             }
             Debug.Log($"Current blendshape index: {blendshapeIndex}");
-            debuggingBSName.text = getBlendshapeName(); // Update the debug text with the current blendshape name
-            hasPrinted = false; // Reset hasPrinted to allow new debug messages
-        }
+            debuggingBSName.text = getBlendshapeName(); 
+            hasPrinted = false; 
+        } // If not in debug mode levels, increment the blendshape index normally
+
         else
         {
             resetPreviousBlendshapes(); // Reset all blendshapes to 0 before incrementing
             NextBlendshape();
             Debug.Log($"Current objective: {objectiveNames[currentObjectiveIndex]}");
             debuggingBSName.text = getCurrentBlendshapeName();
-        }
-    }
+        } // If in debug mode levels, increment the blendshape index based on the current objective
+    } 
     public void decrementBlendshapeIndex()
     {
         if (isDebugModeLevelsEnabled() == false)
         {
-            resetPreviousBlendshapes(); // Reset all blendshapes to 0 before decrementing
+            resetPreviousBlendshapes(); 
             blendshapeIndex--;
             if (blendshapeIndex < 0)
             {
                 blendshapeIndex = 48; // Wrap around to the last index
             }
             Debug.Log($"Current blendshape index: {blendshapeIndex}");
-            debuggingBSName.text = getBlendshapeName(); // Update the debug text with the current blendshape name
-            hasPrinted = false; // Reset hasPrinted to allow new debug messages
+            debuggingBSName.text = getBlendshapeName(); 
+            hasPrinted = false;
         }
         else
         {
-            resetPreviousBlendshapes(); // Reset all blendshapes to 0 before decrementing
+            resetPreviousBlendshapes(); 
             PreviousBlendshape();
             Debug.Log($"Current objective: {objectiveNames[currentObjectiveIndex]}");
-            debuggingBSName.text = getCurrentObjectiveBSName(); // Update the debug text with the current objective blendshape name 
+            debuggingBSName.text = getCurrentObjectiveBSName();
         }
     }
     public int getCurrentBlendshapeIndex()
@@ -435,16 +396,17 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     public string getAvatarBlendshapeName(List<string> dModeAvatarBlendshapesToInspect)
     {
         return string.Join(", ", dModeAvatarBlendshapesToInspect); // Joins with ", "
-    }
-    public void getDictBlendshapeName()
+    } // Returns a string of the avatar blendshape names to inspect in debug mode, separated by commas
+    public void getDictBlendshapeName() // DEBUG FUNCTION
     {
         Debug.Log("Blendshape names in the dictionary:");
         Debug.Log(string.Join(", ", neutralMPValues));
         Debug.Log("Last blendshapes received:");
-        Debug.Log(string.Join(", ", lastBlendshapes)); // Returns the blendshape name as is
-    }
+        Debug.Log(string.Join(", ", lastBlendshapes)); 
+    } 
     public void initialiseDictionary()
     {
+        // Initialize the mapping dictionary for MediaPipe blendshapes to Unity blendshapes
         mediapipeToAvatarMapping = new SortedList<string, List<string>>
         {
             // Brows
@@ -516,16 +478,13 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             { "Frown", FrownObjective },
             { "Surprise", SurpriseObjective }
         };
-    }
-
+    } // Initializes the mapping dictionary for MediaPipe blendshapes to Unity blendshapes and sets up the objectives
     public string getBlendshapeName()
     {
         return mediapipeToAvatarMapping.Keys[blendshapeIndex].ToString();
     }
-
-    // Helper method for forward calibration (MediaPipe raw value to Unity avatar blendshape weight)
     private float CalibrateMPValueToAvatarWeight(string mpBlendshapeName, float rawMPValue)
-    {
+    { 
         float processedValue = rawMPValue;
 
         // Apply Neutral Calibration (offset)
@@ -560,10 +519,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
         // Final Clamping to ensure it's within Unity's blendshape range (0-100)
         return Mathf.Clamp(processedValue, 0f, 100f);
-    }
-
-    // Helper method for INVERSE calibration (Desired Avatar Weight to Required MediaPipe Raw Value)
-    // This calculates what raw MediaPipe input would theoretically produce a given avatar blendshape weight
+    } // Helper method for forward calibration (MediaPipe raw value to Unity avatar blendshape weight)
     private float InverseCalibrateAvatarWeightToMPValue(string mpBlendshapeName, float desiredAvatarWeight)
     {
         // Clamp desiredAvatarWeight to the Unity range for safety
@@ -602,7 +558,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             requiredMPValue += neutralMPValues[mpBlendshapeName];
         }
 
-        // Optional: Clamp the final raw MP value to MediaPipe's typical input range (e.g., 0-1)
+        // Helper method for INVERSE calibration (Desired Avatar Weight to Required MediaPipe Raw Value)
+        // This calculates what raw MediaPipe input would theoretically produce a given avatar blendshape weight
         return Mathf.Clamp01(requiredMPValue); // MediaPipe values are typically 0 to 1
     }
     public void RecordMin()
@@ -620,7 +577,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                 Debug.LogWarning($"Cannot record MIN: Raw MediaPipe blendshape '{mpBlendshapeKey}' not found.");
             }
 
-        }
+        } // If not in debug mode levels, record the min value for the current blendshape
+
         else
         {
             string MPBblendshape = getCurrentObjectiveBSName();
@@ -633,10 +591,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             {
                 Debug.LogWarning($"Cannot record MIN: Raw MediaPipe blendshape '{MPBblendshape}' not found.");
             }
-        }
-
+        } // If in debug mode levels, record the min value for the current objective blendshape
     }
-
     public void RecordMax()
     {
         if (!isDebugModeLevelsEnabled())
@@ -652,9 +608,10 @@ public class FaceBlendshapeReceiver : MonoBehaviour
                 Debug.LogWarning($"Cannot record MAX: Raw MediaPipe blendshape '{mpBlendshapeKey}' not found.");
             }
         }
+        
         else
         {
-            string MPBblendshape = getCurrentObjectiveBSName(); 
+            string MPBblendshape = getCurrentObjectiveBSName();
             if (lastRawMPBlendshapes.TryGetValue(MPBblendshape, out float currentValue))
             {
                 maxMPValues[MPBblendshape] = currentValue; // Add or update
@@ -667,12 +624,9 @@ public class FaceBlendshapeReceiver : MonoBehaviour
         }
 
     }
-
     public void ToggleBlendshapeExtremeVisually()
     {
         isManualOverrideActive = true;
-        // Get the MediaPipe blendshape key that is currently selected for inspection
-        // This assumes getCurrentBlendshapeIndex() correctly identifies the MP blendshape to work with.
         string mpBlendshapeKey = mediapipeToAvatarMapping.Keys[getCurrentBlendshapeIndex()];
 
         // Get the current target visual extreme for this blendshape, default to 0 (off)
@@ -706,17 +660,12 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             return; // Exit if the MP key isn't in the mapping
         }
 
-
         // Debug display what raw MediaPipe value would theoretically produce this extreme
         float requiredMPValue = InverseCalibrateAvatarWeightToMPValue(mpBlendshapeKey, newTargetExtreme);
 
         Debug.Log($"Toggled '{mpBlendshapeKey}' to Avatar Visual Extreme: {newTargetExtreme}%. " +
                 $"Estimated Raw MediaPipe value needed: {requiredMPValue:F4}");
-
-        // Optional: You might want to update your debug UI panels here if they display these values
-        // UpdateDebugPanel(); // If your debug panel shows current blendshape weights
-    }
-
+    } // Toggles the visual extreme state of the current blendshape, applying it to the avatar and logging the estimated MediaPipe value needed
     public string getCurrentBlendshapeName()
     {
         return objectiveNames[currentObjectiveIndex];
@@ -725,7 +674,7 @@ public class FaceBlendshapeReceiver : MonoBehaviour
     {
         return ObjectiveList[getCurrentBlendshapeName()][currentLevelBlendshapeIndex];
     }
-    private List<string> GetActiveObjectiveBlendshapes() // Returns the blendshapes for the current objective
+    private List<string> GetActiveObjectiveBlendshapes() 
     {
         string currentObjective = getCurrentBlendshapeName();
 
@@ -736,21 +685,19 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             "Surprise" => SurpriseObjective,
             _ => new List<string>()
         };
-    }
-
+    } // Returns the blendshapes for the current objective
     public void NextBlendshape()
     {
         var activeObjectiveBlendshapes = GetActiveObjectiveBlendshapes();
         int listLength = activeObjectiveBlendshapes.Count;
         currentLevelBlendshapeIndex = (currentLevelBlendshapeIndex + 1) % listLength; // Cycle through the list
-    }
+    } // Cycles to the next blendshape in the current objective's list
     public void PreviousBlendshape()
     {
         var activeObjectiveBlendshapes = GetActiveObjectiveBlendshapes();
         int listLength = activeObjectiveBlendshapes.Count;
         currentLevelBlendshapeIndex = (currentLevelBlendshapeIndex - 1 + listLength) % listLength; // Cycle through the list
     }
-
     public void NextObjective()
     {
         if (isDebugModeLevelsEnabled())
@@ -759,14 +706,14 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             currentObjectiveIndex = (currentObjectiveIndex + 1) % objectiveNames.Count;
             debuggingBSName.text = getCurrentBlendshapeName();
             Debug.Log($"Next objective: {objectiveNames[currentObjectiveIndex]} because currentObjectiveIndex is {currentObjectiveIndex}");
-        }
+        } // If in debug mode levels, increment the objective index and update the blendshape name
+
         else
         {
             Debug.LogWarning("NextObjective called, but not in debug mode levels. No action taken.");
             return;
         } // If not in debug mode levels, do nothing
     }
-
     public void PreviousObjective()
     {
         if (isDebugModeLevelsEnabled())
@@ -782,7 +729,6 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             return;
         } // If not in debug mode levels, do nothing        
     }
-
     public void DeactivateManualOverride()
     {
         if (!isManualOverrideActive)
@@ -796,9 +742,8 @@ public class FaceBlendshapeReceiver : MonoBehaviour
 
         Debug.Log("Manual override deactivated. Returning control to live OSC input.");
 
-        // Optional: Immediately apply the last known live OSC values to the avatar
-        // This ensures a smooth transition back without a "jump" to a default pose.
-        foreach (var entry in lastBlendshapes) // lastBlendshapes holds the last CALIBRATED values
+        // smooth transition back without a "jump" to a default pose.
+        foreach (var entry in lastBlendshapes) 
         {
             string avatarName = entry.Key;
             float value = entry.Value;
@@ -809,13 +754,12 @@ public class FaceBlendshapeReceiver : MonoBehaviour
             }
         }
 
-        // IMPORTANT: Reset hasPrinted if it's used for one-time debug logs in dMode
-        // This allows the debug mode log to appear again if you re-enable dMode and select a blendshape.
-        hasPrinted = false; // Or manage this flag more specifically based on your needs
+        // Flag assignment allows the debug mode log to appear again if you re-enable dMode and select a blendshape.
+        hasPrinted = false; 
 
-        // Ensure debug panel updates to reflect live values
+        // Ensure debug panels update to reflect live values
         UpdateDebugPanel();
         UpdateRawDebugPanel();
-        // ShowCertainBlendshapes();
+        ShowRawCertainBlendshapes();
     }
 }
