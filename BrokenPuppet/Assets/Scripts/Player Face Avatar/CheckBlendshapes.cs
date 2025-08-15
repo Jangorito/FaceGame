@@ -5,6 +5,7 @@ public class ModelInspector : MonoBehaviour
 { // Debugging script to inspect blendshapes and bones in a model
     public bool includeHierarchyTraversalForBones = true; // Option to enable/disable hierarchy traversal
 
+    public bool includeBlendshapeInspection = false; // Option to enable/disable blendshape inspection
     void Start()
     {
         StringBuilder output = new StringBuilder();
@@ -17,7 +18,10 @@ public class ModelInspector : MonoBehaviour
         InspectBones(output);
         output.AppendLine("--------------------------------");
 
-        Debug.Log(output.ToString());
+        if (includeBlendshapeInspection)
+        {
+            Debug.Log(output.ToString());
+        }
     }
 
     void InspectBlendshapes(StringBuilder output)
