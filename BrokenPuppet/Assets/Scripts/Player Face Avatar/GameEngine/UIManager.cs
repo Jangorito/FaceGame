@@ -5,9 +5,6 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    // Public fields to hold references to your UI elements,
-    // which you will drag and drop in the Unity Inspector.
-    
     // Timer
     public TextMeshProUGUI timerText;
     
@@ -42,14 +39,6 @@ public class UIManager : MonoBehaviour
             foreach (ObjectiveSO obj in activeObjectives)
             {
                 GameObject newObjectiveUI = Instantiate(objectiveUIPrefab, objectiveListParent);
-                // You would have a script on the prefab, let's call it ObjectiveUI, to set the text
-                // ObjectiveUI objectiveUIComponent = newObjectiveUI.GetComponent<ObjectiveUI>();
-                // if(objectiveUIComponent != null)
-                // {
-                //     objectiveUIComponent.SetText(obj.objectiveName);
-                // }
-
-                // For now, let's just set the text directly if it's a Text component
                 TextMeshProUGUI textComponent = newObjectiveUI.GetComponentInChildren<TextMeshProUGUI>();
                 if(textComponent != null)
                 {
@@ -82,16 +71,12 @@ public class UIManager : MonoBehaviour
         if (objectiveUIElements.ContainsKey(objective))
         {
             GameObject uiElement = objectiveUIElements[objective];
-            // You can add logic here to change the color, strike-through the text,
-            // or add a checkmark icon to the objective's UI element.
             if(uiElement != null)
             {
-                // Example: changing text color
                 TextMeshProUGUI textComponent = uiElement.GetComponentInChildren<TextMeshProUGUI>();
                 if (textComponent != null)
                 {
                     textComponent.color = Color.green;
-                    // You might also want to play an animation or sound here.
                 }
             }
         }
