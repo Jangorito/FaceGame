@@ -151,7 +151,7 @@ def process_result(result, output_image: mp.Image, timestamp_ms: int):
 #     return annotated_image
 
 def draw_landmarks_on_frame(frame, detection_result, printer_bool):
-    """function that takes a cv2 frame and a detection result, and draws the landmarks on the frame."""
+    """function that draws the nose landmarks on the frame."""
     
     if detection_result is None or not detection_result.face_landmarks:
         return frame
@@ -180,9 +180,7 @@ def draw_landmarks_on_frame(frame, detection_result, printer_bool):
             landmark_list=face_landmarks_proto,
             printer=printer_bool # Set to True if you want to print landmark coordinates
             )
-            
-
-
+        
     return annotated_image
 
 
@@ -200,11 +198,6 @@ def wait_for_camera(cap, timeout=10):
 
 def get_processed_mediapipe_blendshapes(raw_mp_scores_dict):
     """
-    Processes raw MediaPipe blendshape scores.
-    For blendshapes listed in PROBLEM_BLENDSHAPE_REMAPPING_CONFIG, their raw values
-    are remapped to a 0.0-1.0 range. All other blendshape scores are passed through
-    as their original 0.0-1.0 MediaPipe values.
-    
     Args:
         raw_mp_scores_dict (dict): A dictionary of raw MediaPipe blendshape names
                                    to their 0.0-1.0 scores (e.g., {"mouthOpen": 0.5, ...}).
@@ -212,6 +205,11 @@ def get_processed_mediapipe_blendshapes(raw_mp_scores_dict):
     Returns:
         dict: A dictionary of MediaPipe blendshape names to their processed 0.0-1.0 scores.
               (e.g., {"mouthOpen": 0.5, "cheekPuff": 0.8, ...}).
+
+    ***CURRENTLY OUT OF USE***
+    This function is intended to handle specific MediaPipe blendshapes that have known issues
+    with their score ranges, allowing for remapping to a consistent 0.0-1.0 range.
+    If the observed range of a blendshape is effectively zero, it treats the score as binary (on/off).
     """
     processed_scores = {}
 
