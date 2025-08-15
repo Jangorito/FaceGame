@@ -5,11 +5,7 @@ using System.Collections.Generic;
 public class ObjectiveSO : ScriptableObject
 {
     public string objectiveName; // e.g., "Big Smile"
-
-    // List of custom serializable class
     public List<BlendshapeEntry> blendshapesToCheckList; 
-    
-
     // PRIVATE actual Dictionary object.
     private Dictionary<string, int> _blendshapesToCheckDictionary; // <-- CHANGE: Added '_' prefix for clarity
 
@@ -52,14 +48,13 @@ public class ObjectiveSO : ScriptableObject
         Debug.Log($"Objective '{objectiveName}' blendshapes dictionary populated with {_blendshapesToCheckDictionary.Count} entries.");
     }
 
-    // Optional: Call this from OnEnable if you want the dictionary to be ready as soon as the object is enabled
+    // Call  from OnEnable if you want the dictionary to be ready as soon as the object is enabled
     private void OnEnable()
     {
-        // Directly call the method to populate the internal dictionary.
         PopulateDictionaryFromList();
     }
 
-    // Optional: Call this from OnValidate in the editor to keep the dictionary updated when changes are made
+    // // Call from OnValidate in the editor if you wanna keep the dictionary updated when changes are made
     private void OnValidate()
     {
         // Directly call the method to populate the internal dictionary.
