@@ -7,8 +7,7 @@ public class RunFacePython : MonoBehaviour
 {
     private Process pythonProcess;
     private static RunFacePython instance;
-
-    public string sceneToLoad = "EmotionMatchGame"; // Set this in the Inspector
+    public string sceneToLoad = "EmotionMatchGame"; 
 
     void Awake()
     {
@@ -23,7 +22,7 @@ public class RunFacePython : MonoBehaviour
         }
     }
 
-    // Call this from a button or collision event
+    // Attached to FaceGame Button
     public void SwitchToFacePy()
     {
         KillMainPyProcess();

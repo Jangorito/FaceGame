@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Text; // Required for StringBuilder
 
 public class ModelInspector : MonoBehaviour
-{
+{ // Debugging script to inspect blendshapes and bones in a model
     public bool includeHierarchyTraversalForBones = true; // Option to enable/disable hierarchy traversal
 
     void Start()

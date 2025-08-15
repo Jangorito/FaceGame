@@ -6,6 +6,7 @@ from threading import Lock
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
+from my_drawing_utils import draw_my_landmarks
 from pythonosc import udp_client
 import os
 
@@ -29,6 +30,7 @@ printed_landmarks = False
 printed_blendshapes = False
 
 printed_cv2 = False
+debug_landmarks = False # Set to True if you want to debug landmarks drawing
 
 PROBLEM_BLENDSHAPE_REMAPPING_CONFIG = {
     # "cheekPuff": [0.000005, 0.000020], 
@@ -86,70 +88,6 @@ def process_result(result, output_image: mp.Image, timestamp_ms: int):
 
 # Function to draw landmarks on the output image
 
-# def draw_landmarks_on_frame(frame, detection_result):
-#     """function that takes a cv2 frame and a detection result, and draws the landmarks on the frame."""
-    
-#     if detection_result is None or not detection_result.face_landmarks:
-#         return frame
-
-#     # Create a copy of the frame to annotate
-#     annotated_image = frame.copy()
-#     # Convert the frame to RGB for MediaPipe processing
-#     face_landmarks_list = detection_result.face_landmarks
-#     nose_drawing_spec = solutions.drawing_utils.DrawingSpec(color=(0, 255, 255), thickness=2) # Yellow color
-    
-#     # Loop through the detected faces to visualize.
-#     for face_landmarks in face_landmarks_list:
-
-#         # Convert the landmarks to a list of NormalizedLandmark objects which drawing_utils can use
-#         face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
-#         face_landmarks_proto.landmark.extend([
-#             landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in face_landmarks
-#         ]) 
-
-#         # Draw the face mesh tesselation
-#         solutions.drawing_utils.draw_landmarks(
-#             image=annotated_image,
-#             landmark_list=face_landmarks_proto,
-#             connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
-#             landmark_drawing_spec=None,
-#             connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_tesselation_style())
-
-#         # Draw the face contours
-#         solutions.drawing_utils.draw_landmarks(
-#             image=annotated_image,
-#             landmark_list=face_landmarks_proto,
-#             connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
-#             landmark_drawing_spec=None,
-#             # connection_drawing_spec=None,#)
-#             connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_contours_style(),)
-#             # is_drawing_landmarks= False)  # Don't draw landmarks, just connections
-        
-#         # Draw the iris landmarks
-#         solutions.drawing_utils.draw_landmarks(
-#             image=annotated_image,
-#             landmark_list=face_landmarks_proto,
-#             connections=mp.solutions.face_mesh.FACEMESH_IRISES,
-#             landmark_drawing_spec=None,
-#             connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_iris_connections_style(),)
-        
-#         solutions.drawing_utils.draw_landmarks(
-#             image=annotated_image,
-#             landmark_list=face_landmarks_proto,
-#             connections=mp.solutions.face_mesh.FACEMESH_NOSE,
-#             landmark_drawing_spec=None,
-#             connection_drawing_spec=nose_drawing_spec)
-        
-#         # solutions.drawing_utils.draw_my_landmarks(
-#         #     image=annotated_image,
-#         #     landmark_list=face_landmarks_proto,
-#         #     connections=mp.solutions.face_mesh.FACEMESH_NOSE,
-#         #     landmark_drawing_spec=None,
-#         #     connection_drawing_spec=nose_drawing_spec)
-
-
-#     return annotated_image
-
 def draw_landmarks_on_frame(frame, detection_result, printer_bool):
     """function that draws the nose landmarks on the frame."""
     
@@ -164,22 +102,68 @@ def draw_landmarks_on_frame(frame, detection_result, printer_bool):
     # Convert the frame to RGB for MediaPipe processing
     face_landmarks_list = detection_result.face_landmarks
     nose_drawing_spec = solutions.drawing_utils.DrawingSpec(color=(0, 255, 255), thickness=2) # Yellow color
-    
-    # Loop through the detected faces to visualize.
-    for face_landmarks in face_landmarks_list:
 
-        # Convert the landmarks to a list of NormalizedLandmark objects which drawing_utils can use
-        face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
-        face_landmarks_proto.landmark.extend([
-            landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in face_landmarks
-        ]) 
+    if not debug_landmarks:
+    # print the normal landmarks
+
+        for face_landmarks in face_landmarks_list:
+
+            # Convert the landmarks to a list of NormalizedLandmark objects which drawing_utils can use
+            face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
+            face_landmarks_proto.landmark.extend([
+                landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in face_landmarks
+            ]) 
+
+            # Draw the face mesh tesselation
+            solutions.drawing_utils.draw_landmarks(
+                image=annotated_image,
+                landmark_list=face_landmarks_proto,
+                connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_tesselation_style())
+
+            # Draw the face contours
+            solutions.drawing_utils.draw_landmarks(
+                image=annotated_image,
+                landmark_list=face_landmarks_proto,
+                connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
+                landmark_drawing_spec=None,
+                # connection_drawing_spec=None,#)
+                connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_contours_style(),)
+                # is_drawing_landmarks= False)  # Don't draw landmarks, just connections
+            
+            # Draw the iris landmarks
+            solutions.drawing_utils.draw_landmarks(
+                image=annotated_image,
+                landmark_list=face_landmarks_proto,
+                connections=mp.solutions.face_mesh.FACEMESH_IRISES,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp.solutions.drawing_styles.get_default_face_mesh_iris_connections_style(),)
+            
+            solutions.drawing_utils.draw_landmarks(
+                image=annotated_image,
+                landmark_list=face_landmarks_proto,
+                connections=mp.solutions.face_mesh.FACEMESH_NOSE,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=nose_drawing_spec)
+    else:
+    # Draw the landmarks on the image using the custom drawing function    
+
+        # Loop through the detected faces to visualize.
+        for face_landmarks in face_landmarks_list:
+
+            # Convert the landmarks to a list of NormalizedLandmark objects which drawing_utils can use
+            face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
+            face_landmarks_proto.landmark.extend([
+                landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in face_landmarks
+            ]) 
 
 
-        solutions.drawing_utils.draw_my_landmarks(
-            image=annotated_image,
-            landmark_list=face_landmarks_proto,
-            printer=printer_bool # Set to True if you want to print landmark coordinates
-            )
+            draw_my_landmarks(
+                image=annotated_image,
+                landmark_list=face_landmarks_proto,
+                printer=printer_bool # Set to True if you want to print landmark coordinates
+                )
         
     return annotated_image
 
@@ -267,71 +251,6 @@ options = FaceLandmarkerOptions(
     running_mode=VisionRunningMode.LIVE_STREAM, 
     result_callback=process_result # Tell MediaPipe to call our function with the results
 )
-
-# New mapping for the "CC_Base_Body" model.
-MEDIAPIPE_TO_AVATAR_MAPPING = {
-    # Brows
-    'browInnerUp': ['Brow_Raise_Inner_L', 'Brow_Raise_Inner_R'],
-    'browDownLeft': ['Brow_Drop_L'],
-    'browDownRight': ['Brow_Drop_R'],
-    'browOuterUpLeft': ['Brow_Raise_Outer_L'],
-    'browOuterUpRight': ['Brow_Raise_Outer_R'],
-    
-    # Eyes
-    'eyeBlinkLeft': ['Eye_Blink_L'],
-    'eyeBlinkRight': ['Eye_Blink_R'],
-    'eyeSquintLeft': ['Eye_Squint_L'],
-    'eyeSquintRight': ['Eye_Squint_R'],
-    'eyeWideLeft': ['Eye_Wide_L'],
-    'eyeWideRight': ['Eye_Wide_R'],
-    'eyeLookOutLeft': ['Eye_L_Look_L'],
-    'eyeLookInLeft': ['Eye_L_Look_R'],
-    'eyeLookOutRight': ['Eye_R_Look_R'],
-    'eyeLookInRight': ['Eye_R_Look_L'],
-    'eyeLookUpLeft': ['Eye_L_Look_Up'],
-    'eyeLookUpRight': ['Eye_R_Look_Up'],
-    'eyeLookDownLeft': ['Eye_L_Look_Down'],
-    'eyeLookDownRight': ['Eye_R_Look_Down'],
-    
-    # Cheeks
-    'cheekPuff': ['Cheek_Puff_L', 'Cheek_Puff_R'],
-    'cheekSquintLeft': ['Cheek_Raise_L'],
-    'cheekSquintRight': ['Cheek_Raise_R'],
-    
-    # Nose
-    'noseSneerLeft': ['Nose_Sneer_L', 'Nose_Nostril_Raise_L'],
-    'noseSneerRight': ['Nose_Sneer_R', 'Nose_Nostril_Raise_R'],
-    
-    # Jaw
-    'jawOpen': ['Jaw_Open'],
-    'jawForward': ['Jaw_Forward'],
-    'jawLeft': ['Jaw_L'],
-    'jawRight': ['Jaw_R'],
-    
-    # Mouth
-    'mouthSmileLeft': ['Mouth_Smile_L'],
-    'mouthSmileRight': ['Mouth_Smile_R'],
-    'mouthFrownLeft': ['Mouth_Frown_L'],
-    'mouthFrownRight': ['Mouth_Frown_R'],
-    'mouthDimpleLeft': ['Mouth_Dimple_L'],
-    'mouthDimpleRight': ['Mouth_Dimple_R'],
-    'mouthStretchLeft': ['Mouth_Stretch_L'],
-    'mouthStretchRight': ['Mouth_Stretch_R'],
-    'mouthPucker': ['Mouth_Pucker_Up_L', 'Mouth_Pucker_Up_R', 'Mouth_Pucker_Down_L', 'Mouth_Pucker_Down_R'],
-    'mouthFunnel': ['Mouth_Funnel_Up_L', 'Mouth_Funnel_Up_R', 'Mouth_Funnel_Down_L', 'Mouth_Funnel_Down_R'],
-    'mouthRollUpper': ['Mouth_Roll_In_Upper_L', 'Mouth_Roll_In_Upper_R'],
-    'mouthRollLower': ['Mouth_Roll_In_Lower_L', 'Mouth_Roll_In_Lower_R'],
-    'mouthShrugUpper': ['Mouth_Shrug_Upper'],
-    'mouthShrugLower': ['Mouth_Shrug_Lower'],
-    'mouthClose': ['Mouth_Close'],
-    'mouthUpperUpLeft': ['Mouth_Up_Upper_L'],
-    'mouthUpperUpRight': ['Mouth_Up_Upper_R'],
-    'mouthLowerDownLeft': ['Mouth_Down_Lower_L'],
-    'mouthLowerDownRight': ['Mouth_Down_Lower_R'],
-    'mouthPressLeft': ['Mouth_Press_L'],
-    'mouthPressRight': ['Mouth_Press_R'],
-}
-
 
 # --- Main Loop ---
 try:
